@@ -1,6 +1,7 @@
 riml_include 'buffer'
 riml_include 'autocmd_loader'
 riml_include 'msg'
+riml_include 'version'
 
 class WordPressPlugin
   defm start
