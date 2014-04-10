@@ -1,0 +1,30 @@
+class WpCliRunner
+  defm needs
+    return ['wpcli', 'wpcli_printer']
+  end
+
+  defm run(cmd_name, params, opts)
+    cli_params = self.to_cli_params(cmd_name, params, opts)
+    result     = call(self.wpcli['run'], cli_params, self.wpcli)
+
+    unless has_key(opts, 'silent_cmd')
+      self.wpcli_printer.print(cmd_name, result)
+    end
+
+    return result
+  end
+
+  defm to_cli_params(cmd_name, params, opts)
+    if self.wants_help(opts)
+      cli_params = [cmd_name] + params + ['--help']
+    else
+      cli_params = [cmd_name] + params
+    end
+
+    return cli_params
+  end
+
+  defm wants_help(opts)
+    return has_key(opts, 'bang') && opts.bang
+  end
+end

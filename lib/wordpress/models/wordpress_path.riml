@@ -1,0 +1,75 @@
+riml_include 'delegate'
+riml_include 'core_detector'
+riml_include 'wpcli_detector'
+riml_include 'wpcli_config'
+riml_include 'with_dir'
+
+class WordPressPath
+  defm needs
+    return ['wpcli_config', 'with_dir']
+  end
+
+  defm get_path(root)
+    for detector in self.get_detectors()
+      result = detector.detect(root)
+      type = detector.get_type()
+
+      if result.status && type == 'core'
+        " core path as is
+        return result.path
+      elseif result.status && type == 'wpcli'
+        " path comes from wp-cli.yml or wp-cli.local.yml
+        return self.find_wp_cli_project_path(root)
+      end
+    end
+
+    " path comes from ~/.wp-cli/config.yml
+    path = self.find_wp_cli_project_path(root)
+
+    if path == '' && exists('g:wordpress_vim_wordpress_path')
+      " wp cli missing but has global wordpress vim config
+      path = g:wordpress_vim_wordpress_path
+    end
+
+    return path
+  end
+
+  defm get_detectors
+    detectors = []
+    add(detectors, new CoreDetector())
+    add(detectors, new WpCliDetector())
+
+    return detectors
+  end
+
+  " Path is inside wpcli.yml and may be relative
+  " we lookup this 'path' parameter and resolve it to an
+  " absolute path
+  defm find_wp_cli_project_path(root)
+    config        = self.container.lookup('wpcli_config')
+    config_path   = config.get_config_path(root)
+    config_parent = fnamemodify(config_path, ':h')
+
+    config.load(root)
+
+    project_path = config.get_config_param('path')
+    if project_path != ''
+      return self.to_abs_path(project_path, config_parent)
+    else
+      return ''
+    end
+  end
+
+  defm to_abs_path(project_path, parent_dir)
+    with_dir = self.container.lookup('with_dir')
+    with_dir.set_dir(parent_dir)
+    return with_dir.run(self, 'calc_abs_path', [project_path])
+  end
+
+  defm calc_abs_path(project_path)
+    path = fnamemodify(project_path, ':p')
+    path = substitute(path, '/$', '', '')
+
+    return path
+  end
+end

@@ -1,0 +1,29 @@
+riml_include 'wpcli_command'
+
+class EvalCommand < WpCliCommand
+  def initialize(container)
+    super(container)
+    self.is_eval_command = true
+  end
+
+  defm get_range
+    return true
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+
+    if len(params) > 0
+      params = self.to_eval_text(params)
+    elseif has_key(opts, 'range')
+      params = self.to_eval_text(getline(opts.line1, opts.line2))
+    end
+
+    return self.do_run(params, opts)
+  end
+
+  defm to_eval_text(params)
+    text = join(params, ' ')
+    return [shellescape(text)]
+  end
+end

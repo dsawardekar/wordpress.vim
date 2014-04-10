@@ -1,0 +1,21 @@
+riml_include 'wordpress_command'
+
+class WordPressProjectCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+  end
+
+  " project object lookups are routed through the
+  " current project's child container
+  " this may seem to be slow, but portkey has proven
+  " that these lookups are fast enough
+  defm lookup(key)
+    buffer_collection  = self.container.lookup('buffer_collection')
+    project_collection = self.container.lookup('project_collection')
+    current_buffer     = buffer_collection.get_current()
+    project_path       = current_buffer.get_project_path()
+    project            = project_collection.project_for(project_path)
+
+    return project.lookup(key)
+  end
+end

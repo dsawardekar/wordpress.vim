@@ -1,0 +1,85 @@
+riml_include 'wpcli_command'
+riml_include 'autocmd_loader'
+riml_include 'post_saver'
+
+class PostCommand < WpCliCommand
+  def initialize(container)
+    super(container)
+    self.is_post_command = true
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+    post_options   = self.get_post_options(params, opts)
+    action         = post_options.action
+    post_params    = post_options.options
+    temp_file      = self.get_temp_file()
+
+    if action == 'create'
+      post_id = '0'
+    elseif action == 'edit'
+      post_id = remove(post_params, 0)
+      self.load_post_into(post_id, temp_file)
+    end
+
+    if (action == 'create' || action == 'edit') && !opts.bang
+      self.open_temp_buffer(temp_file)
+
+      post_saver = self.lookup('post_saver')
+      post_saver.set_post_id(post_id)
+      post_saver.watch(temp_file, post_params)
+    else
+      self.do_run(params, opts)
+    end
+  end
+
+  defm load_post_into(post_id, path)
+    post = self.lookup('post')
+    post_content = post.find(post_id)
+
+    if post_content != ''
+      lines = split(post_content, "\n")
+      writefile(lines, path)
+    end
+  end
+
+  defm get_temp_file
+    return tempname()
+  end
+
+  defm open_temp_buffer(path)
+    if &hidden
+      execute(":edit #{path}")
+    else
+      execute(":tabedit #{path}")
+    end
+  end
+
+  defm get_post_options(params, opts)
+    post_options = new PostOptions()
+    return post_options.parse(params, opts)
+  end
+end
+
+class PostOptions
+  defm parse(params, opts)
+    total_params = len(params)
+
+    if (total_params > 0)
+      return self.parse_params(params, opts)
+    else
+      return { 'action': 'help', 'options': [] }
+    end
+  end
+
+  " need an opt parser to do this right..
+  defm parse_params(params, opts)
+    post_params = params[0:]
+    action = remove(post_params, 0)
+    result = {}
+    result.action = action
+    result.options = post_params
+
+    return result
+  end
+end

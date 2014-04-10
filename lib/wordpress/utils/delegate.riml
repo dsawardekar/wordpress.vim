@@ -1,0 +1,83 @@
+class Delegate
+  def initialize(scope, method)
+    self.scope = scope
+    self.method = method
+    self.id = next_delegate_id()
+    self.unlinked = false
+  end
+
+  defm invoke(*args)
+    if self.unlinked
+      " echo_warn('unlinked_delegate', self.id, self.method)
+      return
+    end
+
+    return call(self.scope[self.method], args, self.scope)
+  end
+
+  defm unlink
+    self.unlinked = true
+  end
+
+end
+
+s:delegate_id_counter = 0
+s:delegate_instances = {}
+
+def next_delegate_id()
+  s:delegate_id_counter += 1
+  return s:delegate_id_counter
+end
+
+def create_delegate(scope, method)
+  delegate = new Delegate(scope, method)
+  id = delegate.id
+
+  s:delegate_instances[id] = delegate
+
+  delegate_name = "s:DelegateFunction#{id}"
+  delegate_func = <<EOS
+function! #{delegate_name}(...)
+  let id = #{id}
+  let NewDelegate = s:get_delegate_instance(id)
+  return call(NewDelegate.invoke, a:000, NewDelegate)
+endfunction
+EOS
+
+  execute(delegate_func)
+  DelegateFuncRef = function(delegate_name)
+
+  return DelegateFuncRef
+end
+
+def get_delegate_instance(id)
+  return s:delegate_instances[id]
+end
+
+def remove_delegate(Func)
+  func_name = get_delegate_name(Func)
+  id = substitute(func_name, '\v^(.*)(DelegateFunction)(\d+).*', '\3', '')
+
+  execute(":unlet s:delegate_instances[#{id}]")
+  execute(":delfunction #{func_name}")
+end
+
+def unlink_delegate(Func)
+  func_name = get_delegate_name(Func)
+  id = substitute(func_name, '\v^(.*)(DelegateFunction)(\d+).*', '\3', '')
+  delegate = get_delegate_instance(id)
+  delegate.unlink()
+end
+
+def get_delegate_name(Func)
+  func_def = string(Func)
+  sid = SID()
+  pattern = "\\v^function.{1}'(.*)'.{1}$"
+  result = substitute(func_def, pattern, '\1', '')
+  result = substitute(result, 's:', '<SNR>' . sid . '_', '')
+  return result
+end
+
+def new_delegate(scope, method)
+  return get_delegate_name(create_delegate(scope, method))
+end

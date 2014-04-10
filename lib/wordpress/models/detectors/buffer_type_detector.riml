@@ -1,0 +1,33 @@
+class BufferTypeDetector
+  defm get_project_path(path)
+    " wordpress/wp-content/themes/foo => wordpress
+    " wordpress/wp-content/plugins/foo-plugin => wordpress
+    " wordpress/wp-content/plugins => wordpress
+    " foo-plugin with foo-plugin.php => foo-plugin
+    " foo-theme with style.css => foo-theme
+    parent_path = self.get_parent_path(path)
+
+    if self.is_core_path(parent_path)
+      return parent_path
+    else
+      return path
+    end
+  end
+
+  defm get_parent_path(path)
+    dirname = fnamemodify(path, ':t')
+
+    if dirname == 'plugins' || dirname == 'mu-plugins'
+      parent_upto = ':h:h'
+    else
+      parent_upto = ':h:h:h'
+    end
+
+    return fnamemodify(path, parent_upto)
+  end
+
+  defm is_core_path(path)
+    wp_load_path = "#{path}/wp-load.php"
+    return filereadable(wp_load_path)
+  end
+end

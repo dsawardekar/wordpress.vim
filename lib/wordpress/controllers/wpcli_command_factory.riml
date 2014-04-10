@@ -1,0 +1,35 @@
+riml_include 'wordpress_command'
+riml_include 'wpcli_command'
+riml_include 'eval_file_command'
+riml_include 'eval_command'
+riml_include 'post_command'
+riml_include 'scaffold_command'
+
+class WpCliCommandFactory
+  defm build(cmd_name)
+    cmd = self.command_for(cmd_name)
+    if cmd.is_wpcli_command
+      cmd.set_cmd_name(cmd_name)
+    end
+
+    return cmd
+  end
+
+  defm command_for(cmd_name)
+    if cmd_name == 'eval-file'
+      cmd = new EvalFileCommand(self.container)
+    elseif cmd_name == 'eval'
+      cmd = new EvalCommand(self.container)
+    elseif cmd_name == 'post'
+      cmd = new PostCommand(self.container)
+    elseif cmd_name == 'scaffold'
+      cmd = new ScaffoldCommand(self.container)
+    elseif cmd_name == 'shell'
+      cmd = { 'is_wpcli_command': false }
+    else
+      cmd = new WpCliCommand(self.container)
+    end
+
+    return cmd
+  end
+end

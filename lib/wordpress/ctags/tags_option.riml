@@ -1,0 +1,38 @@
+class TagsOption
+  def initialize
+    self.is_tags_option = true
+  end
+
+  defm append(path)
+    tags = self.to_list(self.get_tags())
+    add(tags, path)
+
+    value = self.to_value(tags)
+    self.set_tags(value)
+  end
+
+  defm prepend(path)
+    tags = self.to_list(self.get_tags())
+    insert(tags, path, 0)
+
+    value = self.to_value(tags)
+    self.set_tags(value)
+  end
+
+  defm get_tags
+    return &tags
+  end
+
+  defm set_tags(tags)
+    execute(":setlocal tags=#{tags}")
+  end
+
+  " Note: this assumes comma delimited tags options
+  defm to_list(value)
+    return split(value, ',')
+  end
+
+  defm to_value(items)
+    return join(items, ',')
+  end
+end

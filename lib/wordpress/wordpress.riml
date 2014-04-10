@@ -1,0 +1,15 @@
+if exists('g:wordpress_vim_loaded')
+  finish
+end
+
+riml_include 'app'
+
+def wordpress#app
+  unless exists('s:app')
+    s:app = new App()
+    s:app.start()
+    g:wordpress_vim_loaded = true
+  end
+
+  return s:app
+end

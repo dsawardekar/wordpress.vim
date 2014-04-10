@@ -1,0 +1,469 @@
+riml_include 'command_builder'
+riml_include 'ctrlp_extension'
+riml_include 'delegate'
+
+class CommandRegistry
+  def initialize
+    self.is_command_registry = true
+    self.commands = {}
+    self.actions = {}
+    self.id_counter = 0
+  end
+
+  defm next_command_id
+    self.id_counter = self.id_counter + 1
+    return self.id_counter
+  end
+
+  defm add(cmd)
+    id = self.next_command_id()
+    cmd.command_id = id
+
+    self.commands[id] = cmd
+
+    name = cmd.get_name()
+    self.actions[name] = id
+
+    self.auto_register(cmd)
+  end
+
+  defm remove(cmd)
+    self.unregister_command(cmd)
+    self.remove_command(a:cmd.get_command_id())
+  end
+
+  defm unregister
+    for cmd in values(self.commands)
+      if cmd.has_ex_mode()
+        self.unregister_command(cmd)
+      end
+      if cmd.has_ctrlp_mode()
+        self.unregister_ctrlp_command(cmd)
+      end
+    end
+  end
+
+  defm remove_all
+    for cmd in values(self.commands)
+      self.remove_command(cmd.get_command_id())
+      self.remove_action(cmd.get_name())
+    end
+  end
+
+  defm count
+    return len(self.commands)
+  end
+
+  defm auto_register(cmd)
+    if cmd.get_auto_register()
+      self.register(cmd)
+    end
+  end
+
+  defm register(cmd)
+    if cmd.has_ex_mode()
+      self.register_ex_commands(cmd)
+    end
+
+    if cmd.has_ctrlp_mode()
+      self.register_ctrlp_commands(cmd)
+    end
+  end
+
+  defm register_ex_commands(cmd)
+    options = cmd.get_options()
+    names = cmd.get_names()
+
+    for name in names
+      self.register_ex_command(cmd, name, options, self.get_self_callback())
+    end
+
+    cmd.set_registered(true)
+  end
+
+  defm register_ctrlp_commands(cmd)
+    names = cmd.get_ctrlp_names()
+
+    " default options for :CtrlPFoo ex-commands
+    " this is just a launcher command, it has no arguments
+    options = {}
+    options.bang = false
+    options.bar = false
+    options.nargs = '0'
+    options.complete = false
+
+    for name in names
+      name = "CtrlP#{name}"
+      self.register_ctrlp_command(cmd, name, options)
+    end
+  end
+
+  defm remove_command(id)
+    execute(":unlet self.commands[#{id}]")
+  end
+
+  defm remove_action(name)
+    execute(":unlet self.actions['#{name}']")
+  end
+
+  defm unregister_command(cmd)
+    if cmd.has_registered() && cmd.get_auto_unregister()
+      names = cmd.get_names()
+      for name in names
+        if exists(":#{name}")
+          execute(":silent! delcommand #{name}")
+        end
+      end
+    end
+  end
+
+  defm unregister_ctrlp_command(cmd)
+    if cmd.has_registered() && cmd.get_auto_unregister()
+      names = cmd.get_ctrlp_names()
+      for name in names
+        name = "CtrlP#{name}"
+        if exists(":#{name}")
+          execute(":silent! delcommand #{name}")
+        end
+      end
+    end
+  end
+  defm find(cmd_line)
+    for cmd in values(self.commands)
+      match = self.command_has_name(cmd, cmd_line)
+      if match.ok
+        match.cmd = cmd
+        return match
+      end
+    end
+
+    return {'ok':false}
+  end
+
+  defm register_ex_command(cmd, name, options, Callback)
+    builder = new CommandBuilder()
+    id = cmd.get_command_id()
+
+    if type(options.complete) == type('string') && options.complete == 'customlist'
+      options.complete = self.get_completer(id, name)
+    end
+
+    builder.options(options)
+    builder.name(name)
+    builder.repr(self.get_callback(id, name, Callback))
+
+    ex_cmd = builder.build()
+    ""info(ex_cmd)
+    execute(ex_cmd)
+  end
+
+  defm command_has_name(cmd, cmd_name)
+    names = cmd.get_names()
+    for name in names
+      if cmd_name =~ "^#{name}"
+        match = {}
+        match.ok = true
+        match.name = name
+
+        return match
+      end
+    end
+
+    return {'ok':false}
+  end
+
+  defm new_callback()
+    Callback = create_delegate(self, 'run_command')
+    return Callback
+  end
+
+  defm get_callback(id, name, Callback)
+    callback_name = get_delegate_name(Callback)
+    opts = "{'bang':'<bang>', 'line1': <line1>, 'line2': <line2>, 'count': <count>})"
+    return ":call #{callback_name}('#{id}', '#{name}', [<f-args>], #{opts}"
+  end
+
+  defm get_completer(id, name)
+    delegate = new CompleteDelegate(self, id, name)
+    Callback = create_delegate(delegate, 'invoke')
+    callback_name = get_delegate_name(Callback)
+    return "customlist,#{callback_name}"
+  end
+
+  " public api
+  defm register_command(id)
+    cmd = self.find_by_id(id)
+    if self.is_cmd(cmd)
+      self.register(cmd)
+    end
+  end
+
+  defm register_commands()
+    for cmd in values(self.commands)
+      self.register(cmd)
+    end
+  end
+
+  defm run_command(id, match, args, options)
+    cmd = self.find_by_id(id)
+    unless self.is_cmd(cmd)
+      echo_warn("Warning: Unable to find command to run for id: #{id}, name: #{match}")
+      return false
+    end
+
+    options.match = match
+    options.bang = self.has_bang(args, options)
+
+    if cmd.get_range() && self.has_range(args, options)
+      options.range = [options.line1, options.line2]
+    end
+
+    if cmd.get_count()
+      if !self.has_count(args, options)
+        options.count = 0
+      end
+    else
+      if self.has_count(args, options)
+        :unlet a:options['count']
+      end
+    end
+
+    arguments = args + [options]
+    return call(cmd['run'], arguments, cmd)
+  end
+
+  defm run_action(name, *args)
+    unless has_key(self.actions, name)
+      echo_warn("Warning: Unable to find action for name: #{name}")
+      return false
+    end
+
+    n = len(args)
+    if n >= 1
+      " KLUDGE: actions must have is_option=true on their last arg if using as option
+      last_arg = args[-1]
+      if type(last_arg) == type({}) && has_key(last_arg, 'is_option') && last_arg.is_option == true
+        opts = last_arg
+        params = args[0:-2]
+      else
+        opts = {}
+        params = args
+      end
+    else
+      opts = {}
+      params = args
+    end
+
+    id = self.actions[name]
+    return self.run_command(id, name, params, opts)
+  end
+
+  defm complete_command(id, name, word, cmd_line, cursor)
+    cmd = self.find_by_id(id)
+    unless self.is_cmd(cmd)
+      echo_warn("Warning: Unable to find command to complete for id: #{id}, name: #{match}")
+      return false
+    end
+
+    return cmd.complete(word, cmd_line, cursor)
+  end
+
+  defm is_cmd(cmd)
+    return type(cmd) != type(0)
+  end
+
+  defm has_bang(args, options)
+    bang = has_key(options, 'bang') && options.bang != ''
+
+    " makes :Emodel foo! work the same as :Emodel! foo
+    unless bang
+      nargs = len(args)
+      if nargs > 0
+        last_arg = args[-1]
+        if type(last_arg) == type('') && last_arg =~ '!$'
+          bang = true
+          args[-1] = strpart(last_arg, 0, len(last_arg) - 1)
+        end
+      end
+    end
+
+    return bang
+  end
+
+  defm has_range(args, options)
+    if has_key(options, 'line1') && has_key(options, 'line2') && has_key(options, 'count')
+      return options.count != -1
+    else
+      return false
+    end
+  end
+
+  defm has_count(args, options)
+    if has_key(options, 'line1') && has_key(options, 'line2') && has_key(options, 'count')
+      return options.line1 == options.line2 && options.count != -1
+    else
+      return false
+    end
+  end
+
+  defm get_display_name(id, name)
+    cmd = self.find_by_id(id)
+    if self.is_cmd(id)
+      return cmd.get_display_name(name)
+    end
+
+    return "UnknownCommand - #{name}"
+  end
+
+  defm find_by_id(id)
+    if has_key(self.commands, id)
+      return self.commands[id]
+    else
+      return false
+    end
+  end
+
+  defm has_action(name)
+    return has_key(self.actions, name)
+  end
+
+  " ctrlp integration
+  defm register_ctrlp_command(cmd, name, options)
+    id = cmd.get_command_id()
+    builder = new CommandBuilder()
+    builder.options(options)
+    builder.name(name)
+
+    " command! CtrlPAlternate :call SomeFunc('altCmdId', 'Alternate')
+    builder.repr(self.get_ctrlp_repr(id, name))
+    ex_cmd = builder.build()
+    "info(ex_cmd)
+    execute(ex_cmd)
+  end
+
+  defm has_ctrlp
+    return exists('g:ctrlp_ext_vars')
+  end
+
+  defm get_ctrlp_extension
+    unless has_key(self, 'ctrlp_extension')
+      agent = self.get_ctrlp_agent()
+
+      self.ctrlp_options = {}
+      self.ctrlp_extension = new CtrlPExtension()
+      self.ctrlp_extension.set_name('Portkey')
+      self.ctrlp_extension.set_agent(agent)
+      self.ctrlp_extension.set_options(self.ctrlp_options)
+      self.ctrlp_extension.enable()
+    end
+
+    return self.ctrlp_extension
+  end
+
+  defm get_ctrlp_agent
+    unless has_key(self, 'ctrlp_agent')
+      self.ctrlp_agent = new CtrlPAgent(self)
+    end
+
+    return self.ctrlp_agent
+  end
+
+  defm get_self_callback
+    unless has_key(self, 'Callback')
+      self.Callback = self.new_callback()
+    end
+
+    return self.Callback
+  end
+
+  defm get_ctrlp_callback
+    unless has_key(self, 'CtrlPCallback')
+      delegate = new CtrlPDelegate(self.get_ctrlp_extension(), self)
+      self.CtrlPCallback = create_delegate(delegate, 'invoke')
+    end
+
+    return self.CtrlPCallback
+  end
+
+  defm get_ctrlp_repr(id, name)
+    Callback = self.get_ctrlp_callback()
+    callback_name = get_delegate_name(Callback)
+    return ":call #{callback_name}('#{id}', '#{name}')"
+  end
+
+  " unlinking
+  " lazy hack to avoid unregistration
+  " not needed anymore since we do removal now
+  defm unlink
+    Callback = self.get_self_callback()
+    unlink_delegate(Callback)
+    :unlet self.Callback
+
+    CtrlPCallback = self.get_ctrlp_callback()
+    unlink_delegate(CtrlPCallback)
+    :unlet self.CtrlPCallback
+  end
+end
+
+class CompleteDelegate
+  def initialize(registry, id, name)
+    self.registry = registry
+    self.id = id
+    self.name = name
+  end
+
+  defm invoke(word, cmd_line, cursor)
+    return self.registry.complete_command(self.id, self.name, word, cmd_line, cursor)
+  end
+end
+
+class CtrlPDelegate
+  def initialize(extension, registry)
+    self.extension = extension
+    self.registry = registry
+  end
+
+  defm invoke(id, name)
+    agent = self.extension.get_agent()
+    agent.set_command(id, name)
+    self.extension.set_name(self.registry.get_display_name(id, name))
+
+    self.extension.show()
+  end
+end
+
+class CtrlPAgent
+  def initialize(registry)
+    self.registry = registry
+  end
+
+  defm init()
+    return self.registry.complete_command(self.command_id, self.resource_type, '', self.resource_type, 0)
+  end
+
+  defm accept(mode, str)
+    opts = {}
+    opts.mode = mode
+    ""echomsg "CtrlPAgent.accept mode=#{mode}, str=#{str}"
+    return self.registry.run_command(self.command_id, self.resource_type, [str], opts)
+  end
+
+  defm enter()
+  end
+
+  defm exit()
+  end
+
+  defm opts()
+  end
+
+  defm set_command(id, name)
+    self.command_id = id
+    self.resource_type = name
+  end
+
+  defm has_command
+    return has_key(self, 'command_id')
+  end
+end
+

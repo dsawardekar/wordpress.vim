@@ -1,0 +1,54 @@
+riml_include 'buffer'
+
+class BufferCollection
+  def initialize
+    self.buffers = {}
+    self.is_buffer_collection = true
+  end
+
+  defm size
+    return len(self.buffers)
+  end
+
+  defm add(buffer)
+    path = buffer.get_full_path()
+    self.buffers[path] = buffer
+  end
+
+  defm remove(buffer)
+    path = buffer.get_full_path()
+    :unlet self.buffers[path]
+  end
+
+  defm contains(buffer)
+    return self.contains_path(buffer.get_full_path())
+  end
+
+  defm contains_path(path)
+    return has_key(self.buffers, path)
+  end
+
+  defm buffer_for(path)
+    return self.buffers[path]
+  end
+
+  defm clear
+    for buffer in values(self.buffers)
+      buffer.destroy()
+    end
+
+    self.buffers = {}
+  end
+
+  defm set_current(buffer)
+    unless self.contains(buffer)
+      self.add(buffer)
+    end
+
+    self.current = buffer
+  end
+
+  defm get_current
+    return self.current
+  end
+end

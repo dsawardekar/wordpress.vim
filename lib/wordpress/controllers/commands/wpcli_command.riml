@@ -1,0 +1,90 @@
+riml_include 'wordpress_project_command'
+riml_include 'with_dir'
+
+class WpCliCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+    self.is_wpcli_command = true
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_completer
+    return 'customlist'
+  end
+
+  defm get_name
+    if self.has_hyphen()
+      return "W#{self.get_dehyphenated_name()}"
+    else
+      return "W#{self.get_cmd_name()}"
+    end
+  end
+
+  " the name of the corresponding wpcli command
+  " results in :Wcmd ex commands
+  defm set_cmd_name(cmd_name)
+    self.cmd_name = cmd_name
+  end
+
+  defm get_cmd_name
+    return self.cmd_name
+  end
+
+  defm complete(word, cmd_line, cursor)
+    line = cmd_line
+    point = cursor
+
+    if self.has_hyphen()
+      line = self.get_dehyphenated_cmd_line(cmd_line)
+      point = cursor + 1
+    end
+
+    return self.do_complete(word, line, point)
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+    return self.do_run(params, opts)
+  end
+
+  defm get_with_dir
+    with_dir = self.lookup('with_dir')
+    with_dir.set_dir(self.current_buffer_project_path())
+
+    return with_dir
+  end
+
+  " all wpcli calls must be run from the project dir
+  defm do_run(params, opts)
+    runner   = self.lookup('wpcli_runner')
+    with_dir = self.get_with_dir()
+
+    return with_dir.run(runner, 'run', [self.get_cmd_name(), params, opts])
+  end
+
+  defm do_complete(word, line, point)
+    completer = self.lookup('wpcli_completer')
+    with_dir  = self.get_with_dir()
+
+    return with_dir.run(completer, 'complete', [self.get_cmd_name(), word ,line, point])
+  end
+
+  defm has_hyphen
+    return self.get_cmd_name() =~ '-'
+  end
+
+  defm get_dehyphenated_name
+    return substitute(self.get_cmd_name(), '\V-', '', 'g')
+  end
+
+  defm get_dehyphenated_cmd_line(cmd_line)
+    return substitute(cmd_line, "\\V#{self.get_dehyphenated_name()}", self.get_cmd_name(), '')
+  end
+end

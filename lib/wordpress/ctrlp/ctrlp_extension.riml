@@ -1,0 +1,148 @@
+class CtrlPExtension
+  def initialize
+    self.id_counter = 0
+    self.enabled = false
+    self.inited = false
+  end
+
+  defm next_id
+    self.id_counter = self.id_counter + 1
+    return self.id_counter
+  end
+
+  defm set_options(options)
+    self.options = options
+  end
+
+  defm get_options
+    return self.options
+  end
+
+  defm set_name(name)
+    self.name = name
+    if self.enabled
+      opts = self.get_options()
+      opts.sname = name
+      opts.lname = name
+    end
+  end
+
+  defm get_name
+    return self.name
+  end
+
+  defm set_agent(agent)
+    self.agent = agent
+  end
+
+  defm get_agent
+    return self.agent
+  end
+
+  defm get_ext_vars
+    opts = self.get_options()
+    opts.sname = self.get_name()
+    opts.lname = self.get_name()
+
+    opts.init = self.get_callback('init')
+    opts.accept = self.get_callback('accept')
+    opts.enter = self.get_callback('enter')
+    opts.exit = self.get_callback('exit')
+    opts.opts = self.get_callback('opts')
+
+    return opts
+  end
+
+  defm get_id
+    return self.id
+  end
+
+  defm get_ex_cmd_name
+    return "CtrlP#{self.name}"
+  end
+
+  defm enable
+    unless exists('g:ctrlp_ext_vars')
+      return
+    end
+
+    ext_vars = self.get_ext_vars()
+    add(g:ctrlp_ext_vars, ext_vars)
+    self.id = g:ctrlp_builtins + len(g:ctrlp_ext_vars)
+
+    ex_cmd = "command! #{self.get_ex_cmd_name()} :call ctrlp#init(#{self.id})"
+    execute(ex_cmd)
+
+    self.enabled = true
+    return ext_vars
+  end
+
+  " currently no way to remove the ctrlp extension
+  defm disable
+    self.enabled = false
+    if exists(":#{self.get_ex_cmd_name()}")
+      execute(":delcommand #{self.get_ex_cmd_name()}")
+    end
+  end
+
+  defm show
+    unless exists('g:speckle_mode')
+      ctrlp#init(self.get_id())
+    end
+  end
+
+  defm do_init(...)
+    " since we can't remove the extension we return an empty list instead
+    unless self.enabled
+      return []
+    end
+
+    self.inited = true
+
+    return self.agent.init()
+  end
+
+  defm do_accept(mode, str)
+    " in speckle mode, useful to test uninited pieces
+    " WARNING!!!: Be very careful changing this.
+    " Any changes here can cause Vim to segfault.
+    " TODO: isolate and report this bug
+    if self.inited && !exists('g:speckle_mode')
+      ctrlp#exit()
+      self.inited = false
+    end
+
+    result = self.agent.accept(mode, str)
+    return result
+  end
+
+  defm do_enter(...)
+    return self.agent.enter()
+  end
+
+  defm do_exit(...)
+    return self.agent.exit()
+  end
+
+  defm do_opts(...)
+    return self.agent.opts()
+  end
+
+  defm get_callback(method)
+    callback = self.new_callback(method)
+    unless method == 'accept'
+      callback = "#{callback}()"
+    end
+
+    return callback
+  end
+
+  defm new_callback(method)
+    Callback = create_delegate(self, "do_#{method}")
+    return get_delegate_name(Callback)
+  end
+end
+
+def has_ctrlp_plugin
+  return exists('g:ctrlp_ext_vars')
+end

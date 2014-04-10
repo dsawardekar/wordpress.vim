@@ -1,0 +1,93 @@
+riml_include 'wpcli_command'
+riml_include 'msg'
+riml_include 'file_opener'
+
+class ScaffoldCommand < WpCliCommand
+  def initialize(container)
+    super(container)
+    self.is_scaffold_command = true
+  end
+
+  defm do_run(params, opts)
+    action       = params[0]
+    file_to_open = ''
+
+    if action == 'post-type' || action == 'taxonomy'
+      opts.silent_cmd = true
+      insert_output   = true
+    else
+      insert_output = false
+    end
+
+    result = super(params, opts)
+
+    if insert_output
+      self.insert_into_buffer(opts.line1, result)
+    end
+
+    if action == 'child-theme'
+      file_to_open = self.find_scaffold_file(result, 'style.css')
+    elseif action == 'plugin'
+      plugin_name = params[1]
+      file_to_open = self.find_scaffold_file(result, "#{plugin_name}.php")
+    elseif action == '_s'
+      theme_name = params[1]
+      file_to_open = self.get_underscore_theme_file(theme_name)
+    end
+
+    if file_to_open != ''
+      self.open_file(file_to_open)
+    end
+
+    return result
+  end
+
+  " TODO: how does this work with themes outside core?
+  defm get_underscore_theme_file(theme_name)
+    project        = self.current_project()
+    wordpress_path = project.get_wordpress_path()
+    theme_path = "#{wordpress_path}/wp-content/themes/#{theme_name}/style.css"
+
+    return theme_path
+  end
+
+  defm open_file(path)
+    unless filereadable(path)
+      return false
+    end
+
+    file_opener = self.lookup('file_opener')
+    file_opener.open(path, self.get_file_open_mode())
+
+    return true
+  end
+
+  defm get_file_open_mode
+    if &hidden
+      return 'edit'
+    else
+      return 'tabedit'
+    end
+  end
+
+  defm find_scaffold_file(result, file_name)
+    lines   = split(result, "\n")
+    text    = lines[0]
+    pattern = "\\v^.*Success:.*Created (.*)$"
+    matches = matchlist(text, pattern)
+
+    if len(matches) > 0
+      theme_dir = matches[1]
+      file = "#{theme_dir}/#{file_name}"
+      file = fnamemodify(file, ':.')
+    else
+      file = ''
+    end
+
+    return file
+  end
+
+  defm insert_into_buffer(line_num, text)
+    execute(":#{line_num}put=a:text")
+  end
+end

@@ -1,0 +1,53 @@
+riml_include 'project'
+
+class ProjectCollection
+  def initialize
+    self.is_project_collection = true
+    self.projects = {}
+  end
+
+  defm needs
+    return ['project']
+  end
+
+  defm lookup(key)
+    return self.container.lookup(key)
+  end
+
+  defm size
+    return len(self.projects)
+  end
+
+  defm add(project_path)
+    unless self.contains(project_path)
+      project = self.lookup('project')
+      project.load(project_path)
+
+      self.projects[project_path] = project
+    end
+
+    return self.project_for(project_path)
+  end
+
+  defm remove(project_path)
+    if self.contains(project_path)
+      :unlet self.projects[a:project_path]
+    end
+  end
+
+  defm contains(project_path)
+    return has_key(self.projects, project_path)
+  end
+
+  defm project_for(project_path)
+    return self.projects[project_path]
+  end
+
+  defm clear
+    for project in values(self.projects)
+      project.destroy()
+    end
+
+    self.projects = {}
+  end
+end

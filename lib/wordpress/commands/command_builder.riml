@@ -1,0 +1,61 @@
+class CommandBuilder
+  def initialize
+    self.cmd_options = ''
+    self.cmd_params = ''
+    self.cmd_name = ''
+    self.cmd_repr = ''
+    self.ex_cmd_name = 'command!'
+  end
+
+  defm ex_cmd(ex_cmd_name)
+    self.ex_cmd_name = ex_cmd_name
+  end
+
+  defm append_to(key, str)
+    key = "cmd_#{key}"
+    self[key] = "#{self[key]} #{str}"
+  end
+
+  defm option(name, value)
+    if type(value) == type(1)
+      if value == 1
+        self.append_to('options', "-#{name}")
+      end
+    else
+      self.append_to('options', "-#{name}=#{value}")
+    end
+  end
+
+  defm options(options)
+    for [name, value] in items(options)
+      self.option(name, value)
+    end
+  end
+
+  defm param(name, value)
+    self.append_to('params', "#{name} #{value}")
+  end
+
+  defm name(cmd_name)
+    if cmd_name =~ '_'
+      self.cmd_name = substitute(cmd_name, '_', '', 'g')
+    else
+      self.cmd_name = cmd_name
+    end
+  end
+
+  defm repr(repr)
+    self.cmd_repr = repr
+  end
+
+  defm build()
+    cmd = self.ex_cmd_name . ' '
+    cmd .= self.cmd_options . ' '
+    cmd .= self.cmd_params . ' '
+    cmd .= self.cmd_name . ' '
+    cmd .= self.cmd_repr
+
+    return cmd
+  end
+
+end
