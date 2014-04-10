@@ -1,0 +1,1111 @@
+{
+  "longdesc" : "## GLOBAL PARAMETERS\n\n  --path=<path>\n      Path to the WordPress files\n\n  --url=<url>\n      Pretend request came from given URL\n\n  --user=<id|login>\n      Set the WordPress user\n\n  --skip-plugins[=<plugin>]\n      Skip loading all or some plugins\n\n  --require=<path>\n      Load PHP file before running the command (may be used more than once)\n\n  --[no-]color\n      Whether to colorize the output\n\n  --debug\n      Show all PHP errors\n\n  --prompt\n      Prompt the user to enter values for all command arguments\n\n  --quiet\n      Suppress informational messages\n\nRun 'wp help <command>' to get more information on a specific command.\n",
+  "subcommands" : [
+    {
+      "longdesc" : "## EXAMPLES\n\n    wp cache set my_key my_value my_group 300\n\n    wp cache get my_key my_group",
+      "subcommands" : [
+        {
+          "synopsis" : "<key> <value> [<group>] [<expiration>]",
+          "longdesc" : "",
+          "name" : "add",
+          "description" : "Add a value to the object cache."
+        },
+        {
+          "synopsis" : "<key> [<offset>] [<group>]",
+          "longdesc" : "",
+          "name" : "decr",
+          "description" : "Decrement a value in the object cache."
+        },
+        {
+          "synopsis" : "<key> [<group>]",
+          "longdesc" : "",
+          "name" : "delete",
+          "description" : "Remove a value from the object cache."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "flush",
+          "description" : "Flush the object cache."
+        },
+        {
+          "synopsis" : "<key> [<group>]",
+          "longdesc" : "",
+          "name" : "get",
+          "description" : "Get a value from the object cache."
+        },
+        {
+          "synopsis" : "<key> [<offset>] [<group>]",
+          "longdesc" : "",
+          "name" : "incr",
+          "description" : "Increment a value in the object cache."
+        },
+        {
+          "synopsis" : "<key> <value> [<group>] [<expiration>]",
+          "longdesc" : "",
+          "name" : "replace",
+          "description" : "Replace an existing value in the object cache."
+        },
+        {
+          "synopsis" : "<key> <value> [<group>] [<expiration>]",
+          "longdesc" : "",
+          "name" : "set",
+          "description" : "Set a value to the object cache."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "Note that the guesses made by this function are based on the WP_Object_Cache classes\nthat define the 3rd party object cache extension. Changes to those classes could render\nproblems with this function's ability to determine which object cache is being used.",
+          "name" : "type",
+          "description" : "Attempts to determine which object cache is being used."
+        }
+          ],
+          "name" : "cache",
+          "description" : "Manage the object cache."
+    },
+    {
+      "longdesc" : "## EXAMPLES\n\n    # Add 'spectate' capability to 'author' role\n    wp cap add 'author' 'spectate'\n\n    # Add all caps from 'editor' role to 'author' role\n    wp cap list 'editor' | xargs wp cap add 'author'\n\n    # Remove all caps from 'editor' role that also appear in 'author' role\n    wp cap list 'author' | xargs wp cap remove 'editor'",
+      "subcommands" : [
+        {
+          "synopsis" : "<role> <cap>...",
+          "longdesc" : "",
+          "name" : "add",
+          "description" : "Add capabilities to a given role."
+        },
+        {
+          "synopsis" : "<role>",
+          "longdesc" : "## EXAMPLES\n\n    # Display alphabetical list of bbPress moderator capabilities\n    wp cap list 'bbp_moderator' | sort",
+          "name" : "list",
+          "description" : "List capabilities for a given role."
+        },
+        {
+          "synopsis" : "<role> <cap>...",
+          "longdesc" : "",
+          "name" : "remove",
+          "description" : "Remove capabilities from a given role."
+        }
+          ],
+          "name" : "cap",
+          "description" : "Manage user capabilities."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "cmd-dump",
+          "description" : "Dump the list of installed commands, as JSON."
+        },
+        {
+          "synopsis" : "--line=<line> --point=<point>",
+          "longdesc" : "## OPTIONS\n\n--line=<line>\n: The current command line to be executed\n\n--point=<point>\n: The index to the current cursor position relative to the beginning of the command",
+          "name" : "completions",
+          "description" : "Generate tab completion strings."
+        },
+        {
+          "synopsis" : "[--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--format=<format>]\n: Accepted values: json",
+          "name" : "info",
+          "description" : "Print various data about the CLI environment."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "param-dump",
+          "description" : "Dump the list of global parameters, as JSON."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "version",
+          "description" : "Print WP-CLI version."
+        }
+          ],
+          "name" : "cli",
+          "description" : "Get information about WP-CLI itself."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to approve.\n\n## EXAMPLES\n\n    wp comment approve 1337",
+          "name" : "approve",
+          "description" : "Approve a comment."
+        },
+        {
+          "synopsis" : "<post-id>",
+          "longdesc" : "## OPTIONS\n\n<post-id>\n: The ID of the post to count comments in.\n\n## EXAMPLES\n\n    wp comment count\n    wp comment count 42",
+          "name" : "count",
+          "description" : "Count comments, on whole blog or on a given post."
+        },
+        {
+          "synopsis" : "--<field>=<value> [--porcelain]",
+          "longdesc" : "## OPTIONS\n\n--<field>=<value>\n: Associative args for the new comment. See wp_insert_comment().\n\n[--porcelain]\n: Output just the new comment id.\n\n## EXAMPLES\n\n    wp comment create --comment_post_ID=15 --comment_content=\"hello blog\" --comment_author=\"wp-cli\"",
+          "name" : "create",
+          "description" : "Insert a comment."
+        },
+        {
+          "synopsis" : "<id>... [--force]",
+          "longdesc" : "## OPTIONS\n\n<id>...\n: One or more IDs of comments to delete.\n\n[--force]\n: Skip the trash bin.\n\n## EXAMPLES\n\n    wp comment delete 1337 --force\n\n    wp comment delete 1337 2341 --force",
+          "name" : "delete",
+          "description" : "Delete a comment."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to check.\n\n## EXAMPLES\n\n    wp comment exists 1337",
+          "name" : "exists",
+          "description" : "Verify whether a comment exists."
+        },
+        {
+          "synopsis" : "<id> [--field=<field>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The comment to get.\n\n[--field=<field>]\n: Instead of returning the whole comment, returns the value of a single field.\n\n[--format=<format>]\n: Accepted values: table, json. Default: table\n\n## EXAMPLES\n\n    wp comment get 1 --field=content",
+          "name" : "get",
+          "description" : "Get a single comment."
+        },
+        {
+          "synopsis" : "[--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--<field>=<value>]\n: One or more args to pass to WP_Comment_Query.\n\n[--field=<field>]\n: Prints the value of a single field for each comment.\n\n[--fields=<fields>]\n: Limit the output to specific object fields. Defaults to comment_ID,comment_post_ID,comment_date,comment_approved,comment_author,comment_author_email\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp comment list --field=ID\n\n    wp comment list --post_id=2\n\n    wp comment list --number=20 --status=approve",
+          "name" : "list",
+          "description" : "Get a list of comments."
+        },
+        {
+          "longdesc" : "## OPTIONS\n\n--format=json\n: Encode/decode values as JSON.\n\n## EXAMPLES\n\n    wp comment meta set 123 description \"Mary is a WordPress developer.\"",
+          "subcommands" : [
+            {
+              "synopsis" : "<id> <key> [<value>] [--format=<format>]",
+              "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the object.\n\n<key>\n: The name of the meta field to create.\n\n[<value>]\n: The value of the meta field. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.",
+              "name" : "add",
+              "description" : "Add a meta field."
+            },
+            {
+              "synopsis" : "<id> <key>",
+              "longdesc" : "",
+              "name" : "delete",
+              "description" : "Delete a meta field."
+            },
+            {
+              "synopsis" : "<id> <key> [--format=<format>]",
+              "longdesc" : "",
+              "name" : "get",
+              "description" : "Get meta field value."
+            },
+            {
+              "synopsis" : "<id> <key> [<value>] [--format=<format>]",
+              "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the object.\n\n<key>\n: The name of the meta field to update.\n\n[<value>]\n: The new value. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.",
+              "name" : "update",
+              "description" : "Update a meta field."
+            }
+              ],
+              "name" : "meta",
+              "description" : "Manage comment custom fields."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to mark as spam.\n\n## EXAMPLES\n\n    wp comment spam 1337",
+          "name" : "spam",
+          "description" : "Spam a comment."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to check.\n\n## EXAMPLES\n\n    wp comment status 1337",
+          "name" : "status",
+          "description" : "Get status of a comment."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to trash.\n\n## EXAMPLES\n\n    wp comment trash 1337",
+          "name" : "trash",
+          "description" : "Trash a comment."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to unapprove.\n\n## EXAMPLES\n\n    wp comment unapprove 1337",
+          "name" : "unapprove",
+          "description" : "Unapprove a comment."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to unmark as spam.\n\n## EXAMPLES\n\n    wp comment unspam 1337",
+          "name" : "unspam",
+          "description" : "Unspam a comment."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the comment to untrash.\n\n## EXAMPLES\n\n    wp comment untrash 1337",
+          "name" : "untrash",
+          "description" : "Untrash a comment."
+        },
+        {
+          "synopsis" : "<id>... --<field>=<value>",
+          "longdesc" : "## OPTIONS\n\n<id>...\n: One or more IDs of comments to update.\n\n--<field>=<value>\n: One or more fields to update. See wp_update_comment().\n\n## EXAMPLES\n\n    wp comment update 123 --comment_author='That Guy'",
+          "name" : "update",
+          "description" : "Update one or more comments."
+        },
+        {
+          "synopsis" : "<id>...",
+          "longdesc" : "## OPTIONS\n\n<id>...\n: One or more IDs of comments to get the URL.\n\n## EXAMPLES\n\n    wp comment url 123",
+          "name" : "url",
+          "description" : "Get comment url"
+        }
+          ],
+          "name" : "comment",
+          "description" : "Manage comments."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "--dbname=<dbname> --dbuser=<dbuser> [--dbpass=<dbpass>] [--dbhost=<dbhost>] [--dbprefix=<dbprefix>] [--dbcharset=<dbcharset>] [--dbcollate=<dbcollate>] [--locale=<locale>] [--extra-php] [--skip-salts]",
+          "longdesc" : "## OPTIONS\n\n--dbname=<dbname>\n: Set the database name.\n\n--dbuser=<dbuser>\n: Set the database user.\n\n[--dbpass=<dbpass>]\n: Set the database user password.\n\n[--dbhost=<dbhost>]\n: Set the database host. Default: 'localhost'\n\n[--dbprefix=<dbprefix>]\n: Set the database table prefix. Default: 'wp_'\n\n[--dbcharset=<dbcharset>]\n: Set the database charset. Default: 'utf8'\n\n[--dbcollate=<dbcollate>]\n: Set the database collation. Default: ''\n\n[--locale=<locale>]\n: Set the WPLANG constant. Defaults to $wp_local_package variable.\n\n[--extra-php]\n: If set, the command reads additional PHP code from STDIN.\n\n[--skip-salts]\n: If set, keys and salts won't be generated, but should instead be passed via `--extra-php`.\n\n## EXAMPLES\n\n    # Standard wp-config.php file\n    wp core config --dbname=testing --dbuser=wp --dbpass=securepswd --locale=ro_RO\n\n    # Enable WP_DEBUG and WP_DEBUG_LOG\n    wp core config --dbname=testing --dbuser=wp --dbpass=securepswd --extra-php <<PHP\n    define( 'WP_DEBUG', true );\n    define( 'WP_DEBUG_LOG', true );\n    PHP",
+          "name" : "config",
+          "description" : "Generate a wp-config.php file."
+        },
+        {
+          "synopsis" : "[--path=<path>] [--locale=<locale>] [--version=<version>] [--force]",
+          "longdesc" : "## OPTIONS\n\n[--path=<path>]\n: Specify the path in which to install WordPress.\n\n[--locale=<locale>]\n: Select which language you want to download.\n\n[--version=<version>]\n: Select which version you want to download.\n\n[--force]\n: Overwrites existing files, if present.\n\n## EXAMPLES\n\n    wp core download --version=3.3",
+          "name" : "download",
+          "description" : "Download core WordPress files."
+        },
+        {
+          "synopsis" : "--url=<url> --title=<site-title> --admin_user=<username> --admin_password=<password> --admin_email=<email>",
+          "longdesc" : "## OPTIONS\n\n--url=<url>\n: The address of the new site.\n\n--title=<site-title>\n: The title of the new site.\n\n--admin_user=<username>\n: The name of the admin user.\n\n--admin_password=<password>\n: The password for the admin user.\n\n--admin_email=<email>\n: The email address for the admin user.",
+          "name" : "install",
+          "description" : "Create the WordPress tables in the database."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "## EXAMPLES\n\n    if ! $(wp core is-installed); then\n        wp core install\n    fi",
+          "name" : "is-installed",
+          "description" : "Determine if the WordPress tables are installed."
+        },
+        {
+          "synopsis" : "[--title=<network-title>] [--base=<url-path>] [--subdomains]",
+          "longdesc" : "## OPTIONS\n\n[--title=<network-title>]\n: The title of the new network.\n\n[--base=<url-path>]\n: Base path after the domain name that each site url will start with.\nDefault: '/'\n\n[--subdomains]\n: If passed, the network will use subdomains, instead of subdirectories.",
+          "name" : "multisite-convert",
+          "description" : "Transform a single-site install into a multi-site install."
+        },
+        {
+          "synopsis" : "[--url=<url>] [--base=<url-path>] [--subdomains] --title=<site-title> --admin_user=<username> --admin_password=<password> --admin_email=<email>",
+          "longdesc" : "## OPTIONS\n\n[--url=<url>]\n: The address of the new site.\n\n[--base=<url-path>]\n: Base path after the domain name that each site url in the network will start with.\nDefault: '/'\n\n[--subdomains]\n: If passed, the network will use subdomains, instead of subdirectories.\n\n--title=<site-title>\n: The title of the new site.\n\n--admin_user=<username>\n: The name of the admin user. Default: 'admin'\n\n--admin_password=<password>\n: The password for the admin user.\n\n--admin_email=<email>\n: The email address for the admin user.",
+          "name" : "multisite-install",
+          "description" : "Install multisite from scratch."
+        },
+        {
+          "synopsis" : "[<zip>] [--version=<version>] [--force] [--locale=<locale>]",
+          "longdesc" : "## OPTIONS\n\n[<zip>]\n: Path to zip file to use, instead of downloading from wordpress.org.\n\n[--version=<version>]\n: Update to this version, instead of to the latest version.\n\n[--force]\n: Will update even when current WP version < passed version. Use with\ncaution.\n\n[--locale=<locale>]\n: Select which language you want to download.\n\n## EXAMPLES\n\n    wp core update\n\n    wp core update --version=3.8 ../latest.zip\n\n    wp core update --version=3.1 --force",
+          "name" : "update",
+          "description" : "Update WordPress."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "update-db",
+          "description" : "Update the WordPress database."
+        },
+        {
+          "synopsis" : "[--extra]",
+          "longdesc" : "## OPTIONS\n\n[--extra]\n: Show extended version information.",
+          "name" : "version",
+          "description" : "Display the WordPress version."
+        }
+          ],
+          "name" : "core",
+          "description" : "Download, install, update and otherwise manage WordPress proper."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "cli",
+          "description" : "Open a mysql console using the WordPress credentials."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "create",
+          "description" : "Create the database, as specified in wp-config.php"
+        },
+        {
+          "synopsis" : "[--yes]",
+          "longdesc" : "## OPTIONS\n\n[--yes]\n: Answer yes to the confirmation message.",
+          "name" : "drop",
+          "description" : "Delete the database."
+        },
+        {
+          "synopsis" : "[<file>] [--<field>=<value>]",
+          "longdesc" : "## OPTIONS\n\n[<file>]\n: The name of the SQL file to export. If '-', then outputs to STDOUT. If omitted, it will be '{dbname}.sql'.\n\n[--<field>=<value>]\n: Extra arguments to pass to mysqldump\n\n## EXAMPLES\n\n    wp db dump --add-drop-table",
+          "name" : "export",
+          "description" : "Exports the database to a file or to STDOUT."
+        },
+        {
+          "synopsis" : "[<file>]",
+          "longdesc" : "[<file>]\n: The name of the SQL file to import. If '-', then reads from STDIN. If omitted, it will look for '{dbname}.sql'.",
+          "name" : "import",
+          "description" : "Import database from a file or from STDIN."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "optimize",
+          "description" : "Optimize the database."
+        },
+        {
+          "synopsis" : "[<sql>]",
+          "longdesc" : "## OPTIONS\n\n[<sql>]\n: A SQL query. If not passed, will try to read from STDIN.\n\n## EXAMPLES\n\n    # execute a query stored in a file\n    wp db query < debug.sql",
+          "name" : "query",
+          "description" : "Execute a query against the database."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "repair",
+          "description" : "Repair the database."
+        },
+        {
+          "synopsis" : "[--yes]",
+          "longdesc" : "## OPTIONS\n\n[--yes]\n: Answer yes to the confirmation message.",
+          "name" : "reset",
+          "description" : "Remove all tables from the database."
+        }
+          ],
+          "name" : "db",
+          "description" : "Perform basic database operations."
+    },
+    {
+      "synopsis" : "<php-code>",
+      "longdesc" : "## EXAMPLES\n\n    wp eval 'echo WP_CONTENT_DIR;'",
+      "name" : "eval",
+      "description" : "Execute arbitrary PHP code after loading WordPress."
+    },
+    {
+      "synopsis" : "[<file>]",
+      "longdesc" : "## EXAMPLES\n\n[<file>]\n: The path to the PHP file to execute.",
+      "name" : "eval-file",
+      "description" : "Load and execute a PHP file after loading WordPress."
+    },
+    {
+      "synopsis" : "[--dir=<dirname>] [--skip_comments] [--max_file_size=<MB>] [--start_date=<date>] [--end_date=<date>] [--post_type=<post-type>] [--post__in=<pid>] [--author=<author>] [--category=<name>] [--post_status=<status>]",
+      "longdesc" : "## OPTIONS\n\n[--dir=<dirname>]\n: Full path to directory where WXR export files should be stored. Defaults\nto current working directory.\n\n[--skip_comments]\n: Don't export comments.\n\n[--max_file_size=<MB>]\n: A single export file should have this many megabytes.\n\n## FILTERS\n\n[--start_date=<date>]\n: Export only posts newer than this date, in format YYYY-MM-DD.\n\n[--end_date=<date>]\n: Export only posts older than this date, in format YYYY-MM-DD.\n\n[--post_type=<post-type>]\n: Export only posts with this post_type.\n\n[--post__in=<pid>]\n: Export all posts specified as a comma-separated list of IDs.\n\n[--author=<author>]\n: Export only posts by this author. Can be either user login or user ID.\n\n[--category=<name>]\n: Export only posts in this category.\n\n[--post_status=<status>]\n: Export only posts with this status.\n\n## EXAMPLES\n\n    wp export --dir=/tmp/ --user=admin --post_type=post --start_date=2011-01-01 --end_date=2011-12-31\n\n    wp export --dir=/tmp/ --post__in=123,124,125",
+      "name" : "export",
+      "description" : "Export content to a WXR file."
+    },
+    {
+      "synopsis" : "[<command>...]",
+      "longdesc" : "## EXAMPLES\n\n    # get help for `core` command\n    wp help core\n\n    # get help for `core download` subcommand\n    wp help core download",
+      "name" : "help",
+      "description" : "Get help on a certain command."
+    },
+    {
+      "synopsis" : "<file>... --authors=<authors> [--skip=<data-type>]",
+      "longdesc" : "## OPTIONS\n\n<file>...\n: Path to one or more valid WXR files for importing.\n\n--authors=<authors>\n: How the author mapping should be handled. Options are 'create', 'mapping.csv', or 'skip'. The first will create any non-existent users from the WXR file. The second will read author mapping associations from a CSV, or create a CSV for editing if the file path doesn't exist. The CSV requires two columns, and a header row like \"old_user_login,new_user_login\". The last option will skip any author mapping.\n\n[--skip=<data-type>]\n: Skip importing specific data. Supported options are: 'attachment' and 'image_resize' (skip time-consuming thumbnail generation).",
+      "name" : "import",
+      "description" : "Import content from a WXR file."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<file>... [--post_id=<id>] [--title=<title>] [--caption=<caption>] [--alt=<text>] [--desc=<description>] [--featured_image]",
+          "longdesc" : "## OPTIONS\n\n<file>\n: Path to file or files to be imported. Supports the glob(3) capabilities of the current shell.\n    If file is recognized as a URL (for example, with a scheme of http or ftp), the file will be\n    downloaded to a temp file before being sideloaded.\n\n--post_id=<post_id>\n: ID of the post to attach the imported files to\n\n--title=<title>\n: Attachment title (post title field)\n\n--caption=<caption>\n: Caption for attachent (post excerpt field)\n\n--alt=<alt_text>\n: Alt text for image (saved as post meta)\n\n--desc=<description>\n: \"Description\" field (post content) of attachment post\n\n--featured_image\n: If set, set the imported image as the Featured Image of the post its attached to.\n\n## EXAMPLES\n\n    # Import all jpgs in the current user's \"Pictures\" directory, not attached to any post\n    wp media import ~/Pictures/**\\/*.jpg\n\n    # Import a local image and set it to be the post thumbnail for a post\n    wp media import ~/Downloads/image.png --post_id=123 --title=\"A downloaded picture\" --featured_image\n\n    # Import an image from the web\n    wp media import http://s.wordpress.org/style/images/wp-header-logo.png --title='The WordPress logo' --alt=\"Semantic personal publishing\"",
+          "name" : "import",
+          "description" : "Create attachments from local files or from URLs."
+        },
+        {
+          "synopsis" : "[<attachment-id>...] [--yes]",
+          "longdesc" : "## OPTIONS\n\n[<attachment-id>...]\n: One or more IDs of the attachments to regenerate.\n\n[--yes]\n: Answer yes to the confirmation message.\n\n## EXAMPLES\n\n    # re-generate all thumbnails, without confirmation\n    wp media regenerate --yes\n\n    # re-generate all thumbnails that have IDs between 1000 and 2000\n    seq 1000 2000 | xargs wp media regenerate",
+          "name" : "regenerate",
+          "description" : "Regenerate thumbnail(s)."
+        }
+          ],
+          "name" : "media",
+          "description" : "Manage attachments."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "longdesc" : "## OPTIONS\n\n<id>\n: The network id (usually 1).\n\n--format=json\n: Encode/decode values as JSON.\n\n## EXAMPLES\n\n    # get a list of super-admins\n    wp network meta get 1 site_admins",
+          "subcommands" : [
+            {
+              "synopsis" : "<id> <key> [<value>] [--format=<format>]",
+              "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the object.\n\n<key>\n: The name of the meta field to create.\n\n[<value>]\n: The value of the meta field. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.",
+              "name" : "add",
+              "description" : "Add a meta field."
+            },
+            {
+              "synopsis" : "<id> <key>",
+              "longdesc" : "",
+              "name" : "delete",
+              "description" : "Delete a meta field."
+            },
+            {
+              "synopsis" : "<id> <key> [--format=<format>]",
+              "longdesc" : "",
+              "name" : "get",
+              "description" : "Get meta field value."
+            },
+            {
+              "synopsis" : "<id> <key> [<value>] [--format=<format>]",
+              "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the object.\n\n<key>\n: The name of the meta field to update.\n\n[<value>]\n: The new value. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.",
+              "name" : "update",
+              "description" : "Update a meta field."
+            }
+              ],
+              "name" : "meta",
+              "description" : "Manage network custom fields."
+        }
+              ],
+              "name" : "network",
+              "description" : ""
+    },
+    {
+      "longdesc" : "## OPTIONS\n\n[--format=json]\n: Encode/decode values as JSON.\n\n## EXAMPLES\n\n    wp option get siteurl\n\n    wp option add my_option foobar\n\n    wp option update my_option '{\"foo\": \"bar\"}' --format=json\n\n    wp option delete my_option",
+      "subcommands" : [
+        {
+          "synopsis" : "<key> [<value>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<key>\n: The name of the option to add.\n\n[<value>]\n: The value of the option to add. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.\n\n## EXAMPLES\n\n    # Create an option by reading a JSON file\n    wp option add my_option --format=json < config.json",
+          "name" : "add",
+          "description" : "Add an option."
+        },
+        {
+          "synopsis" : "<key>",
+          "longdesc" : "",
+          "name" : "delete",
+          "description" : "Delete an option."
+        },
+        {
+          "synopsis" : "<key> [--format=<format>]",
+          "longdesc" : "",
+          "name" : "get",
+          "description" : "Get an option."
+        },
+        {
+          "synopsis" : "<key> [<value>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<key>\n: The name of the option to add.\n\n[<value>]\n: The new value. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.\n\n## EXAMPLES\n\n    # Update an option by reading from a file\n    wp option update my_option < value.txt",
+          "name" : "update",
+          "description" : "Update an option."
+        }
+          ],
+          "name" : "option",
+          "description" : "Manage options."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<plugin>... [--network]",
+          "longdesc" : "## OPTIONS\n\n<plugin>...\n: One or more plugins to activate.\n\n[--network]\n: If set, the plugin will be activated for the entire multisite network.",
+          "name" : "activate",
+          "description" : "Activate a plugin."
+        },
+        {
+          "synopsis" : "[<plugin>...] [--all] [--network]",
+          "longdesc" : "## OPTIONS\n\n[<plugin>...]\n: One or more plugins to deactivate.\n\n[--all]\n: If set, all plugins will be deactivated.\n\n[--network]\n: If set, the plugin will be deactivated for the entire multisite network.",
+          "name" : "deactivate",
+          "description" : "Deactivate a plugin."
+        },
+        {
+          "synopsis" : "<plugin>...",
+          "longdesc" : "## OPTIONS\n\n<plugin>...\n: One or more plugins to delete.\n\n## EXAMPLES\n\n    wp plugin delete hello",
+          "name" : "delete",
+          "description" : "Delete plugin files."
+        },
+        {
+          "synopsis" : "<plugin> [--field=<field>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<plugin>\n: The plugin to get.\n\n[--field=<field>]\n: Instead of returning the whole plugin, returns the value of a single field.\n\n[--format=<format>]\n: Output list as table or JSON. Defaults to table.\n\n## EXAMPLES\n\n    wp plugin get bbpress --format=json",
+          "name" : "get",
+          "description" : "Get a plugin."
+        },
+        {
+          "synopsis" : "<plugin|zip|url>... [--version=<version>] [--force] [--activate]",
+          "longdesc" : "## OPTIONS\n\n<plugin|zip|url>...\n: A plugin slug, the path to a local zip file, or URL to a remote zip file.\n\n[--version=<version>]\n: If set, get that particular version from wordpress.org, instead of the\nstable version.\n\n[--force]\n: If set, the command will overwrite any installed version of the plugin, without prompting\nfor confirmation.\n\n[--activate]\n: If set, the plugin will be activated immediately after install.\n\n## EXAMPLES\n\n    # Install the latest version from wordpress.org and activate\n    wp plugin install bbpress --activate\n\n    # Install the development version from wordpress.org\n    wp plugin install bbpress --version=dev\n\n    # Install from a local zip file\n    wp plugin install ../my-plugin.zip\n\n    # Install from a remote zip file\n    wp plugin install http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef",
+          "name" : "install",
+          "description" : "Install a plugin."
+        },
+        {
+          "synopsis" : "<plugin>",
+          "longdesc" : "## OPTIONS\n\n<plugin>\n: The plugin to check.\n\n## EXAMPLES\n\n    wp plugin is-installed hello",
+          "name" : "is-installed",
+          "description" : "Check if the plugin is installed."
+        },
+        {
+          "synopsis" : "[--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--<field>=<value>]\n: Filter results based on the value of a field.\n\n[--field=<field>]\n: Prints the value of a single field for each plugin.\n\n[--fields=<fields>]\n: Limit the output to specific object fields. Defaults to name,status,update,version.\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp plugin list --status=active --format=json",
+          "name" : "list",
+          "description" : "Get a list of plugins."
+        },
+        {
+          "synopsis" : "[<plugin>] [--dir]",
+          "longdesc" : "## OPTIONS\n\n[<plugin>]\n: The plugin to get the path to. If not set, will return the path to the\nplugins directory.\n\n[--dir]\n: If set, get the path to the closest parent directory, instead of the\nplugin file.\n\n## EXAMPLES\n\n    cd $(wp plugin path)",
+          "name" : "path",
+          "description" : "Get the path to a plugin or to the plugin directory."
+        },
+        {
+          "synopsis" : "<search> [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<search>\n: The string to search for.\n\n[--per-page=<per-page>]\n: Optional number of results to display. Defaults to 10.\n\n[--field=<field>]\n: Prints the value of a single field for each plugin.\n\n[--fields=<fields>]\n: Ask for specific fields from the API. Defaults to name,slug,author_profile,rating. Acceptable values:\n\n    **name**: Plugin Name\n    **slug**: Plugin Slug\n    **version**: Current Version Number\n    **author**: Plugin Author\n    **author_profile**: Plugin Author Profile\n    **contributors**: Plugin Contributors\n    **requires**: Plugin Minimum Requirements\n    **tested**: Plugin Tested Up To\n    **compatibility**: Plugin Compatible With\n    **rating**: Plugin Rating\n    **num_ratings**: Number of Plugin Ratings\n    **homepage**: Plugin Author's Homepage\n    **description**: Plugin's Description\n    **short_description**: Plugin's Short Description\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp plugin search dsgnwrks --per-page=20 --format=json\n\n    wp plugin search dsgnwrks --fields=name,version,slug,rating,num_ratings",
+          "name" : "search",
+          "description" : "Search the wordpress.org plugin repository."
+        },
+        {
+          "synopsis" : "[<plugin>]",
+          "longdesc" : "## OPTIONS\n\n[<plugin>]\n: A particular plugin to show the status for.",
+          "name" : "status",
+          "description" : "See the status of one or all plugins."
+        },
+        {
+          "synopsis" : "<plugin>... [--network]",
+          "longdesc" : "## OPTIONS\n\n<plugin>...\n: One or more plugins to toggle.\n\n[--network]\n: If set, the plugin will be toggled for the entire multisite network.",
+          "name" : "toggle",
+          "description" : "Toggle a plugin's activation state."
+        },
+        {
+          "synopsis" : "<plugin>... [--no-delete]",
+          "longdesc" : "## OPTIONS\n\n<plugin>...\n: One or more plugins to uninstall.\n\n[--no-delete]\n: If set, the plugin files will not be deleted. Only the uninstall procedure\nwill be run.\n\n## EXAMPLES\n\n    wp plugin uninstall hello",
+          "name" : "uninstall",
+          "description" : "Uninstall a plugin."
+        },
+        {
+          "synopsis" : "[<plugin>...] [--all] [--version=<version>] [--dry-run]",
+          "longdesc" : "## OPTIONS\n\n[<plugin>...]\n: One or more plugins to update.\n\n[--all]\n: If set, all plugins that have updates will be updated.\n\n[--version=<version>]\n: If set, the plugin will be updated to the latest development version,\nregardless of what version is currently installed.\n\n[--dry-run]\n: Preview which plugins would be updated.\n\n## EXAMPLES\n\n    wp plugin update bbpress --version=dev\n\n    wp plugin update --all",
+          "name" : "update",
+          "description" : "Update one or more plugins."
+        }
+          ],
+          "name" : "plugin",
+          "description" : "Manage plugins."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "[<file>] [--<field>=<value>] [--edit] [--porcelain]",
+          "longdesc" : "## OPTIONS\n\n[<file>]\n: Read post content from <file>. If this value is present, the\n    `--post_content` argument will be ignored.\n\n  Passing `-` as the filename will cause post content to\n  be read from STDIN.\n\n[--<field>=<value>]\n: Associative args for the new post. See wp_insert_post().\n\n[--edit]\n: Immediately open system's editor to write or edit post content.\n\n  If content is read from a file, from STDIN, or from the `--post_content`\n  argument, that text will be loaded into the editor.\n\n[--porcelain]\n: Output just the new post id.\n\n## EXAMPLES\n\n    wp post create --post_type=page --post_status=publish --post_title='A future post' --post-status=future --post_date='2020-12-01 07:00:00'\n\n    wp post create page.txt --post_type=page --post_title='Page from file'",
+          "name" : "create",
+          "description" : "Create a post."
+        },
+        {
+          "synopsis" : "<id>... [--force]",
+          "longdesc" : "## OPTIONS\n\n<id>...\n: One or more IDs of posts to delete.\n\n[--force]\n: Skip the trash bin.\n\n## EXAMPLES\n\n    wp post delete 123 --force\n\n    wp post delete $(wp post list --post_type='page' --format=ids)",
+          "name" : "delete",
+          "description" : "Delete a post by ID."
+        },
+        {
+          "synopsis" : "<id>",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the post to edit.\n\n## EXAMPLES\n\n    wp post edit 123",
+          "name" : "edit",
+          "description" : "Launch system editor to edit post content."
+        },
+        {
+          "synopsis" : "[--count=<number>] [--post_type=<type>] [--post_status=<status>] [--post_author=<login>] [--post_date=<yyyy-mm-dd>] [--post_content] [--max_depth=<number>]",
+          "longdesc" : "## OPTIONS\n\n[--count=<number>]\n: How many posts to generate. Default: 100\n\n[--post_type=<type>]\n: The type of the generated posts. Default: 'post'\n\n[--post_status=<status>]\n: The status of the generated posts. Default: 'publish'\n\n[--post_author=<login>]\n: The author of the generated posts. Default: none\n\n[--post_date=<yyyy-mm-dd>]\n: The date of the generated posts. Default: current date\n\n[--post_content]\n: If set, the command reads the post_content from STDIN.\n\n[--max_depth=<number>]\n: For hierarchical post types, generate child posts down to a certain depth. Default: 1\n\n## EXAMPLES\n\n    wp post generate --count=10 --post_type=page --post_date=1999-01-04\n    curl http://loripsum.net/api/5 | wp post generate --post_content --count=10",
+          "name" : "generate",
+          "description" : "Generate some posts."
+        },
+        {
+          "synopsis" : "<id> [--field=<field>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the post to get.\n\n[--field=<field>]\n: Instead of returning the whole post, returns the value of a single field.\n\n[--format=<format>]\n: Accepted values: table, json. Default: table\n\n## EXAMPLES\n\n    # save the post content to a file\n    wp post get 12 --field=content > file.txt",
+          "name" : "get",
+          "description" : "Get a post's content by ID."
+        },
+        {
+          "synopsis" : "[--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--<field>=<value>]\n: One or more args to pass to WP_Query.\n\n[--field=<field>]\n: Prints the value of a single field for each post.\n\n[--fields=<fields>]\n: Limit the output to specific object fields. Defaults to ID,post_title,post_name,post_date,post_status.\n\n[--format=<format>]\n: Accepted values: table, csv, json, count, ids. Default: table\n\n## EXAMPLES\n\n    wp post list --field=ID\n\n    wp post list --post_type=post --posts_per_page=5 --format=json\n\n    wp post list --post_type=page --fields=post_title,post_status\n\n    wp post list --post_type=page,post --format=ids",
+          "name" : "list",
+          "description" : "Get a list of posts."
+        },
+        {
+          "longdesc" : "## OPTIONS\n\n[--format=json]\n: Encode/decode values as JSON.\n\n## EXAMPLES\n\n    wp post meta set 123 _wp_page_template about.php",
+          "subcommands" : [
+            {
+              "synopsis" : "<id> <key> [<value>] [--format=<format>]",
+              "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the object.\n\n<key>\n: The name of the meta field to create.\n\n[<value>]\n: The value of the meta field. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.",
+              "name" : "add",
+              "description" : "Add a meta field."
+            },
+            {
+              "synopsis" : "<id> <key>",
+              "longdesc" : "",
+              "name" : "delete",
+              "description" : "Delete a meta field."
+            },
+            {
+              "synopsis" : "<id> <key> [--format=<format>]",
+              "longdesc" : "",
+              "name" : "get",
+              "description" : "Get meta field value."
+            },
+            {
+              "synopsis" : "<id> <key> [<value>] [--format=<format>]",
+              "longdesc" : "## OPTIONS\n\n<id>\n: The ID of the object.\n\n<key>\n: The name of the meta field to update.\n\n[<value>]\n: The new value. If ommited, the value is read from STDIN.\n\n[--format=<format>]\n: The serialization format for the value. Default is plaintext.",
+              "name" : "update",
+              "description" : "Update a meta field."
+            }
+              ],
+              "name" : "meta",
+              "description" : "Manage post custom fields."
+        },
+        {
+          "synopsis" : "<id>... --<field>=<value>",
+          "longdesc" : "## OPTIONS\n\n<id>...\n: One or more IDs of posts to update.\n\n--<field>=<value>\n: One or more fields to update. See wp_update_post().\n\n## EXAMPLES\n\n    wp post update 123 --post_name=something --post_status=draft",
+          "name" : "update",
+          "description" : "Update one or more posts."
+        },
+        {
+          "synopsis" : "<id>...",
+          "longdesc" : "## OPTIONS\n\n<id>...\n: One or more IDs of posts get the URL.\n\n## EXAMPLES\n\n    wp post url 123\n\n    wp post url 123 324",
+          "name" : "url",
+          "description" : "Get post url"
+        }
+          ],
+          "name" : "post",
+          "description" : "Manage posts."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "[--hard]",
+          "longdesc" : "## OPTIONS\n\n[--hard]\n: Perform a hard flush - update `.htaccess` rules as well as rewrite rules in database.",
+          "name" : "flush",
+          "description" : "Flush rewrite rules."
+        },
+        {
+          "synopsis" : "[--match=<url>] [--source=<source>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--match=<url>]\n: Show rewrite rules matching a particular URL.\n\n[--source=<source>]\n: Show rewrite rules from a particular source.\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp rewrite list --format=csv",
+          "name" : "list",
+          "description" : "Print current rewrite rules."
+        },
+        {
+          "synopsis" : "<permastruct> [--category-base=<base>] [--tag-base=<base>] [--hard]",
+          "longdesc" : "## OPTIONS\n\n<permastruct>\n: The new permalink structure to apply.\n\n[--category-base=<base>]\n: Set the base for category permalinks, i.e. '/category/'.\n\n[--tag-base=<base>]\n: Set the base for tag permalinks, i.e. '/tag/'.\n\n[--hard]\n: Perform a hard flush - update `.htaccess` rules as well as rewrite rules in database.\n\n## EXAMPLES\n\n    wp rewrite structure '/%year%/%monthnum%/%postname%'",
+          "name" : "structure",
+          "description" : "Update the permalink structure."
+        }
+          ],
+          "name" : "rewrite",
+          "description" : "Manage rewrite rules."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<role-key> <role-name>",
+          "longdesc" : "## OPTIONS\n\n<role-key>\n: The internal name of the role.\n\n<role-name>\n: The publicly visible name of the role.\n\n## EXAMPLES\n\n    wp role create approver Approver\n\n    wp role create productadmin \"Product Administrator\"",
+          "name" : "create",
+          "description" : "Create a new role."
+        },
+        {
+          "synopsis" : "<role-key>",
+          "longdesc" : "## OPTIONS\n\n<role-key>\n: The internal name of the role.\n\n## EXAMPLES\n\n    wp role delete approver\n\n    wp role delete productadmin",
+          "name" : "delete",
+          "description" : "Delete an existing role."
+        },
+        {
+          "synopsis" : "<role-key>",
+          "longdesc" : "##DESCRIPTION\n\nWill exit with status 0 if the role exists, 1 if it does not.\n\n## OPTIONS\n\n<role-key>\n: The internal name of the role.\n\n## EXAMPLES\n\n    wp role exists editor",
+          "name" : "exists",
+          "description" : "Check if a role exists."
+        },
+        {
+          "synopsis" : "[--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--fields=<fields>]\n: Limit the output to specific object fields. Defaults to name,role.\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp role list --fields=role --format=csv",
+          "name" : "list",
+          "description" : "List all roles."
+        }
+          ],
+          "name" : "role",
+          "description" : "Manage user roles."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<slug> [--activate] [--theme_name=<title>] [--author=<full-name>] [--author_uri=<uri>]",
+          "longdesc" : "## OPTIONS\n\n<slug>\n: The slug for the new theme, used for prefixing functions.\n\n[--activate]\n: Activate the newly downloaded theme.\n\n[--theme_name=<title>]\n: What to put in the 'Theme Name:' header in style.css\n\n[--author=<full-name>]\n: What to put in the 'Author:' header in style.css\n\n[--author_uri=<uri>]\n: What to put in the 'Author URI:' header in style.css",
+          "name" : "_s",
+          "description" : "Generate starter code for a theme."
+        },
+        {
+          "synopsis" : "<slug> --parent_theme=<slug> [--theme_name=<title>] [--author=<full-name>] [--author_uri=<uri>] [--theme_uri=<uri>] [--activate]",
+          "longdesc" : "## OPTIONS\n\n<slug>\n: The slug for the new child theme.\n\n--parent_theme=<slug>\n: What to put in the 'Template:' header in style.css\n\n[--theme_name=<title>]\n: What to put in the 'Theme Name:' header in style.css\n\n[--author=<full-name>]\n: What to put in the 'Author:' header in style.css\n\n[--author_uri=<uri>]\n: What to put in the 'Author URI:' header in style.css\n\n[--theme_uri=<uri>]\n: What to put in the 'Theme URI:' header in style.css\n\n[--activate]\n: Activate the newly created child theme.",
+          "name" : "child-theme",
+          "description" : "Generate empty child theme."
+        },
+        {
+          "synopsis" : "<slug> [--plugin_name=<title>] [--skip-tests] [--activate]",
+          "longdesc" : "## OPTIONS\n\n<slug>\n: The internal name of the plugin.\n\n[--plugin_name=<title>]\n: What to put in the 'Plugin Name:' header\n\n[--skip-tests]\n: Don't generate files for unit testing.\n\n[--activate]\n: Activate the newly generated plugin.",
+          "name" : "plugin",
+          "description" : "Generate starter code for a plugin."
+        },
+        {
+          "synopsis" : "<plugin>",
+          "longdesc" : "## DESCRIPTION\n\nThese are the files that are generated:\n\n* `phpunit.xml` is the configuration file for PHPUnit\n* `.travis.yml` is the configuration file for Travis CI\n* `tests/bootstrap.php` is the file that makes the current plugin active when running the test suite\n* `tests/test-sample.php` is a sample file containing the actual tests\n\n## ENVIRONMENT\n\nThe `tests/bootstrap.php` file looks for the WP_TESTS_DIR environment\nvariable.\n\n## OPTIONS\n\n<plugin>\n: The name of the plugin to generate test files for.\n\n## EXAMPLE\n\n    wp scaffold plugin-tests hello",
+          "name" : "plugin-tests",
+          "description" : "Generate files needed for running PHPUnit tests."
+        },
+        {
+          "synopsis" : "<slug> [--label=<label>] [--textdomain=<textdomain>] [--theme] [--plugin=<plugin>] [--raw]",
+          "longdesc" : "## OPTIONS\n\n<slug>\n: The internal name of the post type.\n\n[--label=<label>]\n: The text used to translate the update messages\n\n[--textdomain=<textdomain>]\n: The textdomain to use for the labels.\n\n[--theme]\n: Create a file in the active theme directory, instead of sending to\nSTDOUT. Specify a theme with `--theme=<theme>` to have the file placed in that theme.\n\n[--plugin=<plugin>]\n: Create a file in the given plugin's directory, instead of sending to STDOUT.\n\n[--raw]\n: Just generate the `register_post_type()` call and nothing else.",
+          "name" : "post-type",
+          "description" : "Generate PHP code for registering a custom post type."
+        },
+        {
+          "synopsis" : "<slug> [--post_types=<post-types>] [--label=<label>] [--textdomain=<textdomain>] [--theme] [--plugin=<plugin>] [--raw]",
+          "longdesc" : "## OPTIONS\n\n<slug>\n: The internal name of the taxonomy.\n\n[--post_types=<post-types>]\n: Post types to register for use with the taxonomy.\n\n[--label=<label>]\n: The text used to translate the update messages.\n\n[--textdomain=<textdomain>]\n: The textdomain to use for the labels.\n\n[--theme]\n: Create a file in the active theme directory, instead of sending to\nSTDOUT. Specify a theme with `--theme=<theme>` to have the file placed in that theme.\n\n[--plugin=<plugin>]\n: Create a file in the given plugin's directory, instead of sending to STDOUT.\n\n[--raw]\n: Just generate the `register_taxonomy()` call and nothing else.\n\n## EXAMPLES\n\n    wp scaffold taxonomy venue --post_types=event,presentation",
+          "name" : "taxonomy",
+          "description" : "Generate PHP code for registering a custom taxonomy."
+        }
+          ],
+          "name" : "scaffold",
+          "description" : "Generate code for post types, taxonomies, etc."
+    },
+    {
+      "synopsis" : "<old> <new> [<table>...] [--network] [--skip-columns=<columns>] [--dry-run] [--recurse-objects]",
+      "longdesc" : "## DESCRIPTION\n\nThis command will go through all rows in all tables and will replace all\nappearances of the old string with the new one.\n\nIt will correctly handle serialized values, and will not change primary key values.\n\n## OPTIONS\n\n<old>\n: The old string.\n\n<new>\n: The new string.\n\n[<table>...]\n: List of database tables to restrict the replacement to.\n\n[--network]\n: Search/replace through all the tables in a multisite install.\n\n[--skip-columns=<columns>]\n: Do not perform the replacement in the comma-separated columns.\n\n[--dry-run]\n: Show report, but don't perform the changes.\n\n[--recurse-objects]\n: Enable recursing into objects to replace strings\n\n## EXAMPLES\n\n    wp search-replace 'http://example.dev' 'http://example.com' --skip-columns=guid\n\n    wp search-replace 'foo' 'bar' wp_posts wp_postmeta wp_terms --dry-run",
+      "name" : "search-replace",
+      "description" : "Search/replace strings in the database."
+    },
+    {
+      "synopsis" : "[--basic]",
+      "longdesc" : "## DESCRIPTION\n\n`wp shell` allows you to evaluate PHP statements and expressions interactively, from within a WordPress environment. This means that you have access to all the functions, classes and globals that you would have access to from inside a WordPress plugin, for example.\n\n## OPTIONS\n\n[--basic]\n: Start in fail-safe mode, even if Boris is available.",
+      "name" : "shell",
+      "description" : "Interactive PHP console."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "--slug=<slug> [--title=<title>] [--email=<email>] [--network_id=<network-id>] [--private] [--porcelain]",
+          "longdesc" : "## OPTIONS\n\n--slug=<slug>\n: Path for the new site. Subdomain on subdomain installs, directory on subdirectory installs.\n\n--title=<title>\n: Title of the new site. Default: prettified slug.\n\n--email=<email>\n: Email for Admin user. User will be created if none exists. Assignement to Super Admin if not included.\n\n--network_id=<network-id>\n: Network to associate new site with. Defaults to current network (typically 1).\n\n--private\n: If set, the new site will be non-public (not indexed)\n\n--porcelain\n: If set, only the site id will be output on success.",
+          "name" : "create",
+          "description" : "Create a site in a multisite install."
+        },
+        {
+          "synopsis" : "[<site-id>] [--slug=<slug>] [--yes] [--keep-tables]",
+          "longdesc" : "## OPTIONS\n\n[<site-id>]\n: The id of the site to delete. If not provided, you must set the --slug parameter.\n\n[--slug=<slug>]\n: Path of the blog to be deleted. Subdomain on subdomain installs, directory on subdirectory installs.\n\n[--yes]\n: Answer yes to the confirmation message.\n\n[--keep-tables]\n: Delete the blog from the list, but don't drop it's tables.",
+          "name" : "delete",
+          "description" : "Delete a site in a multisite install."
+        },
+        {
+          "synopsis" : "[--yes]",
+          "longdesc" : "## OPTIONS\n\n[--yes]\n: Proceed to empty the site without a confirmation prompt.",
+          "name" : "empty",
+          "description" : "Empty a site of its content (posts, comments, and terms)."
+        },
+        {
+          "synopsis" : "[--network=<id>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--network=<id>]\n: The network to which the sites belong.\n\n[--field=<field>]\n: Prints the value of a single field for each site.\n\n[--fields=<fields>]\n: Comma-separated list of fields to show.\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    # Output a simple list of site URLs\n    wp site list --field=url",
+          "name" : "list",
+          "description" : "List all sites in a multisite install."
+        },
+        {
+          "synopsis" : "<id>...",
+          "longdesc" : "## OPTIONS\n\n<id>...\n: One or more IDs of sites to get the URL.\n\n## EXAMPLES\n\n    wp site url 123",
+          "name" : "url",
+          "description" : "Get site url"
+        }
+          ],
+          "name" : "site",
+          "description" : "Perform site-wide operations."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<user>...",
+          "longdesc" : "<user>...\n: One or more user IDs, user emails, or user logins.",
+          "name" : "add",
+          "description" : "Grant super-admin privileges to one or more users."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "list",
+          "description" : "Show a list of users with super-admin capabilities."
+        },
+        {
+          "synopsis" : "<user>...",
+          "longdesc" : "<user>...\n: One or more user IDs, user emails, or user logins.",
+          "name" : "remove",
+          "description" : "Revoke super-admin privileges to one or more users."
+        }
+          ],
+          "name" : "super-admin",
+          "description" : "List, add, and remove super admins from a network."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<taxonomy> <term> [--slug=<slug>] [--description=<description>] [--parent=<term-id>] [--porcelain]",
+          "longdesc" : "## OPTIONS\n\n<taxonomy>\n: Taxonomy for the new term.\n\n<term>\n: A name for the new term.\n\n[--slug=<slug>]\n: A unique slug for the new term. Defaults to sanitized version of name.\n\n[--description=<description>]\n: A description for the new term.\n\n[--parent=<term-id>]\n: A parent for the new term.\n\n[--porcelain]\n: Output just the new term id.\n\n## EXAMPLES\n\n    wp term create category Apple --description=\"A type of fruit\"",
+          "name" : "create",
+          "description" : "Create a term."
+        },
+        {
+          "synopsis" : "<taxonomy> <term-id>...",
+          "longdesc" : "## OPTIONS\n\n<taxonomy>\n: Taxonomy of the term to delete.\n\n<term-id>...\n: One or more IDs of terms to delete.\n\n## EXAMPLES\n\n    # delete all post tags\n    wp term list post_tag --field=ID | xargs wp term delete post_tag",
+          "name" : "delete",
+          "description" : "Delete a term."
+        },
+        {
+          "synopsis" : "<taxonomy> [--count=<number>] [--max_depth=<number>]",
+          "longdesc" : "## OPTIONS\n\n<taxonomy>\n: The taxonomy for the generated terms.\n\n[--count=<number>]\n: How many terms to generate. Default: 100\n\n[--max_depth=<number>]\n: Generate child terms down to a certain depth. Default: 1\n\n## EXAMPLES\n\n    wp term generate --count=10",
+          "name" : "generate",
+          "description" : "Generate some terms."
+        },
+        {
+          "synopsis" : "<taxonomy> <term-id> [--field=<field>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<taxonomy>\n: Taxonomy of the term to get\n\n<term-id>\n: ID of the term to get\n\n[--field=<field>]\n: Instead of returning the whole term, returns the value of a single field.\n\n[--format=<format>]\n: Accepted values: table, json. Default: table\n\n## EXAMPLES\n\n    wp term get category 1 --format=json",
+          "name" : "get",
+          "description" : "Get a taxonomy term"
+        },
+        {
+          "synopsis" : "<taxonomy> [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<taxonomy>\n: List terms of a given taxonomy.\n\n[--<field>=<value>]\n: Filter by one or more fields. For accepted fields, see get_terms().\n\n[--field=<field>]\n: Prints the value of a single field for each term.\n\n[--fields=<fields>]\n: Limit the output to specific object fields. Defaults to all of the term object fields.\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp term list category --format=csv\n\n    wp term list post_tag --fields=name,slug",
+          "name" : "list",
+          "description" : "List terms in a taxonomy."
+        },
+        {
+          "synopsis" : "<taxonomy> <term-id> [--name=<name>] [--slug=<slug>] [--description=<description>] [--parent=<term-id>]",
+          "longdesc" : "## OPTIONS\n\n<taxonomy>\n: Taxonomy of the term to update.\n\n<term-id>\n: ID for the term to update.\n\n[--name=<name>]\n: A new name for the term.\n\n[--slug=<slug>]\n: A new slug for the term.\n\n[--description=<description>]\n: A new description for the term.\n\n[--parent=<term-id>]\n: A new parent for the term.\n\n## EXAMPLES\n\n    wp term update category 15 --name=Apple",
+          "name" : "update",
+          "description" : "Update a term."
+        }
+          ],
+          "name" : "term",
+          "description" : "Manage terms."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<theme>",
+          "longdesc" : "## OPTIONS\n\n<theme>\n: The theme to activate.",
+          "name" : "activate",
+          "description" : "Activate a theme."
+        },
+        {
+          "synopsis" : "<theme>...",
+          "longdesc" : "## OPTIONS\n\n<theme>...\n: One or more themes to delete.\n\n## EXAMPLES\n\n    wp theme delete twentyeleven",
+          "name" : "delete",
+          "description" : "Delete a theme."
+        },
+        {
+          "synopsis" : "<theme> [--network]",
+          "longdesc" : "## OPTIONS\n\n<theme>\n: The theme to disable.\n\n[--network]\n: If set, the theme is disabled on the network level. Note that\nindividual sites may still have this theme enabled if it was\nenabled for them independently.\n\n## EXAMPLES\n\n    wp theme disable twentythirteen\n\n    wp theme disable twentythirteen --network",
+          "name" : "disable",
+          "description" : "Disable a theme in a multisite install."
+        },
+        {
+          "synopsis" : "<theme> [--network] [--activate]",
+          "longdesc" : "## OPTIONS\n\n<theme>\n: The theme to enable.\n\n[--network]\n: If set, the theme is enabled for the entire network\n\n[--activate]\n: If set, the theme is activated for the current site. Note that\nthe \"network\" flag has no influence on this.\n\n## EXAMPLES\n\n    wp theme enable twentythirteen\n\n    wp theme enable twentythirteen --network\n\n    wp theme enable twentythirteen --activate",
+          "name" : "enable",
+          "description" : "Enable a theme in a multisite install."
+        },
+        {
+          "synopsis" : "<theme> [--field=<field>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<theme>\n: The theme to get.\n\n[--field=<field>]\n: Instead of returning the whole theme, returns the value of a single field.\n\n[--format=<format>]\n: Accepted values: table, json. Default: table\n\n## EXAMPLES\n\n    wp theme get twentytwelve --format=json",
+          "name" : "get",
+          "description" : "Get a theme"
+        },
+        {
+          "synopsis" : "<theme|zip|url>... [--version=<version>] [--force] [--activate]",
+          "longdesc" : "## OPTIONS\n\n<theme|zip|url>...\n: A theme slug, the path to a local zip file, or URL to a remote zip file.\n\n[--version=<version>]\n: If set, get that particular version from wordpress.org, instead of the\nstable version.\n\n[--force]\n: If set, the command will overwrite any installed version of the theme, without prompting\nfor confirmation.\n\n[--activate]\n: If set, the theme will be activated immediately after install.\n\n## EXAMPLES\n\n    # Install the latest version from wordpress.org and activate\n    wp theme install twentytwelve --activate\n\n    # Install from a local zip file\n    wp theme install ../my-theme.zip\n\n    # Install from a remote zip file\n    wp theme install http://s3.amazonaws.com/bucketname/my-theme.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef",
+          "name" : "install",
+          "description" : "Install a theme."
+        },
+        {
+          "synopsis" : "<theme>",
+          "longdesc" : "## OPTIONS\n\n<theme>\n: The theme to check.\n\n## EXAMPLES\n\n    wp theme is-installed twentytwelve",
+          "name" : "is-installed",
+          "description" : "Check if the theme is installed."
+        },
+        {
+          "synopsis" : "[--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--<field>=<value>]\n: Filter results based on the value of a field.\n\n[--field=<field>]\n: Prints the value of a single field for each theme.\n\n[--fields=<fields>]\n: Limit the output to specific object fields. Defaults to name,status,update,version.\n\n[--format=<format>]\n: Accepted values: table, json. Default: table\n\n## EXAMPLES\n\n    wp theme list --status=inactive --format=csv",
+          "name" : "list",
+          "description" : "Get a list of themes."
+        },
+        {
+          "synopsis" : "[<theme>] [--dir]",
+          "longdesc" : "## OPTIONS\n\n[<theme>]\n: The theme to get the path to. Path includes \"style.css\" file.\nIf not set, will return the path to the themes directory.\n\n[--dir]\n: If set, get the path to the closest parent directory, instead of the\ntheme's \"style.css\" file.\n\n## EXAMPLES\n\n    cd $(wp theme path)",
+          "name" : "path",
+          "description" : "Get the path to a theme or to the theme directory."
+        },
+        {
+          "synopsis" : "<search> [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<search>\n: The string to search for.\n\n[--per-page=<per-page>]\n: Optional number of results to display. Defaults to 10.\n\n[--field=<field>]\n: Prints the value of a single field for each plugin.\n\n[--fields=<fields>]\n: Ask for specific fields from the API. Defaults to name,slug,author,rating. Acceptable values:\n\n    **name**: Theme Name\n    **slug**: Theme Slug\n    **version**: Current Version Number\n    **author**: Theme Author\n    **preview_url**: Theme Preview URL\n    **screenshot_url**: Theme Screenshot URL\n    **rating**: Theme Rating\n    **num_ratings**: Number of Theme Ratings\n    **homepage**: Theme Author's Homepage\n    **description**: Theme Description\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp theme search automattic --per-page=20\n\n    wp theme search automattic --fields=name,version,slug,rating,num_ratings,description",
+          "name" : "search",
+          "description" : "Search the wordpress.org theme repository."
+        },
+        {
+          "synopsis" : "[<theme>]",
+          "longdesc" : "## OPTIONS\n\n[<theme>]\n: A particular theme to show the status for.",
+          "name" : "status",
+          "description" : "See the status of one or all themes."
+        },
+        {
+          "synopsis" : "[<theme>...] [--all] [--version=<version>] [--dry-run]",
+          "longdesc" : "## OPTIONS\n\n[<theme>...]\n: One or more themes to update.\n\n[--all]\n: If set, all themes that have updates will be updated.\n\n[--version=<version>]\n: If set, the theme will be updated to the latest development version,\nregardless of what version is currently installed.\n\n[--dry-run]\n: Preview which themes would be updated.\n\n## EXAMPLES\n\n    wp theme update twentyeleven twentytwelve\n\n    wp theme update --all",
+          "name" : "update",
+          "description" : "Update one or more themes."
+        }
+          ],
+          "name" : "theme",
+          "description" : "Manage themes."
+    },
+    {
+      "longdesc" : "## EXAMPLES\n\n    wp transient set my_key my_value 300",
+      "subcommands" : [
+        {
+          "synopsis" : "<key>",
+          "longdesc" : "",
+          "name" : "delete",
+          "description" : "Delete a transient value."
+        },
+        {
+          "synopsis" : "<key> [--json]",
+          "longdesc" : "",
+          "name" : "get",
+          "description" : "Get a transient value."
+        },
+        {
+          "synopsis" : "<key> <value> [<expiration>]",
+          "longdesc" : "",
+          "name" : "set",
+          "description" : "Set a transient value. <expiration> is the time until expiration, in seconds."
+        },
+        {
+          "synopsis" : "",
+          "longdesc" : "",
+          "name" : "type",
+          "description" : "See whether the transients API is using an object cache or the options table."
+        }
+          ],
+          "name" : "transient",
+          "description" : "Manage transients."
+    },
+    {
+      "longdesc" : "",
+      "subcommands" : [
+        {
+          "synopsis" : "<user> <cap>",
+          "longdesc" : "## OPTIONS\n\n<user>\n: User ID, user email, or user login.\n\n<cap>\n: The capability to add.\n\n## EXAMPLES\n\n    wp user add-cap john create_premium_item\n    wp user add-cap 15 edit_product",
+          "name" : "add-cap",
+          "description" : "Add a capability for a user."
+        },
+        {
+          "synopsis" : "<user> <role>",
+          "longdesc" : "## OPTIONS\n\n<user>\n: User ID, user email, or user login.\n\n<role>\n: Add the specified role to the user.\n\n## EXAMPLES\n\n    wp user add-role bob author\n    wp user add-role 12 author",
+          "name" : "add-role",
+          "description" : "Add a role for a user."
+        },
+        {
+          "synopsis" : "<user-login> <user-email> [--role=<role>] [--user_pass=<password>] [--user_registered=<yyyy-mm-dd>] [--display_name=<name>] [--porcelain]",
+          "longdesc" : "## OPTIONS\n\n<user-login>\n: The login of the user to create.\n\n<user-email>\n: The email address of the user to create.\n\n[--role=<role>]\n: The role of the user to create. Default: default role\n\n[--user_pass=<password>]\n: The user password. Default: randomly generated\n\n[--user_registered=<yyyy-mm-dd>]\n: The date the user registered. Default: current date\n\n[--display_name=<name>]\n: The display name.\n\n[--porcelain]\n: Output just the new user id.\n\n## EXAMPLES\n\n    wp user create bob bob@example.com --role=author",
+          "name" : "create",
+          "description" : "Create a user."
+        },
+        {
+          "synopsis" : "<user>... [--reassign=<user-id>]",
+          "longdesc" : "## OPTIONS\n\n<user>...\n: The user login, user email, or user ID of the user(s) to update.\n\n[--reassign=<user-id>]\n: User ID to reassign the posts to.\n\n## EXAMPLES\n\n    wp user delete 123 --reassign=567",
+          "name" : "delete",
+          "description" : "Delete one or more users."
+        },
+        {
+          "synopsis" : "[--count=<number>] [--role=<role>]",
+          "longdesc" : "## OPTIONS\n\n[--count=<number>]\n: How many users to generate. Default: 100\n\n[--role=<role>]\n: The role of the generated users. Default: default role from WP",
+          "name" : "generate",
+          "description" : "Generate users."
+        },
+        {
+          "synopsis" : "<user> [--field=<field>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n<user>\n: User ID, user email, or user login.\n\n[--field=<field>]\n: Instead of returning the whole user, returns the value of a single field.\n\n[--format=<format>]\n: Accepted values: table, json. Default: table\n\n## EXAMPLES\n\n    wp user get 12 --field=login\n\n    wp user get bob --format=json > bob.json",
+          "name" : "get",
+          "description" : "Get a single user."
+        },
+        {
+          "synopsis" : "<file>",
+          "longdesc" : "## OPTIONS\n\n<file>\n: The CSV file of users to import.\n\n## EXAMPLES\n\n    wp user import-csv /path/to/users.csv\n\n    Sample users.csv file:\n\n    user_login,user_email,display_name,role\n    bobjones,bobjones@domain.com,Bob Jones,contributor\n    newuser1,newuser1@domain.com,New User,author\n    existinguser,existinguser@domain.com,Existing User,administrator",
+          "name" : "import-csv",
+          "description" : "Import users from a CSV file."
+        },
+        {
+          "synopsis" : "[--role=<role>] [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>]",
+          "longdesc" : "## OPTIONS\n\n[--role=<role>]\n: Only display users with a certain role.\n\n[--<field>=<value>]\n: Filter by one or more fields. For accepted fields, see get_users().\n\n[--field=<field>]\n: Prints the value of a single field for each user.\n\n[--fields=<fields>]\n: Limit the output to specific object fields. Defaults to ID,user_login,display_name,user_email,user_registered,roles\n\n[--format=<format>]\n: Accepted values: table, csv, json, count. Default: table\n\n## EXAMPLES\n\n    wp user list --field=ID\n\n    wp user list --role=administrator --format=csv\n\n    wp user list --fields=display_name,user_email --format=json",
+          "name" : "list",
+          "description" : "List users."
+        },
+        {
+          "synopsis" : "<user>",
+          "longdesc" : "## OPTIONS\n\n<user>\n: User ID, user email, or login.\n\n## EXAMPLES\n\n    wp user list-caps admin\n    wp user list-caps 21",
+          "name" : "list-caps",
+          "description" : "List all user's capabilities."
+        },
+        {
+          "longdesc" : "## OPTIONS\n\n--format=json\n: Encode/decode values as JSON.\n\n## EXAMPLES\n\n    wp user meta set 123 description \"Mary is a WordPress developer.\"\n\n    wp user meta update admin first_name \"George\"",
+          "subcommands" : [
+            {
+              "synopsis" : "<user> <key> <value> [--format=<format>]",
+              "longdesc" : "<user>\n: The user login, user email, or user ID of the user to add metadata for.\n\n<key>\n: The metadata key.\n\n<value>\n: The new metadata value.",
+              "name" : "add",
+              "description" : "Add a meta field."
+            },
+            {
+              "synopsis" : "<user> <key>",
+              "longdesc" : "<user>\n: The user login, user email, or user ID of the user to delete metadata from.\n\n<key>\n: The metadata key.",
+              "name" : "delete",
+              "description" : "Delete a meta field."
+            },
+            {
+              "synopsis" : "<user> <key> [--format=<format>]",
+              "longdesc" : "## OPTIONS\n\n<user>\n: The user login, user email, or user ID of the user to get metadata for.\n\n<key>\n: The metadata key.\n\n[--format=<format>]\n: Accepted values: table, json. Default: table",
+              "name" : "get",
+              "description" : "Get meta field value."
+            },
+            {
+              "synopsis" : "<user> <key> <value> [--format=<format>]",
+              "longdesc" : "<user>\n: The user login, user email, or user ID of the user to update metadata for.\n\n<key>\n: The metadata key.\n\n<value>\n: The new metadata value.",
+              "name" : "update",
+              "description" : "Update a meta field."
+            }
+              ],
+              "name" : "meta",
+              "description" : "Manage user custom fields."
+        },
+        {
+          "synopsis" : "<user> <cap>",
+          "longdesc" : "## OPTIONS\n\n<user>\n: User ID, user email, or user login.\n\n<cap>\n: The capability to be removed.\n\n## EXAMPLES\n\n    wp user remove-cap bob edit_themes\n    wp user remove-cap 11 publish_newsletters",
+          "name" : "remove-cap",
+          "description" : "Remove a user's capability."
+        },
+        {
+          "synopsis" : "<user> [<role>]",
+          "longdesc" : "## OPTIONS\n\n<user>\n: User ID, user email, or user login.\n\n[<role>]\n: A specific role to remove.\n\n## EXAMPLES\n\n    wp user remove-role bob\n    wp user remove-role 12 editor",
+          "name" : "remove-role",
+          "description" : "Remove a user's role."
+        },
+        {
+          "synopsis" : "<user> [<role>]",
+          "longdesc" : "## OPTIONS\n\n<user>\n: User ID, user email, or user login.\n\n[<role>]\n: Make the user have the specified role. If not passed, the default role is\nused.\n\n## EXAMPLES\n\n    wp user set-role bob author\n    wp user set-role 12 author",
+          "name" : "set-role",
+          "description" : "Set the user role (for a particular blog)."
+        },
+        {
+          "synopsis" : "<user>... --<field>=<value>",
+          "longdesc" : "## OPTIONS\n\n<user>...\n: The user login, user email or user ID of the user(s) to update.\n\n--<field>=<value>\n: One or more fields to update. For accepted fields, see wp_update_user().\n\n## EXAMPLES\n\n    wp user update 123 --display_name=Mary --user_pass=marypass",
+          "name" : "update",
+          "description" : "Update a user."
+        }
+          ],
+          "name" : "user",
+          "description" : "Manage users."
+    }
+          ],
+          "name" : "wp",
+          "description" : "Manage WordPress through the command-line."
+}
