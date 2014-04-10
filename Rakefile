@@ -123,5 +123,7 @@ task :test => ['dynamo:test', 'riml:test']
 desc 'Remove generated files'
 task :clean => ['dynamo:clean', 'riml:clean']
 
+CLOBBER.include(BUILD_DIR)
+
 desc 'Move generated files into their Vim locations'
 task :dist => ['dynamo:syntax', 'dynamo:dict', 'dynamo:dist', 'riml:dist']
