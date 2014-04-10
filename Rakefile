@@ -39,6 +39,9 @@ namespace :tmp do
     verbose VERBOSE do
       cp 'spec/wordpress/echo_wp_content.php', WORDPRESS_DIR
       cp 'spec/wordpress/readme.txt', WORDPRESS_DIR
+
+      mkdir_p 'tmp/wpcli_with_local'
+      cp 'spec/wordpress/cli.yml', 'tmp/wpcli_with_local/wp-cli.local.yml'
     end
   end
 
