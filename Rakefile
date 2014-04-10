@@ -43,6 +43,16 @@ namespace :dynamo do
     end
   end
 
+  desc 'Remove Generated Syntax & Dictionary files'
+  task :clean do
+    verbose VERBOSE do
+      clean_file BUILD_SYNTAX_FILE
+      clean_file BUILD_DICT_FILE
+      clean_file SYNTAX_DEST
+      clean_file DICT_DEST
+    end
+  end
+
   desc 'Move Generated Syntax & Dictionary into Vim directories - only copy'
   task :dist_copy do
     verbose VERBOSE do
@@ -77,6 +87,16 @@ namespace :riml do
     sh "bundle exec speckle -a #{TEST_DIR} -r fivemat"
   end
 
+  desc 'Remove Generated Syntax & Dictionary files'
+  task :clean do
+    verbose VERBOSE do
+      clean_file BUILD_PLUGIN_OUTPUT
+      clean_file BUILD_APP_OUTPUT
+      clean_file PLUGIN_DEST
+      clean_file APP_DEST
+    end
+  end
+
   desc 'Move Generated Plugin & App files into vim directories - only copy'
   task :dist_copy do
     verbose VERBOSE do
@@ -99,6 +119,9 @@ end
 
 desc 'Run all tests'
 task :test => ['dynamo:test', 'riml:test']
+
+desc 'Remove generated files'
+task :clean => ['dynamo:clean', 'riml:clean']
 
 desc 'Move generated files into their Vim locations'
 task :dist => ['dynamo:syntax', 'dynamo:dict', 'dynamo:dist', 'riml:dist']

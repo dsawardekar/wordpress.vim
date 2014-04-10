@@ -18,3 +18,7 @@ def copy_to(from, to)
     mv new_from, new_to
   end
 end
+
+def clean_file(path)
+  rm path if File.exists?(path)
+end
