@@ -1,0 +1,44 @@
+riml_include 'dsl'
+riml_include 'log_helpers'
+riml_include 'container'
+riml_include 'wpcli_command_factory'
+
+class WpCliCommandFactorySpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('wpcli_command_factory', 'WpCliCommandFactory', true)
+    self.factory = self.container.lookup('wpcli_command_factory')
+  end
+
+  defm it_has_a_container
+    expect(self.factory.container.is_container).to_be_true()
+  end
+
+  defm it_can_build_wpcli_command
+    expect(self.factory.build('foo').is_wpcli_command).to_be_true()
+  end
+
+  defm it_saves_command_name_on_built_command
+    expect(self.factory.build('foo').get_cmd_name()).to_equal('foo')
+  end
+
+  defm it_can_build_eval_file_command
+    cmd = self.factory.build('eval-file')
+    expect(cmd.is_eval_file_command).to_be_true()
+  end
+
+  defm it_can_build_eval_command
+    cmd = self.factory.build('eval')
+    expect(cmd.is_eval_command).to_be_true()
+  end
+
+  defm it_can_build_post_command
+    cmd = self.factory.build('post')
+    expect(cmd.is_post_command).to_be_true()
+  end
+
+  defm it_does_not_build_shell_command
+    cmd = self.factory.build('shell')
+    expect(cmd.is_wpcli_command).to_be_false()
+  end
+end

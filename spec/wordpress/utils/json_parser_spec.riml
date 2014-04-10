@@ -1,0 +1,50 @@
+riml_include 'dsl'
+riml_include 'log_helpers'
+riml_include 'json_parser'
+
+class JSONParserSpec
+  defm before_each
+    self.parser = new JSONParser()
+  end
+
+  defm it_can_read_wp_cli_json
+    lines = readfile('spec/wordpress/cli.json')
+    text = join(lines, ' ')
+    result = self.parser.parse(text)
+    expect(result).to_not_equal(false)
+  end
+
+  " $ wp cli cmd-dump - 20ms
+  " with json parsing - 80ms
+  " Note: reasonable atm, could use pyeval
+  " now using pyeval by default
+  defm it_can_read_wp_cli_cmd_dump_json_from_system
+    execute(":cd tmp/wordpress/3.8.1")
+    text = system('wp cli cmd-dump --format=json')
+    result = self.parser.parse(text)
+    expect(result).to_not_equal(false)
+    execute(":cd ../../../")
+  end
+
+  " TODO: wp cli info fails with eval()
+  " Trailing Characters
+  defm it_can_read_wp_cli_info_json_from_system_f
+    execute(":cd tmp/wordpress/3.8.1")
+    text = system('wp cli info --format=json')
+    result = self.parser.parse(text)
+    expect(result).to_not_equal(false)
+    execute(":cd ../../../")
+  end
+
+  defm it_can_remove_true_from_text
+    expect(self.parser.clean('{ "a":true }')).to_equal('{ "a":1 }')
+  end
+
+  defm it_can_remove_false_from_text
+    expect(self.parser.clean('{ "a":false }')).to_equal('{ "a":0 }')
+  end
+
+  defm it_can_remove_null_from_text
+    expect(self.parser.clean('{ "a":null }')).to_equal('{ "a":"" }')
+  end
+end

@@ -1,0 +1,7 @@
+riml_include 'dsl'
+
+class PluginTestSpec
+  defm it_works
+    expect(1).to_equal(1)
+  end
+end

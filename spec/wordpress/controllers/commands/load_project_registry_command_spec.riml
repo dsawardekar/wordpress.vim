@@ -1,0 +1,56 @@
+riml_include 'dsl'
+riml_include 'log_helpers'
+riml_include 'container'
+riml_include 'base_command'
+riml_include 'buffer'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'project'
+riml_include 'load_project_registry_command'
+riml_include 'with_dir'
+
+class MockCommand < BaseCommand
+  defm get_name
+    return self.cmd_name
+  end
+
+  defm get_auto_register
+    return true
+  end
+
+  defm has_ex_mode
+    return true
+  end
+end
+
+class LoadProjectRegistryCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project_registry', 'CommandRegistry')
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('project', 'Project', false)
+    self.container.register('with_dir', 'WithDir', false)
+    self.cmd = new LoadProjectRegistryCommand(self.container)
+  end
+
+  defm it_load_registry_commands
+    mock = new MockCommand()
+    mock.cmd_name = 'MyMockCommand'
+
+    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer_collection = self.container.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.container.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    registry = self.container.lookup('project_registry')
+    registry.add(mock)
+
+    self.cmd.run({})
+
+    expect(exists(':MyMockCommand')).to_equal(2)
+  end
+end
+
