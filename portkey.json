@@ -1,0 +1,88 @@
+{
+  "lib/dynamo/*.rb": {
+    "type": "dynamo",
+    "test": "spec/dynamo/%s_spec.rb"
+  },
+  "spec/dynamo/*_spec.rb": {
+    "type": "spec",
+    "alternate": "lib/dynamo/%s.rb"
+  },
+
+  "lib/tasks/*.rb": {
+    "type": "task"
+  },
+
+  "lib/wordpress/models/**.riml": {
+    "type": "model",
+    "test": "spec/wordpress/models/%s_spec.riml"
+  },
+  "spec/wordpress/models/**_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/models/%s.riml"
+  },
+
+  "lib/wordpress/*.riml": {
+    "type": "plugin",
+    "test": "spec/wordpress/%s_spec.riml"
+  },
+  "spec/wordpress/*.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/%s.riml"
+  },
+
+  "lib/wordpress/controllers/commands/*_command.riml": {
+    "type": "command",
+    "test": "spec/wordpress/controllers/commands/%s_command_spec.riml"
+  },
+  "spec/wordpress/controllers/commands/*_command_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/controllers/commands/%s_command.riml"
+  },
+
+  "lib/wordpress/controllers/*.riml": {
+    "type": "controller",
+    "test": "spec/wordpress/controllers/%s_spec.riml"
+  },
+  "spec/wordpress/controllers/*_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/controllers/%s.riml"
+  },
+
+  "lib/wordpress/utils/*.riml": {
+    "type": "utility",
+    "test": "spec/wordpress/utils/%s_spec.riml"
+  },
+  "spec/wordpress/utils/*_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/utils/%s.riml"
+  },
+
+  "lib/wordpress/wpcli/*.riml": {
+    "type": "cli",
+    "test": "spec/wordpress/wpcli/%s_spec.riml"
+  },
+  "spec/wordpress/wpcli/*_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/wpcli/%s.riml"
+  },
+
+  "lib/wordpress/collections/*_collection.riml": {
+    "type": "collection",
+    "test": "spec/wordpress/collections/%s_collection_spec.riml",
+    "mapping": "l"
+  },
+  "spec/wordpress/collections/*_collection_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/collections/%s_collection.riml"
+  },
+
+  "lib/wordpress/ctags/*.riml": {
+    "type": "ctags",
+    "test": "spec/wordpress/ctags/%s_spec.riml",
+    "mapping": "g"
+  },
+  "spec/wordpress/ctags/*_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/ctags/%s.riml"
+  }
+}
