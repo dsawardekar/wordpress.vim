@@ -15,6 +15,6 @@ def copy_to(from, to)
   new_to = "#{to_dir}/#{to_name}"
 
   unless new_from == new_to
-    cp new_from, new_to
+    mv new_from, new_to
   end
 end
