@@ -1,0 +1,149 @@
+snippet taxonomy "Custom Taxonomy"
+// Custom Taxonomy: ${1:name}
+$labels = array(
+	'name'                       => _x( '${2:$1}', 'Taxonomy General Name', '${4:text_domain}' ),
+	'singular_name'              => _x( '${3:singular_name}', 'Taxonomy Singular Name', '$4' ),
+	'menu_name'                  => __( 'Taxonomy', '$4' ),
+	'all_items'                  => __( 'All $2', '$4' ),
+	'parent_item'                => __( 'Parent $3', '$4' ),
+	'parent_item_colon'          => __( 'Parent $3:', '$4' ),
+	'new_item_name'              => __( 'New $3 Name', '$4' ),
+	'add_new_item'               => __( 'Add New $3', '$4' ),
+	'edit_item'                  => __( 'Edit $3', '$4' ),
+	'update_item'                => __( 'Update $3', '$4' ),
+	'separate_items_with_commas' => __( 'Separate $2 with commas', '$4' ),
+	'search_items'               => __( 'Search $2', '$4' ),
+	'add_or_remove_items'        => __( 'Add or remove $2', '$4' ),
+	'choose_from_most_used'      => __( 'Choose from the most used $2', '$4' ),
+	'not_found'                  => __( 'Not Found', '$4' ),
+);
+$args = array(
+	'labels'                     => $labels,
+	'hierarchical'               => false,
+	'public'                     => true,
+	'show_ui'                    => true,
+	'show_admin_column'          => true,
+	'show_in_nav_menus'          => true,
+	'show_tagcloud'              => true,
+);
+register_taxonomy( 'taxonomy', array( '${5:post}' ), $args );
+endsnippet
+
+snippet post_type "Custom Post Type"
+// Custom Post Type: ${1:name}
+$labels = array(
+	'name'                => _x( '${2:$1}', 'Post Type General Name', '${4:text_domain}' ),
+	'singular_name'       => _x( '${3:singular_name}', 'Post Type Singular Name', '$4' ),
+	'menu_name'           => __( 'Post Type', '$4' ),
+	'parent_item_colon'   => __( 'Parent $3:', '$4' ),
+	'all_items'           => __( 'All $2', '$4' ),
+	'view_item'           => __( 'View $3', '$4' ),
+	'add_new_item'        => __( 'Add New $3', '$4' ),
+	'add_new'             => __( 'Add New', '$4' ),
+	'edit_item'           => __( 'Edit $3', '$4' ),
+	'update_item'         => __( 'Update $3', '$4' ),
+	'search_items'        => __( 'Search $3', '$4' ),
+	'not_found'           => __( 'Not found', '$4' ),
+	'not_found_in_trash'  => __( 'Not found in Trash', '$4' ),
+);
+$args = array(
+	'label'               => $labels
+	'description'         => __( '${5:$1 description}', '$4' ),
+	'labels'              => $labels,
+	'supports'            => array( ),
+	'public'              => true,
+	'show_ui'             => true,
+	'show_in_menu'        => true,
+	'show_in_nav_menus'   => true,
+	'show_in_admin_bar'   => true,
+	'can_export'          => true,
+	'publicly_queryable'  => true,
+	'capability_type'     => '${6:capability}',
+);
+register_post_type( 'post_type', $args );
+endsnippet
+
+snippet post_status "Register Post Status"
+register_post_status('${1:name}',
+	array(
+		'label' => _x( '${1/.*/\u$0/}', '${1/.*/\u$0/}', '${2:text_domain}' ),
+		'public' => true,
+		'exclude_from_search' => false,
+		'show_in_admin_all_list' => true,
+		'show_in_admin_status_list' => true,
+		'label_count' => _n_noop( '${1/.*/\u$0/} <span class="count">(%s)</span>', '${1/.*/\u$0/} <span class="count">(%s)</span>', 'edd' )
+	)
+);
+endsnippet
+
+snippet sidebar "New Sidebar"
+register_sidebar(
+	array(
+		'id'           => '${1:id}',
+		'name'         => __( '${2:$1}' ),
+		'description'  => __( '${3:$1 description}' )
+	)
+);
+endsnippet
+
+snippet navmenu "Custom Nav Menu"
+register_nav_menus(
+	array(
+		'${1:name}' => __( '${2:$1 description}', '${3:text_domain}' )
+	)
+);
+endsnippet
+
+snippet wpquery "Custom WP_Query"
+$args = array(
+	$0
+);
+
+$query = new WP_Query($args);
+endsnippet
+
+snippet userquery "Custom WP_User_Query"
+$args = array(
+	$0
+);
+
+$user_query = new WP_User_Query($args);
+endsnippet
+
+snippet commentquery "Custom Comment Query"
+$args = array(
+	$0
+);
+
+$comment_query = new WP_Comment_Query();
+$comment_query->query($args);
+endsnippet
+
+snippet loop "WordPress Loop"
+if ( $query->have_posts() ) {
+	while ( $query->have_posts() ) {
+		$query->the_post();
+		$1
+	}
+} else {
+	$0
+}
+
+wp_reset_postdata();
+endsnippet
+
+snippet salts "WordPress Salts"
+`wget -q -O - https://api.wordpress.org/secret-key/1.1/salt/`
+endsnippet
+
+snippet themeheader "Register Theme Headers"
+register_default_headers(
+	array(
+		'${1:name}' => array(
+			'url'           => '${2:%s/images/headers/$1.jpg}',
+			'thumbnail_url' => '${3:%s/images/headers/$1-thumbnail.jpg}',
+			'description'   => __( '${4:${1/.*/\u$0/}}', '${5:parent}' )
+		)
+	)
+);
+endsnippet

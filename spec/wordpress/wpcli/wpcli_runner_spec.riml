@@ -1,0 +1,53 @@
+riml_include 'spec_helper'
+riml_include 'wpcli'
+riml_include 'wpcli_printer'
+riml_include 'wpcli_runner'
+riml_include 'container'
+
+class WpCliRunnerSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('wpcli', 'WpCli', true)
+    self.container.register('wpcli_printer', 'WpCliPrinter', true)
+    self.container.register('wpcli_runner', 'WpCliRunner', true)
+
+    self.runner = self.container.lookup('wpcli_runner')
+    self.wpcli = self.container.lookup('wpcli')
+
+    self.wpcli.set_path("wp --path=#{g:WORDPRESS_DIR}")
+  end
+
+  defm it_has_a_container
+    expect(self.runner.container.is_container).to_be_true()
+  end
+
+  defm it_knows_if_cmd_needs_help
+    opts = { 'bang': true }
+    expect(self.runner.wants_help(opts)).to_be_true()
+  end
+
+  defm it_knows_if_cmd_does_not_need_help
+    opts = { 'bang': false }
+    expect(self.runner.wants_help(opts)).to_be_false()
+  end
+
+  defm it_can_convert_cmd_args_to_wp_cli_params
+    params = ['a', 'b', 'c']
+    expect(self.runner.to_cli_params('cache', params, {})).to_equal(['cache', 'a', 'b', 'c'])
+  end
+
+  defm it_can_convert_cmd_args_to_wp_cli_params_needing_help
+    params = ['a', 'b', 'c']
+    expect(self.runner.to_cli_params('cache', params, {'bang': true})).to_equal(['cache', 'a', 'b', 'c', '--help'])
+  end
+
+  defm it_can_run_command
+    result = self.runner.run('cli', ['version'], {})
+    expect(result).to_not_equal(false)
+  end
+
+  defm it_can_run_help_command
+    result = self.runner.run('cli', ['version'], {'bang': true})
+    expect(result).to_not_equal(false)
+  end
+end

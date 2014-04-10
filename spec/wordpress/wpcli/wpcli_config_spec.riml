@@ -1,0 +1,50 @@
+riml_include 'spec_helper'
+riml_include 'wpcli_config'
+
+class WpCliConfigSpec
+  defm before_each
+    self.config = new WpCliConfig()
+  end
+
+  defm it_can_build_path_to_local_config
+    expect(self.config.local_config_path_for('foo')).to_match('foo/wp-cli.local.yml$')
+  end
+
+  defm it_can_build_path_to_config
+    expect(self.config.config_path_for('foo')).to_match('foo/wp-cli.yml$')
+  end
+
+  defm it_can_find_config_path
+    expect(self.config.get_config_path('tmp/wpcli_with_local')).to_match('wp-cli.local.yml$')
+  end
+
+  defm it_can_read_config_file
+    expect(len(self.config.read('tmp/wpcli_with_local'))).to_be_gte(1)
+  end
+
+  defm it_can_parse_yaml_line
+    line = 'path: foo/bar'
+    result = self.config.parse_line(line)
+    expect(result.status).to_be_true()
+    expect(result.param).to_equal('path')
+    expect(result.value).to_equal('foo/bar')
+  end
+
+  defm it_can_ignore_nested_yaml_line
+    line = 'core install:'
+    result = self.config.parse_line(line)
+    expect(result.status).to_be_false()
+  end
+
+  defm it_can_parse_config_yaml
+    lines = []
+    add(lines, 'path: foo/bar')
+    self.config.parse(lines)
+    expect(self.config.get_config_param('path')).to_equal('foo/bar')
+  end
+
+  defm it_can_load_config_for_project
+    self.config.load('tmp/wpcli_with_local')
+    expect(self.config.get_config_param('path')).to_match('../wordpress/3.')
+  end
+end

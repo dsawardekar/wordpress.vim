@@ -1,0 +1,109 @@
+riml_include 'spec_helper'
+riml_include 'ctags_builder'
+riml_include 'with_dir'
+riml_include 'container'
+
+class CTagsBuilderSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('with_dir', 'WithDir', true)
+    self.container.register('ctags_builder', 'CTagsBuilder', true)
+
+    self.with_dir = self.container.lookup('with_dir')
+    self.builder = self.container.lookup('ctags_builder')
+  end
+
+  defm it_stores_path_to_project
+    self.builder.set_project_path('spec')
+    expect(self.builder.get_project_path()).to_equal('spec')
+  end
+
+  defm it_has_default_tags_file_name
+    self.builder.set_project_path('spec')
+    expect(self.builder.get_tags_name()).to_equal('tags')
+  end
+
+  defm it_can_use_custom_tags_file_name
+    g:wordpress_vim_tags_file_name = 'foo'
+    expect(self.builder.get_tags_name()).to_equal('foo')
+    :unlet g:wordpress_vim_tags_file_name
+  end
+
+  defm it_has_path_to_tags_file
+    self.builder.set_project_path('spec')
+    g:wordpress_vim_tags_file_name = 'spec_helper.rb'
+    expect(self.builder.get_project_tags()).to_equal('spec/spec_helper.rb')
+    :unlet g:wordpress_vim_tags_file_name
+  end
+
+  defm it_can_find_path_to_system_ctags_executable
+    expect(self.builder.get_executable()).to_equal('ctags')
+  end
+
+  defm it_can_find_path_to_custom_ctags
+    g:wordpress_vim_ctags_path = 'phpctags'
+    expect(self.builder.get_executable()).to_equal('phpctags')
+    :unlet g:wordpress_vim_ctags_path
+  end
+
+  defm it_knows_if_ctags_is_available
+    expect(self.builder.has_executable()).to_be_true()
+  end
+
+  defm it_knows_if_ctags_is_not_available
+    g:wordpress_vim_ctags_path = 'no_such_ctags_binary'
+    expect(self.builder.has_executable()).to_be_false()
+    :unlet g:wordpress_vim_ctags_path
+  end
+
+  defm it_knows_if_tags_file_does_not_exist
+    self.builder.set_project_path('spec')
+    self.builder.clean()
+    expect(self.builder.has_tags()).to_be_false()
+  end
+
+  defm it_knows_if_tags_file_exists
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    execute(":!touch #{g:WORDPRESS_DIR}/tags")
+    expect(self.builder.has_tags()).to_be_true()
+    delete("#{g:WORDPRESS_DIR}/tags")
+  end
+
+  defm it_can_build_cmd_to_execute
+    self.builder.set_project_path('spec/wordpress/project/wordpress_with_core/')
+    cmd = self.builder.build()
+
+    expect(cmd).to_match('ctags')
+    expect(cmd).to_match('-R')
+    expect(cmd).to_match('-f')
+  end
+
+  defm it_can_remove_tags_file
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    execute(":!touch #{g:WORDPRESS_DIR}/tags")
+
+    self.builder.clean()
+    expect(self.builder.has_tags()).to_be_false()
+  end
+
+  defm it_can_run_ctags_command
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    [error_code, result] = self.builder.run('ctags --version')
+
+    expect(error_code).to_equal(0)
+  end
+
+  defm it_runs_within_project_dir
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    expect(self.builder.get_with_dir().get_dir()).to_equal(g:WORDPRESS_DIR)
+  end
+
+  defm it_can_generate_ctags
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    self.builder.clean()
+
+    result = self.builder.generate()
+    expect(result).to_be_true()
+    delete("#{g:WORDPRESS_DIR}/tags")
+  end
+end

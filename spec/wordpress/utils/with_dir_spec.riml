@@ -1,0 +1,70 @@
+riml_include 'spec_helper'
+riml_include 'delegate'
+riml_include 'with_dir'
+
+class WithDirSpec
+  defm before
+    self.start_dir = getcwd()
+  end
+
+  defm before_each
+    if getcwd() != self.start_dir
+      execute(":cd #{self.start_dir}")
+    end
+
+    self.with_dir = new WithDir('spec')
+  end
+
+  defm it_can_be_created_without_initial_dir
+    with_dir = new WithDir()
+    expect(with_dir.get_dir()).to_equal('')
+  end
+
+  defm it_stores_target_dir
+    expect(self.with_dir.get_dir()).to_equal('spec')
+  end
+
+  defm it_allows_changing_target_dir
+    self.with_dir.set_dir('lorem')
+    expect(self.with_dir.get_dir()).to_equal('lorem')
+  end
+
+  defm it_changes_to_target_dir
+    result = self.with_dir.run(self, 'check_target_dir', ['one'])
+    expect(result).to_match('spec$')
+  end
+
+  defm check_target_dir(one)
+    expect(one).to_equal('one')
+    return getcwd()
+  end
+
+  defm it_restores_to_original_dir
+    result = self.with_dir.run(self, 'check_target_dir', ['one'])
+    expect(getcwd()).to_not_match('spec$')
+  end
+
+  defm callback_with_error(one)
+    a = b
+    return true
+  end
+
+  defm it_restores_original_dir_inspite_of_callback_failure
+    result = self.with_dir.run(self, 'callback_with_error', ['one'])
+    expect(getcwd()).to_not_match('spec$')
+    expect(result).to_be_false()
+  end
+
+  defm it_does_not_trap_errors_when_required_f
+    self.with_dir.set_trap_errors(false)
+
+    try
+      result = self.with_dir.run(self, 'callback_with_error', ['one'])
+      errors = false
+    catch
+      errors = true
+    end
+
+    expect(errors).to_be_true()
+  end
+end

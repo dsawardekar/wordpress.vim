@@ -1,0 +1,38 @@
+class AutocmdLoader
+  def initialize
+    self.cmds = []
+  end
+
+  defm set_group_name(group_name)
+    self.group_name = group_name
+  end
+
+  defm get_group_name
+    return self.group_name
+  end
+
+  defm load
+    execute(":augroup #{self.get_group_name()}")
+    execute(":autocmd!")
+
+    for cmd in self.cmds
+      execute(":autocmd #{cmd}")
+    end
+
+    execute(":augroup END")
+  end
+
+  defm unload
+    execute(":augroup #{self.group_name}")
+    execute(":autocmd!")
+    execute(":augroup END")
+  end
+
+  defm cmd(ex_cmd)
+    add(self.cmds, ex_cmd)
+  end
+
+  defm size
+    return len(self.cmds)
+  end
+end

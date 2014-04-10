@@ -1,0 +1,27 @@
+class JSONParser
+  " swallows errors, since Vim isn't going to give
+  " any meaningful errors for this hack
+  defm parse(str)
+    try
+      " TODO: find out why pyeval is slower than eval
+      text = self.clean(str)
+      if has('python')
+        :let result = pyeval(text)
+      else
+        result = eval(str)
+      end
+
+      return result
+    catch /.*/
+      return false
+    end
+  end
+
+  defm clean(text)
+    cleaned = substitute(text, ':true', ':1', 'g')
+    cleaned = substitute(cleaned, ':false', ':0', 'g')
+    cleaned = substitute(cleaned, ':null', ':""', 'g')
+
+    return cleaned
+  end
+end

@@ -1,0 +1,29 @@
+def echo_warn(*args)
+  echo_with(args, 'WarningMsg')
+end
+
+def echo_error(*args)
+  echo_with(args, 'ErrorMsg')
+end
+
+def echo_msg(*args)
+  " while testing we'll redirect to info, so logs appears inline
+  if exists('g:speckle_mode')
+    logger = get_logger()
+    res = call(logger['info'], args, logger)
+  else
+    echo_with(args, 'None')
+  end
+end
+
+def echo_with(args, style)
+  if exists('g:speckle_mode')
+    return
+  end
+
+  msg = join(args, ' ')
+
+  execute(":echohl #{style}")
+  echomsg msg
+  echohl None
+end

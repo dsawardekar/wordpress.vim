@@ -1,0 +1,124 @@
+riml_include 'wpcli'
+riml_include 'wpcli_path'
+riml_include 'wpcli_config'
+riml_include 'wpcli_printer'
+riml_include 'wpcli_completer'
+riml_include 'wpcli_runner'
+riml_include 'wordpress_path'
+riml_include 'core_detector'
+riml_include 'with_dir'
+riml_include 'command_registry'
+riml_include 'wpcli_command_factory'
+riml_include 'post'
+riml_include 'post_saver'
+riml_include 'ctags_builder'
+
+class Project
+  def initialize
+    self.is_project = true
+    self.cli_exists = false
+    self.wordpress_project_path = ''
+    self.commands = []
+  end
+
+  " Unlike Portkey a WordPress project can have different commands
+  " across projects. So we use a local project_registry instead
+  defm on_inject
+    self.container = self.container.child()
+    self.container.register('wpcli_command_factory', 'WpCliCommandFactory', true)
+    self.container.register('project_registry', 'CommandRegistry', true)
+    self.container.register('wpcli', 'WpCli', true)
+    self.container.register('wpcli_path', 'WpCliPath', true)
+    self.container.register('wpcli_config', 'WpCliConfig', true)
+    self.container.register('wpcli_completer', 'WpCliCompleter', true)
+    self.container.register('wpcli_printer', 'WpCliPrinter', true)
+    self.container.register('wpcli_runner', 'WpCliRunner', true)
+    self.container.register('wordpress_path', 'WordPressPath', true)
+    self.container.register('post', 'Post', true)
+    self.container.register('post_saver', 'PostSaver', false)
+    self.container.register('ctags_builder', 'CTagsBuilder', true)
+  end
+
+  defm lookup(key)
+    return self.container.lookup(key)
+  end
+
+  defm load(root)
+    self.root = root
+    self.load_wpcli(root)
+    self.load_wordpress_path(root)
+    self.load_ctags_builder(root)
+
+    if self.has_cli()
+      self.commands = self.get_wpcli().list()
+      self.load_commands()
+      return true
+    else
+      return false
+    end
+  end
+
+  defm get_root
+    return self.root
+  end
+
+  defm get_commands
+    return self.commands
+  end
+
+  defm load_commands
+    factory  = self.lookup('wpcli_command_factory')
+    registry = self.lookup('project_registry')
+
+    for command_name in self.commands
+      cmd = factory.build(command_name)
+      if cmd.is_wpcli_command
+        registry.add(cmd)
+      end
+    end
+  end
+
+  defm has_cli
+    return self.cli_exists
+  end
+
+  defm get_wordpress_path
+    return self.wordpress_project_path
+  end
+
+  defm has_wordpress_path
+    return isdirectory(self.get_wordpress_path())
+  end
+
+  defm destroy
+    " TODO
+  end
+
+  " helpers
+  defm load_wpcli(root)
+    cli_path = self.lookup('wpcli_path')
+    self.cli_exists = cli_path.exists(root)
+
+    if self.cli_exists
+      cli = self.get_wpcli()
+      cli.set_path(cli_path.get_path(root))
+    end
+  end
+
+
+  defm load_wordpress_path(root)
+    wordpress_path = self.lookup('wordpress_path')
+    self.wordpress_project_path = wordpress_path.get_path(root)
+  end
+
+  defm load_ctags_builder(root)
+    if self.has_wordpress_path()
+      ctags_builder = self.lookup('ctags_builder')
+      ctags_builder.set_project_path(self.get_wordpress_path())
+    end
+  end
+
+  defm get_wpcli
+    return self.lookup('wpcli')
+  end
+end

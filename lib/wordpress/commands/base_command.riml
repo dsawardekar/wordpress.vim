@@ -1,0 +1,114 @@
+class BaseCommand
+  def initialize
+  end
+
+  defm get_command_id
+    return self.command_id
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm get_auto_unregister
+    return true
+  end
+
+  defm has_ex_mode
+    return false
+  end
+
+  defm has_ctrlp_mode
+    return false
+  end
+
+  defm set_registered(registered)
+    self.registered = registered
+  end
+
+  defm has_registered
+    return has_key(self, 'registered') && self.registered
+  end
+
+  " command name
+  defm get_name
+    return 'BaseCommand'
+  end
+
+  defm get_aliases
+    return []
+  end
+
+  defm get_names
+    return [self.get_name()] + self.get_aliases()
+  end
+
+  defm get_ctrlp_aliases
+    return self.get_aliases()
+  end
+
+  defm get_ctrlp_names
+    return self.get_ctrlp_aliases()
+  end
+
+  defm get_display_name(cmd_name)
+    return substitute(cmd_name, 'CtrlP', '', '')
+  end
+
+  " command options
+  defm get_bang
+    return true
+  end
+
+  defm get_bar
+    return true
+  end
+
+  defm get_nargs
+    return '*'
+  end
+
+  defm get_buffer
+    return true
+  end
+
+  defm get_register
+    return false
+  end
+
+  defm get_completer
+    return false
+  end
+
+  defm get_range
+    return false
+  end
+
+  defm get_count
+    return false
+  end
+
+  defm get_options
+    opts = {}
+    opts.bang = self.get_bang()
+    opts.bar = self.get_bar()
+    opts.nargs = self.get_nargs()
+    opts.buffer = self.get_buffer()
+    opts.register = self.get_register()
+    opts.complete = self.get_completer()
+    opts.range = self.get_range()
+    opts.count = self.get_count()
+
+    return opts
+  end
+
+  " command execution
+  defm complete(word, cmd_line, cursor)
+    return []
+  end
+
+  " run(..., opts)
+  defm run(...)
+  end
+
+end

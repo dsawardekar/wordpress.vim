@@ -1,0 +1,44 @@
+riml_include 'spec_helper'
+riml_include 'tags_option'
+
+class TagsOptionSpec
+  defm before_each
+    self.tags_option = new TagsOption()
+  end
+
+  defm it_can_get_current_tags_option_value
+    :set tags=foo,bar
+    expect(self.tags_option.get_tags()).to_equal('foo,bar')
+  end
+
+  defm it_can_get_local_tags_option_value
+    :set tags=foo,bar
+    :setlocal tags=lorem,ipsum
+    expect(self.tags_option.get_tags()).to_equal('lorem,ipsum')
+  end
+
+  defm it_can_change_tags_option_value
+    self.tags_option.set_tags('a,b,c')
+    expect(self.tags_option.get_tags()).to_equal('a,b,c')
+  end
+
+  defm it_can_convert_tags_value_to_list
+    expect(self.tags_option.to_list('a,b,c')).to_equal(['a','b','c'])
+  end
+
+  defm it_can_convert_tags_list_to_value
+    expect(self.tags_option.to_value(['a', 'b', 'c'])).to_equal('a,b,c')
+  end
+
+  defm it_can_append_tag_path
+    self.tags_option.set_tags('a,b')
+    self.tags_option.append('foo')
+    expect(self.tags_option.get_tags()).to_equal('a,b,foo')
+  end
+
+  defm it_can_prepend_tag_path
+    self.tags_option.set_tags('a,b')
+    self.tags_option.prepend('foo')
+    expect(self.tags_option.get_tags()).to_equal('foo,a,b')
+  end
+end

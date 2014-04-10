@@ -1,0 +1,79 @@
+riml_include 'spec_helper'
+riml_include 'post'
+riml_include 'post_saver'
+riml_include 'wpcli'
+riml_include 'wpcli_printer'
+riml_include 'container'
+
+class MockPost < Post
+  def initialize
+    super()
+    self.created = false
+    self.updated = false
+    self.is_mock_post = true
+  end
+
+  defm update(*args)
+    self.updated = true
+    return 'Success' . join(args)
+  end
+
+  defm create(*args)
+    self.created = true
+    return self.post_id
+  end
+end
+
+class PostSaverSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('post', 'MockPost', true)
+    self.container.register('post_saver', 'PostSaver', true)
+    self.container.register('wpcli', 'WpCli', true)
+    self.container.register('wpcli_printer', 'WpCliPrinter', true)
+
+    self.post = self.container.lookup('post')
+    self.post_saver = self.container.lookup('post_saver')
+  end
+
+  defm it_has_a_post_object
+    expect(self.post_saver.post.is_post).to_be_true()
+  end
+
+  defm it_has_a_wpcli_printer
+    expect(self.post_saver.wpcli_printer.is_wpcli_printer).to_be_true()
+  end
+
+  defm it_can_store_post_id
+    self.post_saver.set_post_id('5')
+    expect(self.post_saver.get_post_id()).to_equal('5')
+  end
+
+  defm it_does_not_update_post_on_unmodified_buffer
+    self.post_saver.modified = false
+    self.post_saver.after_file_save()
+
+    expect(self.post.created).to_be_false()
+    expect(self.post.updated).to_be_false()
+  end
+
+  defm it_creates_new_post_if_post_id_is_empty
+    self.post.post_id = 6
+    self.post_saver.modified = true
+
+    result = self.post_saver.after_file_save()
+
+    expect(self.post.created).to_be_true()
+    expect(result).to_match('6')
+  end
+
+  defm it_updates_existing_post_if_post_id_is_present
+    self.post_saver.modified = true
+    self.post_saver.post_id = 7
+
+    result = self.post_saver.after_file_save()
+
+    expect(self.post.updated).to_be_true()
+    expect(result).to_match('7')
+  end
+end

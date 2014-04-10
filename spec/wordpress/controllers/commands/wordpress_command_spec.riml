@@ -1,0 +1,101 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wordpress_command'
+riml_include 'with_dir'
+
+class MockItem
+  def initialize
+    self.is_mock_item = true
+  end
+end
+
+class MockWordPressCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'MockWordPress'
+  end
+
+  defm run(a, b, c, opts)
+    self.run_args = [a, b, c]
+    self.opts = opts
+    return true
+  end
+end
+
+class WordpressCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new WordPressCommand(self.container)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+  end
+
+  defm it_has_a_container
+    expect(self.command.container.is_container).to_be_true()
+  end
+
+  defm it_can_lookup_objects_in_container
+    self.container.register('foo', 'MockItem')
+    expect(self.command.lookup('foo').is_mock_item).to_be_true()
+  end
+
+  defm it_can_run_commands_in_registry
+    self.container.register('registry', 'CommandRegistry', true)
+    registry = self.container.lookup('registry')
+    cmd = new MockWordPressCommand(self.container)
+    registry.add(cmd)
+
+    result = self.command.process('MockWordPress', 1, 2, 3)
+    expect(result).to_be_true()
+    expect(cmd.run_args).to_equal([1, 2, 3])
+    expect(cmd.opts.match).to_equal('MockWordPress')
+  end
+
+  defm it_knows_the_current_buffer
+    buffer = new Buffer('foo')
+    self.buffer_collection.set_current(buffer)
+    expect(self.command.current_buffer()).to_equal(buffer)
+  end
+
+  defm it_knows_full_path_to_current_buffer
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-login.php")
+    self.buffer_collection.set_current(buffer)
+    expect(self.command.current_buffer_full_path()).to_equal(buffer.get_full_path())
+  end
+
+  defm it_knows_project_path_for_current_buffer
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-includes/category.php")
+    self.buffer_collection.set_current(buffer)
+    expect(self.command.current_buffer_project_path()).to_match("#{g:WORDPRESS_DIR}$")
+  end
+
+  defm it_has_a_current_project
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-includes/category.php")
+    self.buffer_collection.set_current(buffer)
+    self.project_collection.add(buffer.get_project_path())
+    expect(self.command.current_project().get_root()).to_match("#{g:WORDPRESS_DIR}$")
+  end
+
+  defm it_can_split_args_into_params_and_opts
+    args = [1, 2, 3, { 'foo': 'bar' }]
+    result = self.command.expand_args(args)
+    params = result[0]
+    opts = result[1]
+
+    expect(params).to_equal([1, 2, 3])
+    expect(opts).to_equal({ 'foo': 'bar' })
+  end
+end

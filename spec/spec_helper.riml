@@ -1,0 +1,6 @@
+riml_include 'dsl'
+riml_include 'log_helpers'
+
+unless exists('g:WORDPRESS_DIR')
+  g:WORDPRESS_DIR = 'tmp/wordpress/3.8.2'
+end

@@ -1,0 +1,19 @@
+if exists('g:wordpress_vim_plugin_loaded')
+  finish
+elseif v:version < 703 || (v:version == 703 && !has('patch97'))
+  finish
+end
+
+riml_include 'buffer'
+riml_include 'autocmd_loader'
+riml_include 'wordpress_plugin'
+
+def main()
+  s:plugin = new WordPressPlugin()
+  s:plugin.start()
+  g:wordpress_vim_plugin_loaded = true
+end
+
+if !exists('g:speckle_mode')
+  main()
+end

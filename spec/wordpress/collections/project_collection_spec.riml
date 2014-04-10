@@ -1,0 +1,63 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'project'
+riml_include 'project_collection'
+riml_include 'with_dir'
+
+class ProjectCollectionSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.project_path = fnamemodify("#{g:WORDPRESS_DIR}/wp-login.php", ':p:h')
+  end
+
+  defm it_has_a_container
+    expect(self.project_collection.container.is_container).to_be_true()
+  end
+
+  defm it_can_create_projects
+    project1 = self.project_collection.lookup('project')
+    project2 = self.project_collection.lookup('project')
+
+    expect(project1.is_project).to_be_true()
+    expect(project2.is_project).to_be_true()
+
+    project1.id = 1
+    project2.id = 2
+
+    expect(project1).to_not_equal(project2)
+  end
+
+  defm it_knows_if_project_is_absent_from_collection
+    expect(self.project_collection.contains('spec')).to_be_false()
+  end
+
+  defm it_knows_if_project_is_present_in_collection
+    self.project_collection.add(self.project_path)
+    expect(self.project_collection.contains(self.project_path)).to_be_true()
+  end
+
+  defm it_can_store_projects
+    self.project_collection.add(self.project_path)
+    self.project_collection.add(self.project_path)
+
+    expect(self.project_collection.size()).to_equal(1)
+  end
+
+  defm it_can_remove_project
+    self.project_collection.add(self.project_path)
+    self.project_collection.remove(self.project_path)
+
+    expect(self.project_collection.size()).to_equal(0)
+  end
+
+  defm it_can_clear_all_stored_projects
+    self.project_collection.add(self.project_path)
+    self.project_collection.clear()
+    expect(self.project_collection.size()).to_equal(0)
+  end
+end

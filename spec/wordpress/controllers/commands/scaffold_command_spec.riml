@@ -1,0 +1,51 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wordpress_command'
+riml_include 'wordpress_project_command'
+riml_include 'scaffold_command'
+riml_include 'file_opener'
+riml_include 'with_dir'
+
+class ScaffoldCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('file_opener', 'FileOpener', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new ScaffoldCommand(self.container)
+    self.command.set_cmd_name('scaffold')
+
+    self.file_opener = self.container.lookup('file_opener')
+    self.file_opener.set_exec_mode(false)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+  end
+
+  defm it_can_extract_path_to_child_theme_with_single_line_msg
+    result = "Success: Created wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1"
+    expected = "wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1/style.css"
+    actual = self.command.find_scaffold_file(result, 'style.css')
+    expect(actual).to_equal(expected)
+  end
+
+  defm it_can_extract_path_to_child_theme_with_multiline_msg
+    result = "Success: Created wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1\nSuccess: Switched to 'A1' theme."
+    expected = "wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1/style.css"
+    actual = self.command.find_scaffold_file(result, 'style.css')
+    expect(actual).to_equal(expected)
+  end
+
+  " TODO: the tedious tests
+  " 1. check if scaffold post-type |taxonomy inserts into buffer
+  " 2. check if _s | plugin | child-theme open correct file
+  "    use file_opener non exec mode, and match against file path
+end
+

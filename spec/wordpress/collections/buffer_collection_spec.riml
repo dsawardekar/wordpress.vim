@@ -1,0 +1,97 @@
+riml_include 'spec_helper'
+riml_include 'buffer'
+riml_include 'buffer_collection'
+
+class BufferCollectionSpec
+  defm before_each
+    self.collection = new BufferCollection()
+  end
+
+  defm it_can_store_buffers
+    buffer = new Buffer('foo')
+    self.collection.add(buffer)
+    expect(self.collection.contains(buffer)).to_be_true()
+  end
+
+  defm it_can_remove_stored_buffers
+    buffer = new Buffer('foo')
+    self.collection.add(buffer)
+    self.collection.remove(buffer)
+    expect(self.collection.contains(buffer)).to_be_false()
+  end
+
+  defm it_knows_if_it_has_stored_a_buffer
+    buffer = new Buffer('foo')
+    self.collection.add(buffer)
+    expect(self.collection.contains(buffer)).to_be_true()
+  end
+
+  defm it_knows_if_it_has_not_stored_a_buffer
+    buffer = new Buffer('bar')
+    expect(self.collection.contains(buffer)).to_be_false()
+  end
+
+  defm it_knows_if_it_has_stored_buffer_path
+    buffer = new Buffer('foo')
+    self.collection.add(buffer)
+    expect(self.collection.contains_path(buffer.get_full_path())).to_be_true()
+  end
+
+  defm it_knows_if_it_has_not_stored_buffer_path
+    buffer = new Buffer('bar')
+    expect(self.collection.contains_path(buffer.get_full_path())).to_be_false()
+  end
+
+  defm it_can_fetch_buffer_from_path
+    buffer = new Buffer('foo')
+    self.collection.add(buffer)
+
+    new_buffer = self.collection.buffer_for(buffer.get_full_path())
+    expect(new_buffer).to_equal(buffer)
+  end
+
+  defm it_knows_size_of_collection
+    self.collection.add(new Buffer('lorem'))
+    self.collection.add(new Buffer('ipsum'))
+    self.collection.add(new Buffer('dolor'))
+
+    expect(self.collection.size()).to_equal(3)
+  end
+
+  defm it_can_clear_collection_of_all_buffers
+    buffer = new Buffer('foo')
+    self.collection.add(buffer)
+    self.collection.clear()
+
+    expect(buffer).to_not_have_key('path')
+    expect(self.collection.size()).to_equal(0)
+  end
+
+  defm it_can_store_current_buffer
+    buffer = new Buffer('foo')
+    self.collection.set_current(buffer)
+    expect(self.collection.contains(buffer)).to_be_true()
+  end
+
+  defm it_does_not_store_duplicate_of_current_buffer
+    buffer = new Buffer('foo')
+    self.collection.set_current(buffer)
+    self.collection.set_current(buffer)
+
+    expect(self.collection.contains(buffer)).to_be_true()
+    expect(self.collection.size()).to_equal(1)
+  end
+
+  defm it_knows_the_current_buffer
+    one = new Buffer('one')
+    two = new Buffer('two')
+    three = new Buffer('three')
+
+    self.collection.set_current(one)
+    self.collection.set_current(two)
+    self.collection.set_current(three)
+    self.collection.set_current(two)
+
+    expect(self.collection.get_current()).to_equal(two)
+  end
+end

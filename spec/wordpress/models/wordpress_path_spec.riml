@@ -1,0 +1,57 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'wordpress_path'
+riml_include 'with_dir'
+
+class WordPressPathSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('wordpress_path', 'WordPressPath', true)
+    self.container.register('wpcli_config', 'WpCliConfig', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.wpcli_config = self.container.lookup('wpcli_config')
+    self.wordpress_path = self.container.lookup('wordpress_path')
+  end
+
+  defm it_has_a_wpcli_config
+    expect(self.wpcli_config.is_wpcli_config).to_be_true()
+  end
+
+  defm it_can_calculate_abs_path
+    execute(':cd spec')
+    path = self.wordpress_path.calc_abs_path('../spec')
+    expect(path).to_match('spec$')
+    execute(':cd ../')
+  end
+
+  defm it_can_convert_path_to_abs_path
+    path = self.wordpress_path.to_abs_path('../../spec', 'spec/wordpress')
+    expect(path).to_match('spec$')
+  end
+
+  defm it_can_find_path_using_wp_cli_config
+    path = self.wordpress_path.find_wp_cli_project_path('tmp/wpcli_with_local')
+    expect(path).to_match("#{g:WORDPRESS_DIR}$")
+  end
+
+  defm it_has_buffer_type_detectors
+    expect(self.wordpress_path.get_detectors()).to_have_length(2)
+  end
+
+  defm it_can_find_path_to_wordpress_in_a_core_project
+    path = self.wordpress_path.get_path('spec/wordpress/projects/wordpress_with_core')
+    expect(path).to_match('spec/wordpress/projects/wordpress_with_core$')
+  end
+
+  defm it_can_find_path_to_wordpress_in_wpcli_project
+    path = self.wordpress_path.get_path('tmp/wpcli_with_local')
+    expect(path).to_match("#{g:WORDPRESS_DIR}$")
+  end
+
+  defm it_can_find_path_from_global_config
+    g:wordpress_vim_wordpress_path = fnamemodify(g:WORDPRESS_DIR, ':p')
+    path = self.wordpress_path.get_path('spec')
+    expect(path).to_match(g:WORDPRESS_DIR)
+    :unlet g:wordpress_vim_wordpress_path
+  end
+end

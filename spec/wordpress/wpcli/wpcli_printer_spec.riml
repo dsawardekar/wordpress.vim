@@ -1,0 +1,58 @@
+riml_include 'spec_helper'
+riml_include 'with_dir'
+riml_include 'wpcli'
+riml_include 'wpcli_printer'
+riml_include 'json_parser'
+
+class WpCliPrinterSpec
+  defm before_each
+    self.printer = new WpCliPrinter()
+  end
+
+  defm it_knows_if_result_is_json
+    parser = new JSONParser()
+    json = parser.parse('{ "foo": 1 }')
+    result = self.printer.is_json(json)
+
+    expect(result).to_be_true()
+  end
+
+  defm it_knows_if_result_is_not_json
+    expect(self.printer.is_json('foo')).to_be_false()
+  end
+
+  defm it_can_split_result_into_lines
+    result = "a\nb\nc\nd"
+    lines = self.printer.lines_for(result)
+
+    expect(lines).to_have_length(4)
+    expect(lines).to_equal(['a', 'b', 'c', 'd'])
+  end
+
+  defm it_can_replace_command_name_in_result
+    text = 'usage: wp cache add <key> <value> [<group>] [<expiration>]'
+    result = self.printer.replace('cache', text)
+    expect(result).to_match("Wcache")
+  end
+
+  defm it_can_replace_command_help_name_in_result
+    text = "See 'wp help cache <command>' for more information on a specific command."
+    result = self.printer.replace('cache', text)
+    expect(result).to_match("Wcache!")
+  end
+
+  defm it_can_print_text_result
+    result = "a\nb\nc\nd"
+    self.printer.print_text('cache', result)
+  end
+
+  defm it_can_print_json_result
+    result = { 'lorem': 'one', 'ipsum': 'two' }
+    self.printer.print_json('cache', result)
+  end
+
+  defm it_prints_text_for_text_result
+    result = "a\nb\nc\nd"
+    self.printer.print('cache', result)
+  end
+end

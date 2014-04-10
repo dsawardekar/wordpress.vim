@@ -1,0 +1,90 @@
+riml_include 'spec_helper'
+riml_include 'buffer_type_detector'
+
+class BufferTypeDetectorSpec
+  defm before
+    self.detector = new BufferTypeDetector()
+    self.projects = 'spec/wordpress/projects'
+  end
+
+  defm it_can_build_parent_for_theme_inside_core
+    path = "#{self.projects}/wordpress_with_core/wp-content/themes/sample-theme"
+    result = self.detector.get_parent_path(path)
+    expect(result).to_match("#{self.projects}/wordpress_with_core$")
+  end
+
+  defm it_can_build_parent_for_theme_outside_core
+    path = "#{self.projects}/sample-wordpress-theme"
+    result = self.detector.get_parent_path(path)
+    expect(result).to_match("spec$")
+  end
+
+  defm it_can_build_parent_for_plugin_inside_core
+    path = "#{self.projects}/wordpress_with_core/wp-content/plugins/sample-plugin"
+    result = self.detector.get_parent_path(path)
+    expect(result).to_match("#{self.projects}/wordpress_with_core$")
+  end
+
+  defm it_can_build_parent_for_plugin_outside_core
+    path = "#{self.projects}/sample-wordpress-plugin"
+    result = self.detector.get_parent_path(path)
+    expect(result).to_match("spec$")
+  end
+
+  defm it_can_build_parent_for_plugin_inside_plugins_dir
+    path = "#{self.projects}/wordpress_with_core/wp-content/plugins"
+    result = self.detector.get_parent_path(path)
+    expect(result).to_match("#{self.projects}/wordpress_with_core$")
+  end
+
+  defm it_can_build_parent_for_mu_plugin_inside_plugins_dir
+    path = "#{self.projects}/wordpress_with_core/wp-content/mu-plugins"
+    result = self.detector.get_parent_path(path)
+    expect(result).to_match("#{self.projects}/wordpress_with_core$")
+  end
+
+  defm it_knows_if_path_has_wordpress_core
+    path = "#{self.projects}/wordpress_with_core"
+    expect(self.detector.is_core_path(path)).to_be_true()
+  end
+
+  defm it_knows_if_path_does_not_have_wordpress_core
+    expect(self.detector.is_core_path("spec")).to_be_false()
+  end
+
+  defm it_fetches_correct_path_for_theme_inside_core
+    theme_path = "#{self.projects}/wordpress_with_core/wp-content/themes/sample-theme"
+    project_path = self.detector.get_project_path(theme_path)
+    expect(project_path).to_match("#{self.projects}/wordpress_with_core$")
+  end
+
+  defm it_fetches_correct_path_for_theme_outside_core
+    theme_path = "#{self.projects}/sample-wordpress-theme"
+    project_path = self.detector.get_project_path(theme_path)
+    expect(project_path).to_match("#{self.projects}/sample-wordpress-theme$")
+  end
+
+  defm it_fetches_correct_path_for_plugin_inside_core
+    plugin_path = "#{self.projects}/wordpress_with_core/wp-content/plugins/sample-theme"
+    project_path = self.detector.get_project_path(plugin_path)
+    expect(project_path).to_match("#{self.projects}/wordpress_with_core$")
+  end
+
+  defm it_fetches_correct_path_for_plugin_outside_core
+    plugin_path = "#{self.projects}/sample-wordpress-plugin"
+    project_path = self.detector.get_project_path(plugin_path)
+    expect(project_path).to_match("#{self.projects}/sample-wordpress-plugin$")
+  end
+
+  defm it_fetches_correct_path_for_plugin_inside_plugins_dir
+    plugin_path = "#{self.projects}/wordpress_with_core/wp-content/plugins"
+    project_path = self.detector.get_project_path(plugin_path)
+    expect(project_path).to_match("#{self.projects}/wordpress_with_core$")
+  end
+
+  defm it_fetches_correct_path_for_plugin_inside_mu_plugins_dir
+    plugin_path = "#{self.projects}/wordpress_with_core/wp-content/mu-plugins"
+    project_path = self.detector.get_project_path(plugin_path)
+    expect(project_path).to_match("#{self.projects}/wordpress_with_core$")
+  end
+end

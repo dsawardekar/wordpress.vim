@@ -1,0 +1,80 @@
+riml_include 'spec_helper'
+riml_include 'buffer_type_detector'
+riml_include 'plugin_detector'
+
+class PluginDetectorSpec
+  defm before
+    self.detector = new PluginDetector()
+    self.plugin_path = 'spec/wordpress/projects/sample-wordpress-plugin'
+  end
+
+  defm it_has_plugin_type
+    expect(self.detector.get_type()).to_equal('plugin')
+  end
+
+  defm it_knows_if_directory_has_plugin_file
+    result = self.detector.has_plugin_file("#{self.plugin_path}/sample-wordpress-plugin.php")
+    expect(result).to_be_true()
+  end
+
+  defm it_knows_if_directory_does_not_have_plugin_file
+    result = self.detector.has_plugin_file("#{self.plugin_path}/unknown-file.php")
+    expect(result).to_be_false()
+  end
+
+  defm it_knows_if_file_has_plugin_header
+    result = self.detector.has_plugin_header("#{self.plugin_path}/sample-wordpress-plugin.php")
+    expect(result).to_be_true()
+  end
+
+  defm it_knows_if_file_does_not_have_plugin_header
+    result = self.detector.has_plugin_header("#{self.plugin_path}/dummy-plugin.php")
+    expect(result).to_be_false()
+  end
+
+  defm it_knows_if_directory_is_wordpress_plugin
+    result = self.detector.is_plugin(self.plugin_path)
+    expect(result).to_be_true()
+  end
+
+  defm it_knows_if_directory_is_not_wordpress_plugin
+    result = self.detector.is_plugin('spec')
+    expect(result).to_be_false()
+  end
+
+  defm it_can_detect_if_path_is_inside_plugin
+    result = self.detector.detect('spec/wordpress/projects/sample-wordpress-plugin')
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/sample-wordpress-plugin$')
+  end
+
+  defm it_can_detect_if_path_is_not_inside_plugin
+    result = self.detector.detect('spec/wordpress/projects/wordpress_with_core')
+    expect(result.status).to_be_false()
+    expect(result.path).to_equal('')
+  end
+
+  defm it_can_detect_correct_path_for_plugin_inside_core
+    result = self.detector.detect('spec/wordpress/projects/wordpress_with_core/wp-content/plugins/sample-plugin')
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/wordpress_with_core$')
+  end
+
+  defm it_can_detect_correct_path_for_plugin_in_plugins_dir
+    result = self.detector.detect('spec/wordpress/projects/wordpress_with_core/wp-content/plugins')
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/wordpress_with_core$')
+  end
+
+  defm it_can_detect_correct_path_for_plugin_in_mu_plugins_dir
+    result = self.detector.detect('spec/wordpress/projects/wordpress_with_core/wp-content/mu-plugins')
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/wordpress_with_core$')
+  end
+
+  defm it_can_detect_correct_path_for_plugin_outside_core
+    result = self.detector.detect('spec/wordpress/projects/sample-wordpress-plugin')
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/sample-wordpress-plugin$')
+  end
+end

@@ -1,0 +1,7 @@
+*.swp
+*.swo
+tmp
+build
+notes.txt
+.rspec
+vendor

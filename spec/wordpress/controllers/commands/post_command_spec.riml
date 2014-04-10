@@ -1,0 +1,85 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wordpress_command'
+riml_include 'wordpress_project_command'
+riml_include 'post_command'
+riml_include 'with_dir'
+
+class PostCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new PostCommand(self.container)
+    self.command.set_cmd_name('post')
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+  end
+
+  defm it_can_build_temporary_file_paths
+    path1 = self.command.get_temp_file()
+    path2 = self.command.get_temp_file()
+
+    expect(path1).to_not_equal(path2)
+  end
+
+  defm it_can_build_post_options
+    params = ['create', '--post_title=hello']
+    opts   = {}
+    post_options = self.command.get_post_options(params, opts)
+
+    expect(post_options.action).to_equal('create')
+    expect(post_options.options).to_equal(['--post_title=hello'])
+  end
+
+  " The integration tests with the temp buffer are quite tedious
+  " revisit if the command is unreliable
+end
+
+class PostOptionsSpec
+  defm before_each
+    self.options = new PostOptions()
+  end
+
+  defm it_returns_help_action_for_empty_params
+    result = self.options.parse([], {})
+    expect(result.action).to_equal('help')
+  end
+
+  defm it_can_parse_params_with_only_action
+    result = self.options.parse(['create'], {})
+    expect(result.action).to_equal('create')
+  end
+
+  defm it_can_parse_update_action_with_post_id
+    result = self.options.parse(['update', 5], {})
+    expect(result.action).to_equal('update')
+    expect(result.options).to_equal([5])
+  end
+
+  defm it_can_parse_edit_action_with_post_id
+    result = self.options.parse(['edit', 5], {})
+    expect(result.action).to_equal('edit')
+    expect(result.options).to_equal([5])
+  end
+
+  defm it_can_parse_create_action_with_extra_params
+    result = self.options.parse(['create', '--post_title=hello', '--post_type=page'], {})
+    expect(result.action).to_equal('create')
+    expect(result.options).to_equal(['--post_title=hello', '--post_type=page'])
+  end
+
+  defm it_can_parse_update_action_with_extra_params
+    result = self.options.parse(['update', '--post_title=hello', '--post_type=page'], {})
+    expect(result.action).to_equal('update')
+    expect(result.options).to_equal(['--post_title=hello', '--post_type=page'])
+  end
+end

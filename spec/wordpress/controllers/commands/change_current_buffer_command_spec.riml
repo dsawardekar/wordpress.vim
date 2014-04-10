@@ -1,0 +1,108 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'base_command'
+riml_include 'buffer'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'command_registry'
+riml_include 'change_current_buffer_command'
+riml_include 'with_dir'
+
+class MockRegistryCommand < BaseCommand
+  defm get_name
+    return self.cmd_name
+  end
+
+  defm run(*args)
+    self.loaded_command = true
+  end
+end
+
+class ChangeCurrentBufferCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('registry', 'CommandRegistry', true)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.cmd = new ChangeCurrentBufferCommand(self.container)
+  end
+
+  defm lookup(key)
+    return self.container.lookup(key)
+  end
+
+  defm it_marks_passed_buffer_as_current
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+    self.cmd.run(buffer, {})
+
+    buffer_collection = self.lookup('buffer_collection')
+    expect(buffer_collection.get_current().get_path()).to_equal(buffer.get_path())
+  end
+
+  defm it_adds_project_to_collection
+    project_collection = self.lookup('project_collection')
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+    expect(project_collection.contains(buffer.get_project_path())).to_be_false()
+    self.cmd.run(buffer, {})
+
+    expect(project_collection.contains(buffer.get_project_path())).to_be_true()
+  end
+
+  defm it_does_not_readd_same_project_to_collection
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+    self.cmd.run(buffer, {})
+
+    expect(project_collection.size()).to_equal(1)
+  end
+
+  defm it_loads_project_command_registry
+    mock_cmd = new MockRegistryCommand()
+    mock_cmd.cmd_name = 'LoadProjectRegistry'
+    registry = self.container.lookup('registry')
+    registry.add(mock_cmd)
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+    self.cmd.run(buffer, {})
+
+    expect(mock_cmd.loaded_command).to_be_true()
+  end
+
+  defm it_loads_syntax_command
+    mock_cmd = new MockRegistryCommand()
+    mock_cmd.cmd_name = 'LoadSyntax'
+    registry = self.container.lookup('registry')
+    registry.add(mock_cmd)
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+    self.cmd.run(buffer, {})
+
+    expect(mock_cmd.loaded_command).to_be_true()
+  end
+
+  defm it_loads_configure_tags_command
+    mock_cmd = new MockRegistryCommand()
+    mock_cmd.cmd_name = 'ConfigureTags'
+    registry = self.container.lookup('registry')
+    registry.add(mock_cmd)
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+    self.cmd.run(buffer, {})
+
+    expect(mock_cmd.loaded_command).to_be_true()
+  end
+end

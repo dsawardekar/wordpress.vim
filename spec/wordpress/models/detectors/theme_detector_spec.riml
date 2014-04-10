@@ -1,0 +1,43 @@
+riml_include 'spec_helper'
+riml_include 'buffer_type_detector'
+riml_include 'theme_detector'
+
+class ThemeDetectorSpec
+  defm before
+    self.detector = new ThemeDetector()
+    self.theme_path = 'spec/wordpress/projects/sample-wordpress-theme'
+  end
+
+  defm it_has_theme_type
+    expect(self.detector.get_type()).to_equal('theme')
+  end
+
+  defm it_knows_if_file_has_theme_header
+    result = self.detector.has_theme_header("#{self.theme_path}/style.css")
+    expect(result).to_be_true()
+  end
+
+  defm it_knows_if_file_does_not_have_theme_header
+    result = self.detector.has_theme_header("#{self.theme_path}/dummy-style.css")
+    expect(result).to_be_false()
+  end
+
+  defm it_can_detect_if_path_is_inside_theme
+    result = self.detector.detect(self.theme_path)
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/sample-wordpress-theme$')
+  end
+
+  defm it_can_detect_if_path_is_not_inside_theme
+    result = self.detector.detect('spec/wordpress/projects/sample-wordpress-plugin')
+    expect(result.status).to_be_false()
+    expect(result.path).to_equal('')
+  end
+
+  defm it_can_detect_correct_path_for_theme_inside_core
+    path = 'spec/wordpress/projects/wordpress_with_core/wp-content/themes/sample-theme'
+    result = self.detector.detect(path)
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/wordpress_with_core$')
+  end
+end

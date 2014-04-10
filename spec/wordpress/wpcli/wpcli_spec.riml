@@ -1,0 +1,73 @@
+riml_include 'spec_helper'
+riml_include 'wpcli'
+
+class WpCliSpec
+  defm before_each
+    self.cwd = getcwd()
+    self.cli = new WpCli()
+    self.parser = new JSONParser()
+
+    self.cli.set_path("wp --path=#{g:WORDPRESS_DIR}")
+  end
+
+  defm after_each
+  end
+
+  defm it_has_default_wp_cli_path
+    expect(self.cli.get_path()).to_match('wp')
+  end
+
+  defm it_can_change_wp_cli_path
+    self.cli.set_path('foo')
+    expect(self.cli.get_path()).to_match('foo')
+  end
+
+  defm it_can_build_cli
+    expect(self.cli.build(['cli', 'info'])).to_match('cli info')
+  end
+
+  defm it_can_execute_cli
+    result = self.cli.exec(['cli', 'info', '--format=json'])
+    expect(result).to_have_key('wp_cli_version')
+  end
+
+  defm it_does_not_try_to_parse_json_if_result_is_text
+    result = self.cli.exec(['cli', 'info'])
+    expect(result).to_not_equal(false)
+  end
+
+  defm it_can_run_cmd_without_params
+    result = self.cli.run('cli', 'info', '--format=json')
+    expect(result).to_have_key('wp_cli_version')
+  end
+
+  defm it_can_return_meta_about_all_commands
+    result = self.cli.dump()
+    expect(result).to_have_key('subcommands')
+  end
+
+  defm it_can_return_list_of_top_level_commands
+    cmds = self.cli.list()
+    expect(len(cmds)).to_be_gt(10)
+  end
+
+  defm it_stores_env_vars
+    self.cli.add_env_var('lorem', 1)
+    self.cli.add_env_var('ipsum', 'foo')
+
+    vars = self.cli.get_env_vars()
+    expect(vars).to_match('lorem=1')
+    expect(vars).to_match('ipsum=foo')
+  end
+
+  defm it_has_default_shell_pipe_env_var
+    vars = self.cli.get_env_vars()
+    expect(vars).to_match('SHELL_PIPE=0')
+  end
+
+  defm it_add_shell_pipe_to_built_command
+    cmd = self.cli.build(['cli', 'info'])
+    expect(cmd).to_match('SHELL_PIPE=0')
+  end
+end
+

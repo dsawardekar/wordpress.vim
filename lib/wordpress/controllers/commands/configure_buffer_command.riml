@@ -1,0 +1,20 @@
+riml_include 'wordpress_command'
+riml_include 'buffer'
+riml_include 'buffer_collection'
+riml_include 'msg'
+riml_include 'with_dir'
+
+class ConfigureBufferCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'ConfigureBuffer'
+  end
+
+  defm run(buffer, opts)
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.add(buffer)
+  end
+end

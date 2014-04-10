@@ -1,0 +1,156 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wordpress_command'
+riml_include 'wordpress_project_command'
+riml_include 'wpcli_command'
+riml_include 'with_dir'
+
+class MockCompleter
+end
+
+class MockRunner
+end
+
+class MockWithDir < WithDir
+  defm run(scope, method, args)
+    return args
+  end
+end
+
+class WpCliCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new WpCliCommand(self.container)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection  = self.container.lookup('buffer_collection')
+  end
+
+  defm lookup(key)
+    return self.container.lookup(key)
+  end
+
+  defm it_has_a_container
+    expect(self.command.container.is_container).to_be_true()
+  end
+
+  defm it_does_not_auto_register
+    expect(self.command.get_auto_register()).to_be_false()
+  end
+
+  defm it_has_ex_mode
+    expect(self.command.has_ex_mode()).to_be_true()
+  end
+
+  defm it_has_command_name
+    self.command.set_cmd_name('foo')
+    expect(self.command.get_cmd_name()).to_equal('foo')
+  end
+
+  defm it_has_a_customlist_completer
+    expect(self.command.get_completer()).to_equal('customlist')
+  end
+
+  defm it_maps_cmd_name_to_ex_cmd_name
+    self.command.set_cmd_name('cache')
+    expect(self.command.get_name()).to_equal('Wcache')
+  end
+
+  defm it_knows_if_command_has_hyphen
+    self.command.set_cmd_name('search-replace')
+    expect(self.command.has_hyphen()).to_be_true()
+  end
+
+  defm it_knows_if_command_does_not_have_hyphen
+    self.command.set_cmd_name('cache')
+    expect(self.command.has_hyphen()).to_be_false()
+  end
+
+  defm it_removes_hyphens_from_cmd_name_when_mapping_to_ex_cmd
+    self.command.set_cmd_name('search-replace')
+    expect(self.command.get_name()).to_equal('Wsearchreplace')
+  end
+
+  defm it_can_put_back_hyphen_into_cmd_line
+    line = 'Wsearchreplace'
+    expected = 'Wsearch-replace'
+    self.command.set_cmd_name('search-replace')
+    expect(self.command.get_dehyphenated_cmd_line(line)).to_equal(expected)
+  end
+
+  defm it_has_with_dir_with_project_as_target
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    with_dir = self.command.get_with_dir()
+    expect(with_dir.get_dir()).to_equal(buffer.get_project_path())
+  end
+
+  defm it_sends_correct_args_to_completer
+    self.container.register('wpcli_completer', 'MockCompleter', true)
+    self.container.register('with_dir', 'MockWithDir', true)
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+    with_dir = self.lookup('with_dir')
+
+    self.command.set_cmd_name('cache')
+    result = self.command.complete('d', 'Wcache d', 8)
+    expect(result).to_equal(['cache', 'd', 'Wcache d', 8])
+  end
+
+  defm it_sends_correct_args_to_completer_for_commands_with_hyphen
+    self.container.register('wpcli_completer', 'MockCompleter', true)
+    self.container.register('with_dir', 'MockWithDir', true)
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+    with_dir = self.lookup('with_dir')
+
+    self.command.set_cmd_name('search-replace')
+    result = self.command.complete('d', 'Wsearchreplace d', 16)
+    expect(result).to_equal(['search-replace', 'd', 'Wsearch-replace d', 17])
+  end
+
+  defm it_sends_correct_args_to_runner
+    self.container.register('wpcli_runner', 'MockRunner', true)
+    self.container.register('with_dir', 'MockWithDir', true)
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+    with_dir = self.lookup('with_dir')
+
+    self.command.set_cmd_name('cache')
+    result = self.command.run('add', 'foo', 'bar', {})
+    expect(result).to_equal(['cache', ['add', 'foo', 'bar'], {}])
+  end
+end

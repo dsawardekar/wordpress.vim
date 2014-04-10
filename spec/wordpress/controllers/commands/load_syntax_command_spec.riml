@@ -1,0 +1,105 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'base_command'
+riml_include 'buffer'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'command_registry'
+riml_include 'change_current_buffer_command'
+riml_include 'with_dir'
+riml_include 'load_syntax_command'
+
+class LoadSyntaxCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('registry', 'CommandRegistry', true)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new LoadSyntaxCommand(self.container)
+  end
+
+  defm lookup(key)
+    return self.container.lookup(key)
+  end
+
+  defm it_knows_if_current_buffer_is_not_a_php_buffer
+    :set filetype=txt
+    expect(self.command.is_php_buffer()).to_be_false()
+  end
+
+  defm it_knows_if_current_buffer_is_a_php_buffer
+    :set filetype=php
+    expect(self.command.is_php_buffer()).to_be_true()
+  end
+
+  defm it_knows_if_current_buffer_is_a_readme_buffer
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/readme.txt")
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    expect(self.command.is_readme_buffer()).to_be_true()
+  end
+
+  defm it_knows_if_current_buffer_is_not_a_readme_buffer
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-login.php")
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    expect(self.command.is_readme_buffer()).to_be_false()
+  end
+
+  defm it_changes_filetype_of_php_files
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    self.command.run({})
+    expect(&filetype).to_equal('php.wordpress')
+  end
+
+  defm it_does_not_change_filetype_of_non_php_files
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/readme.txt")
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    self.command.run({})
+    expect(&filetype).to_not_equal('php.wordpress')
+  end
+
+  defm it_changes_filetype_of_readme_files
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/readme.txt")
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    self.command.run({})
+    expect(&filetype).to_equal('markdown.readme')
+  end
+
+  defm it_does_not_change_filetype_of_non_readme_files
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+    buffer_collection = self.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    expect(&filetype).to_not_equal('markdown.readme')
+  end
+end

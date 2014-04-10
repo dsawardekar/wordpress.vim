@@ -1,0 +1,50 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wordpress_command'
+riml_include 'wordpress_project_command'
+riml_include 'eval_command'
+riml_include 'with_dir'
+
+class EvalCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new EvalCommand(self.container)
+    self.command.set_cmd_name('eval')
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+  end
+
+  defm it_has_ex_range
+    expect(self.command.get_range()).to_be_true()
+  end
+
+  defm it_can_convert_params_to_eval_text
+    params = ['echo', '"some text"', ';']
+    expect(self.command.to_eval_text(params)).to_equal(['''echo "some text" ;'''])
+  end
+
+  defm it_can_convert_lines_to_eval_text
+    params = ['echo("foo");', 'echo("bar");']
+    expect(self.command.to_eval_text(params)).to_equal(['''echo("foo"); echo("bar");'''])
+  end
+
+  defm it_can_eval_specified_expression
+    file = new Buffer("#{g:WORDPRESS_DIR}/echo_wp_content.php")
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-login.php")
+    self.buffer_collection.set_current(buffer)
+    self.project_collection.add(buffer.get_project_path())
+
+    result = self.command.run('echo WP_CONTENT_DIR;', {})
+    expect(result).to_match("#{g:WORDPRESS_DIR}/wp-content")
+  end
+end

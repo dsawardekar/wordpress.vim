@@ -1,0 +1,54 @@
+riml_include 'spec_helper'
+riml_include 'wpcli_path'
+
+class WpCliPathSpec
+  defm before_each
+    self.path = new WpCliPath()
+  end
+
+  defm it_can_build_path_to_vendor_cli
+    expect(self.path.vendor_cli_path('foo')).to_match('vendor/bin/wp$')
+  end
+
+  defm it_knows_if_global_path_is_executable
+    expect(self.path.is_executable('wp')).to_be_true()
+  end
+
+  defm it_knows_if_vendor_path_is_executable
+    wp_path = self.path.vendor_cli_path(expand('~/.composer'))
+    expect(self.path.is_executable(wp_path)).to_be_true()
+  end
+
+  defm it_knows_if_path_is_not_executable
+    wp_path = self.path.vendor_cli_path('spec')
+    expect(self.path.is_executable(wp_path)).to_be_false()
+  end
+
+  defm it_can_find_vendor_cli_path_if_present
+    expect(self.path.find(expand('~/.composer'))).to_match('vendor/bin/wp$')
+  end
+
+  defm it_can_find_global_cli_path
+    expect(self.path.find('spec')).to_equal('wp')
+  end
+
+  defm it_returns_empty_path_if_wp_cli_is_missing
+    self.path.mock_is_executable = false
+    expect(self.path.find('spec')).to_equal('')
+  end
+
+  " public api
+  defm it_can_calculate_path_to_vendor_cli
+    expect(self.path.get_path(expand('~/.composer'))).to_match('vendor/bin/wp$')
+  end
+
+  defm it_can_calculate_path_to_global_cli
+    expect(self.path.get_path('spec')).to_equal('wp')
+  end
+
+  defm it_can_detect_if_wp_cli_is_missing
+    self.path.mock_is_executable = false
+    expect(self.path.get_path('spec')).to_equal('')
+    expect(self.path.exists('spec')).to_be_false()
+  end
+end

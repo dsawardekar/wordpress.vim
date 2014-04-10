@@ -1,0 +1,108 @@
+riml_include 'buffer'
+riml_include 'autocmd_loader'
+riml_include 'msg'
+riml_include 'version'
+
+class WordPressPlugin
+  defm start
+    loader = new AutocmdLoader()
+    loader.set_group_name('wordpress_vim_plugin_group')
+
+    loader.cmd("BufNewFile,BufRead * call s:plugin.on_buffer_open(expand('<afile>'))")
+    loader.cmd("BufEnter * call s:plugin.on_buffer_enter(expand('<afile>'))")
+    loader.cmd("BufLeave * call s:plugin.on_buffer_leave(expand('<afile>'))")
+    loader.cmd("VimEnter * call s:plugin.on_vim_enter()")
+
+    loader.load()
+  end
+
+  defm loaded
+    return has_key(self, 'app')
+  end
+
+  defm get_app
+    unless self.loaded()
+      :redraw
+      echomsg "WordPress: Loading ..."
+      self.app = wordpress#app()
+    end
+
+    return self.app
+  end
+
+  " events
+  defm on_buffer_open(path)
+    buffer = new Buffer(path)
+
+    unless buffer.get_type() == 'unknown'
+      b:wordpress_buffer = buffer
+      self.get_app().on_buffer_open(buffer)
+    end
+  end
+
+  defm on_buffer_enter(path)
+    if exists('b:wordpress_buffer')
+      self.get_app().on_buffer_enter(b:wordpress_buffer)
+    end
+  end
+
+  defm on_buffer_leave(path)
+    if exists('b:wordpress_buffer')
+      self.get_app().on_buffer_leave(b:wordpress_buffer)
+    end
+  end
+
+  defm on_vim_enter
+    if self.can_autostart()
+      app = self.get_app()
+      app.on_buffer_open(self.last_buffer)
+      app.on_buffer_enter(self.last_buffer)
+    end
+  end
+
+  " autostart settings
+  " Note: conditionals are broken out for clarity, do not merge
+  defm can_autostart
+    if (has_key(self, 'force_autostart'))
+      " for testing
+      return self.has_wordpress()
+    end
+
+    if (self.loaded())
+      " already started
+      return false
+    end
+
+    unless self.has_args()
+      " autostart is for $ vim
+      " with a real buffer standard buffer_type detection
+      " will kick in
+      return false
+    end
+
+    if !self.has_autostart_option()
+      " autostart is disabled
+      return false
+    end
+
+    " buffer_type detection using psuedo buffer
+    return self.has_wordpress()
+  end
+
+  defm has_args
+    return argc() == 0
+  end
+
+  defm has_autostart_option
+    if exists('g:wordpress_vim_autostart')
+      return g:wordpress_vim_autostart
+    else
+      return true
+    end
+  end
+
+  defm has_wordpress
+    self.last_buffer = new Buffer('psuedo_buffer')
+    return self.last_buffer.get_type() != 'unknown'
+  end
+end

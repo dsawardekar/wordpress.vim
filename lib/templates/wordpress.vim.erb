@@ -1,0 +1,20 @@
+if exists('b:current_syntax') && b:current_syntax == 'php.wordpress'
+  finish
+elseif !exists('b:wordpress_buffer')
+  finish
+elseif exists('g:wordpress_vim_php_syntax_highlight') && !g:wordpress_vim_php_syntax_highlight
+  finish
+end
+
+<%= generated_syntax %>
+
+" Extend php.vim
+syn cluster phpClConst add=wpFunction,wpClass,wpDeprecated
+
+" Highlighting
+hi def link wpFunction Function
+hi def link wpClass StorageClass
+hi def link wpDeprecated Error
+
+" Done
+let b:current_syntax = 'php.wordpress'

@@ -1,0 +1,35 @@
+riml_include 'wordpress_command'
+
+class LoadSyntaxCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'LoadSyntax'
+  end
+
+  defm run(opts)
+    if self.is_php_buffer()
+      self.load_php_syntax()
+    elseif self.is_readme_buffer()
+      self.load_readme_syntax()
+    end
+  end
+
+  defm is_php_buffer
+    return &filetype == 'php'
+  end
+
+  defm is_readme_buffer
+    return self.current_buffer_full_path() =~ 'readme.txt'
+  end
+
+  defm load_php_syntax
+    :set filetype=php.wordpress
+  end
+
+  defm load_readme_syntax
+    :set filetype=markdown.readme
+  end
+end

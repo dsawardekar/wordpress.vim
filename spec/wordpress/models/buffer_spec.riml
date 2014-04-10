@@ -1,0 +1,94 @@
+riml_include 'spec_helper'
+riml_include 'buffer'
+
+class BufferSpec
+  defm before
+    self.projects = 'spec/wordpress/projects'
+  end
+
+  defm it_stores_original_path
+    buffer = new Buffer("#{self.projects}/wordpress_with_core/wp-load.php")
+    expect(buffer.get_path()).to_equal("#{self.projects}/wordpress_with_core/wp-load.php")
+  end
+
+  defm it_stores_full_path
+    buffer = new Buffer("#{self.projects}/wordpress_with_core/wp-load.php")
+    expect(buffer.get_full_path()).to_match("#{self.projects}/wordpress_with_core/wp-load.php$")
+  end
+
+  defm it_stores_parent_directory_path
+    buffer = new Buffer("#{self.projects}/wordpress_with_core/wp-load.php")
+    expect(buffer.get_parent_path()).to_match("#{self.projects}/wordpress_with_core")
+  end
+
+  defm it_has_buffer_type_detectors
+    buffer = new Buffer('foo')
+    expect(buffer.get_detectors()).to_have_length(4)
+  end
+
+  defm it_can_convert_relative_path_to_full_path
+    path = "#{g:WORDPRESS_DIR}/"
+    buffer = new Buffer('foo')
+    expect(buffer.to_full_path(path)).to_match("#{g:WORDPRESS_DIR}$")
+  end
+
+  defm it_detects_buffer_type_for_file_inside_core
+    buffer = new Buffer("#{self.projects}/wordpress_with_core/wp-load.php")
+    expect(buffer.get_type()).to_equal('core')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/wordpress_with_core")
+  end
+
+  defm it_detects_buffer_type_for_plugin_inside_core
+    buffer = new Buffer("#{self.projects}/wordpress_with_core/wp-content/plugins/sample-plugin/sample-plugin.php")
+    expect(buffer.get_type()).to_equal('core')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/wordpress_with_core")
+  end
+
+  defm it_detects_buffer_type_for_theme_inside_core
+    buffer = new Buffer("#{self.projects}/wordpress_with_core/wp-content/themes/sample-theme/style.css")
+    expect(buffer.get_type()).to_equal('core')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/wordpress_with_core")
+  end
+
+  defm it_detects_buffer_type_for_plugin_outside_core_f
+    buffer = new Buffer("#{self.projects}/sample-wordpress-plugin/sample-wordpress-plugin.php")
+    expect(buffer.get_type()).to_equal('plugin')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/sample-wordpress-plugin")
+  end
+
+  defm it_detects_buffer_type_for_theme_outside_core
+    buffer = new Buffer("#{self.projects}/sample-wordpress-theme/sample-wordpress-theme.php")
+    expect(buffer.get_type()).to_equal('theme')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/sample-wordpress-theme")
+  end
+
+  defm it_detects_buffer_type_for_plugin_inside_plugins_dir
+    buffer = new Buffer("#{self.projects}/wordpress_with_core/wp-content/plugins/a-plugin.php")
+    expect(buffer.get_type()).to_equal('core')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/wordpress_with_core")
+  end
+
+  defm it_detects_buffer_type_for_wp_cli_local_project
+    buffer = new Buffer("#{self.projects}/wpcli_local/wp-cli.local.yml")
+    expect(buffer.get_type()).to_equal('wpcli')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/wpcli_local")
+  end
+
+  defm it_detects_buffer_type_for_wp_cli_project
+    buffer = new Buffer("#{self.projects}/wpcli_local/wp-cli.yml")
+    expect(buffer.get_type()).to_equal('wpcli')
+    expect(buffer.get_project_path()).to_match("#{self.projects}/wpcli")
+  end
+
+  defm it_detects_buffer_inside_wp_includes
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-includes/category.php")
+    expect(buffer.get_type()).to_equal('core')
+    expect(buffer.get_project_path()).to_match("#{g:WORDPRESS_DIR}$")
+  end
+
+  defm it_detects_unknown_buffer_type
+    buffer = new Buffer("spec")
+    expect(buffer.get_type()).to_equal('unknown')
+  end
+
+end

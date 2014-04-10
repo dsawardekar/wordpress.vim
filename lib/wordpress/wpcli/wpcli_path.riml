@@ -1,0 +1,42 @@
+class WpCliPath
+  def initialize
+    self.did_find = false
+  end
+
+  defm get_path(root)
+    unless self.did_find
+      self.cli_path = self.find(root)
+      self.did_find = true
+    end
+
+    return self.cli_path
+  end
+
+  defm exists(root)
+    return self.get_path(root) != ''
+  end
+
+  defm find(root)
+    cli_path = self.vendor_cli_path(root)
+
+    if self.is_executable(cli_path)
+      return cli_path
+    elseif self.is_executable('wp')
+      return 'wp'
+    else
+      return ''
+    end
+  end
+
+  defm is_executable(path)
+    if has_key(self, 'mock_is_executable')
+      return self.mock_is_executable
+    else
+      return executable(path)
+    end
+  end
+
+  defm vendor_cli_path(root)
+    return "#{root}/vendor/bin/wp"
+  end
+end

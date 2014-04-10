@@ -1,0 +1,71 @@
+riml_include 'spec_helper'
+riml_include 'controller'
+riml_include 'base_command'
+
+class MockCommand < BaseCommand
+  defm get_name
+    return 'Mock'
+  end
+
+  defm get_auto_register
+    return true
+  end
+
+  defm run(*args)
+    return args
+  end
+end
+
+class ControllerSpec
+  defm before_each
+    self.controller = new Controller()
+    self.controller.load()
+  end
+
+  defm it_has_a_container
+    expect(self.controller.container.is_container).to_be_true()
+  end
+
+  defm it_has_a_command_registry
+    expect(self.controller.lookup('registry').is_command_registry).to_be_true()
+  end
+
+  defm it_has_a_buffer_collection
+    expect(self.controller.lookup('buffer_collection').is_buffer_collection).to_be_true()
+  end
+
+  defm it_has_a_project_collection
+    expect(self.controller.lookup('project_collection').is_project_collection).to_be_true()
+  end
+
+  defm it_has_projects
+    project1 = self.controller.lookup('project')
+    project2 = self.controller.lookup('project')
+
+    project1.id = 1
+    project2.id = 2
+
+    expect(project1.is_project).to_be_true()
+    expect(project2.is_project).to_be_true()
+
+    expect(project1).to_not_equal(project2)
+  end
+
+  defm it_can_load_commands
+    registry = self.controller.lookup('registry')
+    expect(registry.count()).to_be_gt(1)
+  end
+
+  defm it_can_process_command_actions
+    cmd      = new MockCommand()
+    registry = self.controller.lookup('registry')
+    registry.add(cmd)
+
+    result = self.controller.process('Mock', 1, 2, 3)
+    params = result[0:2]
+    opts = result[len(result) - 1]
+
+    expect(params).to_equal([1, 2, 3])
+    expect(opts.match).to_equal('Mock')
+  end
+end

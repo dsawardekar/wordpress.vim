@@ -1,0 +1,105 @@
+riml_include 'spec_helper'
+riml_include 'wpcli'
+riml_include 'wpcli_completer'
+riml_include 'container'
+
+class WpCliCompleterSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('wpcli', 'WpCli', true)
+    self.container.register('wpcli_completer', 'WpCliCompleter', true)
+
+    self.completer = self.container.lookup('wpcli_completer')
+    self.wpcli = self.container.lookup('wpcli')
+    self.wpcli.set_path("wp --path=#{g:WORDPRESS_DIR}")
+  end
+
+  defm it_has_a_container
+    expect(self.completer.container.is_container).to_be_true()
+  end
+
+  defm it_has_a_wpcli_object
+    expect(self.completer.wpcli.is_wpcli).to_be_true()
+  end
+
+  defm it_can_trim_whitespace
+    expect(self.completer.trim('   foo  ')).to_equal('foo')
+  end
+
+  defm it_can_trim_whitespace_from_choices
+    choices = ['  lorem ', ' ipsum   ', '  dolor  ']
+    expect(self.completer.trim_choices(choices)).to_equal(['lorem', 'ipsum', 'dolor'])
+  end
+
+  defm it_can_convert_vim_line_to_wpcli_line
+    line = self.completer.to_wpcli_line('cli', 'Wcli cmd-dump')
+    expect(line).to_equal('wp cli cmd-dump')
+  end
+
+  defm it_can_convert_vim_line_to_completer_line_arg
+    arg = self.completer.to_line_arg('cli', 'Wcli cmd-du')
+    expect(arg).to_equal('--line="wp cli cmd-du"')
+  end
+
+  defm it_can_advance_cursor_from_command_name
+    arg = self.completer.to_cursor_arg('cli', 5)
+    expect(arg).to_equal('--point=7')
+  end
+
+  defm it_can_build_complete_args_for_cursor_at_end
+    cmd_name = 'cache'
+    word     = 'd'
+    cmd_line = 'Wcache d'
+    cursor   = len(cmd_line)
+
+    args = self.completer.to_complete_args(cmd_name, word, cmd_line, cursor)
+    expect(args[0]).to_equal('cli')
+    expect(args[1]).to_equal('completions')
+    expect(args[2]).to_equal('--line="wp cache d"')
+    expect(args[3]).to_equal('--point=10')
+  end
+
+  defm it_can_build_complete_args_for_cursor_inside_word
+    cmd_name = 'cache'
+    word     = 'd'
+    cmd_line = 'Wcache d'
+    cursor   = len(cmd_line) - 1
+
+    args = self.completer.to_complete_args(cmd_name, word, cmd_line, cursor)
+    expect(args[0]).to_equal('cli')
+    expect(args[1]).to_equal('completions')
+    expect(args[2]).to_equal('--line="wp cache d"')
+    expect(args[3]).to_equal('--point=9')
+  end
+
+  defm it_can_complete_vim_line_at_end
+    cmd_name = 'cache'
+    word     = 'd'
+    cmd_line = 'Wcache d'
+    cursor   = len(cmd_line)
+
+    choices = self.completer.complete(cmd_name, word, cmd_line, cursor)
+    expect(choices).to_equal(['decr', 'delete'])
+  end
+
+  defm it_can_complete_vim_line_inside_word
+    cmd_name = 'cache'
+    word     = 'd'
+    cmd_line = 'Wcache d'
+    cursor   = len(cmd_line) - 1
+
+    expected = []
+    add(expected, 'add')
+    add(expected, 'decr')
+    add(expected, 'delete')
+    add(expected, 'flush')
+    add(expected, 'get')
+    add(expected, 'incr')
+    add(expected, 'replace')
+    add(expected, 'set')
+    add(expected, 'type')
+
+    choices = self.completer.complete(cmd_name, word, cmd_line, cursor)
+    expect(choices).to_equal(expected)
+  end
+end

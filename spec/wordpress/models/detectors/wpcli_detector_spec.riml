@@ -1,0 +1,56 @@
+riml_include 'spec_helper'
+riml_include 'wpcli_detector'
+
+class WpCliDetectorSpec
+  defm before
+    self.detector = new WpCliDetector()
+    self.projects = 'spec/wordpress/projects'
+  end
+
+  defm it_has_wpcli_type
+    expect(self.detector.get_type()).to_equal('wpcli')
+  end
+
+  defm it_has_list_of_wp_cli_configs_to_match
+    expect(self.detector.get_wp_cli_configs()).to_have_length(2)
+  end
+
+  defm it_knows_if_path_has_wp_cli_local_config
+    path = "#{self.projects}/wpcli_local"
+    result = self.detector.has_wp_cli('wp-cli.local.yml', path)
+    expect(result).to_match("#{path}/wp-cli.local.yml$")
+  end
+
+  defm it_knows_if_path_has_wp_cli_config
+    path = "#{self.projects}/wpcli"
+    result = self.detector.has_wp_cli('wp-cli.yml', path)
+    expect(result).to_match("#{path}/wp-cli.yml$")
+  end
+
+  defm it_knows_if_path_has_does_not_have_wp_cli_config
+    path = self.projects
+    result = self.detector.has_wp_cli('wp-cli.yml', path)
+    expect(result).to_equal('')
+  end
+
+  defm it_can_detect_wp_cli_local_project
+    path = "#{self.projects}/wpcli_local"
+    result = self.detector.detect(path)
+    expect(result.status).to_be_true()
+    expect(result.path).to_match("#{self.projects}/wpcli_local$")
+  end
+
+  defm it_can_detect_wp_cli_project
+    path = "#{self.projects}/wpcli"
+    result = self.detector.detect(path)
+    expect(result.status).to_be_true()
+    expect(result.path).to_match("#{self.projects}/wpcli$")
+  end
+
+  defm it_can_detect_if_project_is_not_a_wpcli_project
+    path = self.projects
+    result = self.detector.detect(path)
+    expect(result.status).to_be_false()
+    expect(result.path).to_equal('')
+  end
+end

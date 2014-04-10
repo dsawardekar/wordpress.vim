@@ -1,0 +1,65 @@
+riml_include 'spec_helper'
+riml_include 'wpcli'
+riml_include 'post'
+riml_include 'container'
+
+class PostSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('wpcli', 'WpCli', true)
+    self.container.register('post', 'Post', true)
+
+    self.wpcli = self.container.lookup('wpcli')
+    self.wpcli.set_path("wp --path=#{g:WORDPRESS_DIR}")
+    self.post = self.container.lookup('post')
+  end
+
+  defm it_has_a_container
+    expect(self.post.container.is_container).to_be_true()
+  end
+
+  defm it_has_a_wpcli
+    expect(self.post.wpcli.is_wpcli).to_be_true()
+  end
+
+  defm it_can_convert_param_to_arg
+    content = 'lorem ipsum'
+    expected = "--post_content='lorem ipsum'"
+    expect(self.post.to_arg('post_content', content)).to_equal(expected)
+  end
+
+  defm it_can_convert_result_to_post_id
+    result = "100\n"
+    expect(self.post.to_post_id(result)).to_equal('100')
+  end
+
+  defm it_can_create_post_without_params
+    post_id = self.post.create('lorem ipsum', [])
+    expect(post_id).to_not_equal(0)
+  end
+
+  defm it_can_create_post_with_params
+    params = ['--post_status=publish', '--post_title=hello']
+    post_id = self.post.create('dolor amet', params)
+    expect(post_id).to_not_equal(0)
+  end
+
+  defm it_can_update_post_without_params
+    post_id = self.post.create('a new post', [])
+    result = self.post.update(post_id, 'new content', [])
+    expect(result).to_match('Success')
+  end
+
+  defm it_can_update_post_with_params
+    post_id = self.post.create('a new post', [])
+    params = ['--post_status=publish', '--post_title=hello']
+    result = self.post.update(post_id, 'new param content', params)
+    expect(result).to_match('Success')
+  end
+
+  defm it_can_find_post
+    post_id = self.post.create('foo-content', [])
+    post_content = self.post.find(post_id)
+    expect(post_content).to_equal('foo-content')
+  end
+end

@@ -1,0 +1,53 @@
+class PluginDetector < BufferTypeDetector
+  defm detect(path)
+    parent = fnamemodify(path, ':p')
+    has_parent = true
+    result = {}
+    result.status = false
+    result.path = ''
+
+    while has_parent
+      if self.is_plugin(parent)
+        result.status = true
+        result.path = self.get_project_path(parent)
+        break
+      end
+
+      new_parent = fnamemodify(parent, ':h')
+      has_parent = new_parent != parent
+      parent = new_parent
+    end
+
+    return result
+  end
+
+  defm is_plugin(path)
+    dirname = fnamemodify(path, ':t')
+
+    if dirname == 'plugins' || dirname == 'mu-plugins'
+      return true
+    else
+      plugin_file = "#{path}/#{dirname}.php"
+      return self.has_plugin_file(plugin_file) && self.has_plugin_header(plugin_file)
+    end
+  end
+
+  defm has_plugin_file(file)
+    return filereadable(file)
+  end
+
+  defm has_plugin_header(file)
+    lines = readfile(file)
+    for line in lines
+      if line =~ '^\s*Plugin Name:'
+        return true
+      end
+    end
+
+    return false
+  end
+
+  defm get_type()
+    return 'plugin'
+  end
+end

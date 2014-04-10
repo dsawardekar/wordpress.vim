@@ -1,0 +1,158 @@
+riml_include 'spec_helper'
+riml_include 'wordpress_plugin'
+riml_include 'app_mock'
+
+class WordPressPluginSpec
+  defm before_each
+    self.plugin = new WordPressPlugin()
+    self.app = new AppMock()
+    self.plugin.app = self.app
+    self.projects = 'spec/wordpress/projects'
+    self.start_dir = fnamemodify(getcwd(), ':p')
+  end
+
+  defm after_each
+    execute(":cd #{self.start_dir}")
+  end
+
+  defm it_is_not_loaded_initially
+    plugin = new WordPressPlugin()
+    expect(plugin.loaded()).to_be_false()
+  end
+
+  defm it_is_loaded_once_app_is_present
+    expect(self.plugin.loaded()).to_be_true()
+  end
+
+  defm it_stores_loaded_app_reference
+    expect(self.plugin.get_app()).to_equal(self.app)
+  end
+
+  defm it_notifies_app_on_buffer_open_for_valid_buffer_type
+    file = "#{self.projects}/wordpress_with_core/wp-load.php"
+    self.plugin.on_buffer_open(file)
+
+    expect(self.app.open_buffer.get_path()).to_equal(file)
+  end
+
+  defm it_does_not_notify_app_on_buffer_open_for_unknown_buffer_type
+    file = 'spec/spec_helper.rb'
+    self.plugin.on_buffer_open(file)
+
+    expect(self.app).to_not_have_key('open_buffer')
+  end
+
+  defm it_notifies_app_on_buffer_enter_for_opened_buffer
+    file = "#{self.projects}/wordpress_with_core/wp-load.php"
+    b:wordpress_buffer = new Buffer(file)
+    self.plugin.on_buffer_enter(file)
+
+    expect(self.app.enter_buffer.get_path()).to_equal(file)
+    :unlet b:wordpress_buffer
+  end
+
+  defm it_does_not_notify_app_on_buffer_enter_for_unknown_buffer
+    file = 'spec/spec_helper.rb'
+    self.plugin.on_buffer_enter(file)
+
+    expect(self.app).to_not_have_key('enter_buffer')
+  end
+
+  defm it_notifies_app_on_buffer_leave_for_opened_buffer
+    file = "#{self.projects}/wordpress_with_core/wp-load.php"
+    b:wordpress_buffer = new Buffer(file)
+    self.plugin.on_buffer_leave(file)
+
+    expect(self.app.leave_buffer.get_path()).to_equal(file)
+    :unlet b:wordpress_buffer
+  end
+
+  defm it_does_not_notify_app_on_buffer_leave_for_unknown_buffer
+    file = 'spec/spec_helper.rb'
+    self.plugin.on_buffer_leave(file)
+
+    expect(self.app).to_not_have_key('leave_buffer')
+  end
+
+  defm it_knows_if_autostart_option_is_set
+    g:wordpress_vim_autostart = true
+    expect(self.plugin.has_autostart_option()).to_be_true()
+  end
+
+  defm it_default_to_autostart_if_option_is_not_set
+    if (exists('g:wordpress_vim_autostart'))
+      :unlet g:wordpress_vim_autostart
+    end
+    expect(self.plugin.has_autostart_option()).to_be_true()
+  end
+
+  defm it_knows_if_autostart_option_is_false
+    g:wordpress_vim_autostart = false
+    expect(self.plugin.has_autostart_option()).to_be_false()
+  end
+
+  defm it_notifies_app_on_vim_enter_for_valid_wordpress_buffer_f
+    execute(":cd #{self.projects}/wordpress_with_core")
+    self.plugin.force_autostart = true
+    self.plugin.on_vim_enter()
+
+    expect(self.app.open_buffer.get_full_path()).to_match('wordpress_with_core')
+    expect(self.app.enter_buffer.get_full_path()).to_match('wordpress_with_core')
+  end
+
+  defm it_does_not_notify_app_on_vim_enter_for_unknown_buffer_type
+    execute(":cd spec")
+    self.plugin.force_autostart = true
+    self.plugin.on_vim_enter()
+
+    expect(self.app).to_not_have_key('open_buffer')
+    expect(self.app).to_not_have_key('leave_buffer')
+  end
+end
+
+class WordPressPluginPseudoBufferSpec
+  defm before_each
+    self.start_dir = fnamemodify(getcwd(), ':p')
+    self.plugin = new WordPressPlugin()
+    self.projects = fnamemodify('spec/wordpress/projects', ':p')
+  end
+
+  defm after_each
+    execute(":cd #{self.start_dir}")
+  end
+
+  defm it_detects_psuedo_buffer_type_for_file_inside_core
+    execute(":cd #{self.projects}/wordpress_with_core")
+    expect(self.plugin.has_wordpress()).to_be_true()
+  end
+
+  defm it_detects_buffer_type_for_plugin_inside_core
+    execute(":cd #{self.projects}/wordpress_with_core/wp-content/plugins/sample-plugin")
+    expect(self.plugin.has_wordpress()).to_be_true()
+  end
+
+  defm it_detects_buffer_type_for_theme_inside_core
+    execute(":cd #{self.projects}/wordpress_with_core/wp-content/themes/sample-theme")
+    expect(self.plugin.has_wordpress()).to_be_true()
+  end
+
+  defm it_detects_buffer_type_for_plugin_outside_core
+    execute(":cd #{self.projects}/sample-wordpress-plugin")
+    expect(self.plugin.has_wordpress()).to_be_true()
+  end
+
+  defm it_detects_buffer_type_for_theme_outside_core
+    execute(":cd #{self.projects}/sample-wordpress-theme")
+    expect(self.plugin.has_wordpress()).to_be_true()
+  end
+
+  defm it_detects_buffer_type_for_plugin_inside_plugins_dir
+    execute(":cd #{self.projects}/wordpress_with_core/wp-content/plugins")
+    expect(self.plugin.has_wordpress()).to_be_true()
+  end
+
+  defm it_detects_unknown_buffer_type
+    execute(":cd spec")
+    expect(self.plugin.has_wordpress()).to_be_false()
+  end
+end

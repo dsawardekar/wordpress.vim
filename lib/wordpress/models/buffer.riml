@@ -1,0 +1,91 @@
+riml_include 'buffer_type_detector'
+riml_include 'core_detector'
+riml_include 'plugin_detector'
+riml_include 'theme_detector'
+riml_include 'wpcli_detector'
+
+class Buffer
+  def initialize(path)
+    self.path         = path
+    self.did_scan     = false
+    self.project_path = ''
+    self.type         = 'unknown'
+  end
+
+  defm scan
+    for detector in self.get_detectors()
+      result = detector.detect(self.get_parent_path())
+      if result.status == true
+        self.type = detector.get_type()
+        self.project_path = self.to_full_path(result.path)
+
+        return true
+      end
+    end
+
+    return false
+  end
+
+  " Note: Order of the detectors is crucial
+  " must detect core before plugins, because
+  " plugins & themes inside a core project should
+  " be detected as 'core'
+  defm get_detectors
+    detectors = []
+    add(detectors, new CoreDetector())
+    add(detectors, new WpCliDetector())
+    add(detectors, new PluginDetector())
+    add(detectors, new ThemeDetector())
+
+    return detectors
+  end
+
+  defm get_type
+    unless self.did_scan
+      self.scan()
+    end
+
+    return self.type
+  end
+
+  defm get_project_path
+    unless self.did_scan
+      self.scan()
+    end
+
+    return self.project_path
+  end
+
+  defm get_path
+    return self.path
+  end
+
+  defm get_full_path
+    unless has_key(self, 'full_path')
+      self.full_path = self.to_full_path(self.path)
+    end
+
+    return self.full_path
+  end
+
+  defm get_parent_path
+    unless has_key(self, 'parent_path')
+      self.parent_path  = self.to_full_path(fnamemodify(self.path, ':h'))
+    end
+
+    return self.parent_path
+  end
+
+  defm to_full_path(path)
+    full_path = fnamemodify(path, ':p')
+    if full_path =~ '/$'
+      full_path = strpart(full_path, 0, len(full_path) - 1)
+    end
+
+    return full_path
+  end
+
+  defm destroy
+    :unlet self.path
+  end
+end

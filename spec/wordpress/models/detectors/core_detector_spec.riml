@@ -1,0 +1,45 @@
+riml_include 'spec_helper'
+riml_include 'buffer_type_detector'
+riml_include 'core_detector'
+
+class CoreDetectorSpec
+  defm before
+    self.detector = new CoreDetector()
+  end
+
+  defm it_detects_if_project_is_wordpress_with_core
+    result = self.detector.detect('spec/wordpress/projects/wordpress_with_core')
+    expect(result.status).to_be_true()
+  end
+
+  defm it_has_core_type
+    expect(self.detector.get_type()).to_equal('core')
+  end
+
+  defm it_returns_project_path_for_project_with_wordpress_with_core
+    result = self.detector.detect('spec/wordpress/projects/wordpress_with_core')
+    expect(result.path).to_match('spec/wordpress/projects/wordpress_with_core$')
+  end
+
+  defm it_detects_if_not_wordpress_project
+    result = self.detector.detect('spec')
+    expect(result.status).to_be_false()
+  end
+
+  defm it_returns_empty_path_if_not_wordpress_core_project
+    result = self.detector.detect('spec')
+    expect(result.path).to_equal('')
+  end
+
+  defm it_detects_if_not_core_project_for_plugin_project
+    result = self.detector.detect('spec/wordpress/projects/sample-wordpress-plugin')
+    expect(result.status).to_be_false()
+  end
+
+  defm it_detects_if_not_core_project_for_theme_project
+    result = self.detector.detect('spec/wordpress/projects/sample-wordpress-theme')
+    expect(result.status).to_be_false()
+  end
+end
+
+
