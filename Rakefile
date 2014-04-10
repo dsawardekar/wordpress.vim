@@ -14,6 +14,7 @@ namespace :tmp do
   desc "Download WordPress"
   task :download do
     verbose VERBOSE do
+      mkdir_p 'tmp'
       sh 'wget', '-O', WORDPRESS_TARBALL, WORDPRESS_URL unless File.exists?(WORDPRESS_TARBALL)
     end
   end
