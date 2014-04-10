@@ -1,0 +1,25 @@
+if exists('g:wordpress_vim_phpcomplete_extensions_loaded')
+  finish
+end
+
+" for testing - TODO: figure out how to debug in YCM headless
+" runtime! misc/builtin.vim
+
+" Function Extensions
+<%= generated_function_extensions %>
+
+" Class Extensions
+<%= generated_class_extensions %>
+
+" Function Modules "
+<%= generated_function_modules %>
+
+" Class Modules "
+<%= generated_class_modules %>
+
+" Merge extensions with phpcomplete
+let g:phpcomplete_active_function_extensions += g:wordpress_active_function_extensions
+let g:phpcomplete_active_class_extensions += g:wordpress_active_class_extensions
+
+" Done
+let g:wordpress_vim_phpcomplete_extensions_loaded = 1
