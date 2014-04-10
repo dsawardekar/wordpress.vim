@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'json_parser'
 
 class JSONParserSpec
