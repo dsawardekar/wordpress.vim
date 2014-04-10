@@ -3,9 +3,6 @@ require 'rspec/core/rake_task'
 require_relative 'lib/tasks/paths'
 require_relative 'lib/tasks/utils'
 
-desc 'Default task :build'
-task :default => :test
-
 namespace :dynamo do
   desc "Run dynamo's rspec tests"
   RSpec::Core::RakeTask.new(:spec)
@@ -116,6 +113,9 @@ task :build do
     mkdir_p BUILD_PHPDOC_DIR
   end
 end
+
+desc 'Default task :build'
+task :default => :test
 
 desc 'Run all tests'
 task :test => ['dynamo:test', 'riml:test']
