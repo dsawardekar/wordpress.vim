@@ -23,7 +23,7 @@ class ConfigureTagsCommandSpec
     self.project_collection = self.container.lookup('project_collection')
     self.buffer_collection = self.container.lookup('buffer_collection')
 
-    self.buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    self.buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     self.buffer_collection.set_current(self.buffer)
     self.project_collection.add(self.buffer.get_project_path())
     self.project = self.command.current_project()
@@ -47,7 +47,7 @@ class ConfigureTagsCommandSpec
 
   defm it_configures_tags_option
     self.command.run({})
-    expect(&tags).to_match('tmp/wordpress/3.8.1')
+    expect(&tags).to_match(g:WORDPRESS_DIR)
   end
 end
 

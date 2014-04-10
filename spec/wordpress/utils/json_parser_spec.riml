@@ -18,7 +18,7 @@ class JSONParserSpec
   " Note: reasonable atm, could use pyeval
   " now using pyeval by default
   defm it_can_read_wp_cli_cmd_dump_json_from_system
-    execute(":cd tmp/wordpress/3.8.1")
+    execute(":cd #{g:WORDPRESS_DIR}")
     text = system('wp cli cmd-dump --format=json')
     result = self.parser.parse(text)
     expect(result).to_not_equal(false)
@@ -28,7 +28,7 @@ class JSONParserSpec
   " TODO: wp cli info fails with eval()
   " Trailing Characters
   defm it_can_read_wp_cli_info_json_from_system_f
-    execute(":cd tmp/wordpress/3.8.1")
+    execute(":cd #{g:WORDPRESS_DIR}")
     text = system('wp cli info --format=json')
     result = self.parser.parse(text)
     expect(result).to_not_equal(false)

@@ -11,7 +11,7 @@ class WpCliCompleterSpec
 
     self.completer = self.container.lookup('wpcli_completer')
     self.wpcli = self.container.lookup('wpcli')
-    self.wpcli.set_path('wp --path=tmp/wordpress/3.8.1')
+    self.wpcli.set_path("wp --path=#{g:WORDPRESS_DIR}")
   end
 
   defm it_has_a_container

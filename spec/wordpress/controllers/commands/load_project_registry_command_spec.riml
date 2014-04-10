@@ -37,7 +37,7 @@ class LoadProjectRegistryCommandSpec
     mock = new MockCommand()
     mock.cmd_name = 'MyMockCommand'
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     buffer_collection = self.container.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
 

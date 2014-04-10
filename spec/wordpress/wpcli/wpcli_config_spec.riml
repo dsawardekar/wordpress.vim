@@ -45,6 +45,6 @@ class WpCliConfigSpec
 
   defm it_can_load_config_for_project
     self.config.load('tmp/wpcli_with_local')
-    expect(self.config.get_config_param('path')).to_equal('../wordpress/3.8.1')
+    expect(self.config.get_config_param('path')).to_match('../wordpress/3.')
   end
 end

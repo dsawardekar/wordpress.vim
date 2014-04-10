@@ -71,22 +71,22 @@ class WordpressCommandSpec
   end
 
   defm it_knows_full_path_to_current_buffer
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-login.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-login.php")
     self.buffer_collection.set_current(buffer)
     expect(self.command.current_buffer_full_path()).to_equal(buffer.get_full_path())
   end
 
   defm it_knows_project_path_for_current_buffer
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-includes/category.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-includes/category.php")
     self.buffer_collection.set_current(buffer)
-    expect(self.command.current_buffer_project_path()).to_match('tmp/wordpress/3.8.1$')
+    expect(self.command.current_buffer_project_path()).to_match("#{g:WORDPRESS_DIR}$")
   end
 
   defm it_has_a_current_project
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-includes/category.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-includes/category.php")
     self.buffer_collection.set_current(buffer)
     self.project_collection.add(buffer.get_project_path())
-    expect(self.command.current_project().get_root()).to_match('tmp/wordpress/3.8.1$')
+    expect(self.command.current_project().get_root()).to_match("#{g:WORDPRESS_DIR}$")
   end
 
   defm it_can_split_args_into_params_and_opts

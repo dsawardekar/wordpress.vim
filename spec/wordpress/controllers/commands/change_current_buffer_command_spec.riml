@@ -34,7 +34,7 @@ class ChangeCurrentBufferCommandSpec
   end
 
   defm it_marks_passed_buffer_as_current
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     self.cmd.run(buffer, {})
 
     buffer_collection = self.lookup('buffer_collection')
@@ -44,7 +44,7 @@ class ChangeCurrentBufferCommandSpec
   defm it_adds_project_to_collection
     project_collection = self.lookup('project_collection')
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     expect(project_collection.contains(buffer.get_project_path())).to_be_false()
     self.cmd.run(buffer, {})
 
@@ -52,7 +52,7 @@ class ChangeCurrentBufferCommandSpec
   end
 
   defm it_does_not_readd_same_project_to_collection
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     project_collection = self.lookup('project_collection')
     project_collection.add(buffer.get_project_path())
@@ -67,7 +67,7 @@ class ChangeCurrentBufferCommandSpec
     registry = self.container.lookup('registry')
     registry.add(mock_cmd)
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     project_collection = self.lookup('project_collection')
     project_collection.add(buffer.get_project_path())
@@ -82,7 +82,7 @@ class ChangeCurrentBufferCommandSpec
     registry = self.container.lookup('registry')
     registry.add(mock_cmd)
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     project_collection = self.lookup('project_collection')
     project_collection.add(buffer.get_project_path())
@@ -97,7 +97,7 @@ class ChangeCurrentBufferCommandSpec
     registry = self.container.lookup('registry')
     registry.add(mock_cmd)
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     project_collection = self.lookup('project_collection')
     project_collection.add(buffer.get_project_path())

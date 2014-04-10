@@ -72,27 +72,27 @@ class ProjectSpec
   end
 
   defm it_has_correct_wordpress_path_in_core_project
-    self.project.load('tmp/wordpress/3.8.1')
-    expect(self.project.get_wordpress_path()).to_match('tmp/wordpress/3.8.1$')
+    self.project.load(g:WORDPRESS_DIR)
+    expect(self.project.get_wordpress_path()).to_match("#{g:WORDPRESS_DIR}$")
   end
 
   defm it_has_correct_wordpress_path_in_wpcli_project
     self.project.load('tmp/wpcli_with_local')
-    expect(self.project.get_wordpress_path()).to_match('tmp/wordpress/3.8.1$')
+    expect(self.project.get_wordpress_path()).to_match("#{g:WORDPRESS_DIR}$")
   end
 
   defm it_has_correct_wordpress_path_in_plugin_project_with_global_wp_path
-    g:wordpress_vim_wordpress_path = expand('./tmp/wordpress/3.8.1')
+    g:wordpress_vim_wordpress_path = expand("./#{g:WORDPRESS_DIR}")
     self.project.load('spec/wordpress/project/sample-wordpress-plugin')
-    expect(self.project.get_wordpress_path()).to_match('tmp/wordpress/3.8.1$')
+    expect(self.project.get_wordpress_path()).to_match("#{g:WORDPRESS_DIR}$")
     :unlet g:wordpress_vim_wordpress_path
   end
 
   defm it_configures_ctags_builder_for_valid_wordpress_path
     ctags_builder = self.project.lookup('ctags_builder')
-    self.project.wordpress_project_path = 'tmp/wordpress/3.8.1'
+    self.project.wordpress_project_path = g:WORDPRESS_DIR
     self.project.load_ctags_builder('foo')
-    expect(ctags_builder.get_project_path()).to_equal('tmp/wordpress/3.8.1')
+    expect(ctags_builder.get_project_path()).to_equal(g:WORDPRESS_DIR)
   end
 
   defm it_does_not_configure_ctags_builder_for_valid_wordpress_path

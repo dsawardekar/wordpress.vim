@@ -20,7 +20,7 @@ class ConfigureBufferCommandSpec
   end
 
   defm it_adds_buffer_to_buffer_collection
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     self.cmd.run(buffer, {})
 
     buffer_collection = self.lookup('buffer_collection')

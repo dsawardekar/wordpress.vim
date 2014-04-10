@@ -35,7 +35,7 @@ class LoadSyntaxCommandSpec
   end
 
   defm it_knows_if_current_buffer_is_a_readme_buffer
-    buffer = new Buffer('tmp/wordpress/3.8.1/readme.txt')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/readme.txt")
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
 
@@ -46,7 +46,7 @@ class LoadSyntaxCommandSpec
   end
 
   defm it_knows_if_current_buffer_is_not_a_readme_buffer
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-login.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-login.php")
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
 
@@ -57,7 +57,7 @@ class LoadSyntaxCommandSpec
   end
 
   defm it_changes_filetype_of_php_files
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
 
@@ -69,7 +69,7 @@ class LoadSyntaxCommandSpec
   end
 
   defm it_does_not_change_filetype_of_non_php_files
-    buffer = new Buffer('tmp/wordpress/3.8.1/readme.txt')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/readme.txt")
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
 
@@ -81,7 +81,7 @@ class LoadSyntaxCommandSpec
   end
 
   defm it_changes_filetype_of_readme_files
-    buffer = new Buffer('tmp/wordpress/3.8.1/readme.txt')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/readme.txt")
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
 
@@ -93,7 +93,7 @@ class LoadSyntaxCommandSpec
   end
 
   defm it_does_not_change_filetype_of_non_readme_files
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
 
