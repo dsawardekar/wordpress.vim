@@ -10,6 +10,44 @@ namespace :composer do
   end
 end
 
+namespace :tmp do
+  desc "Download WordPress"
+  task :download do
+    verbose VERBOSE do
+      mkdir_p 'tmp'
+      sh 'wget', '-O', WORDPRESS_TARBALL, WORDPRESS_URL unless File.exists?(WORDPRESS_TARBALL)
+    end
+  end
+
+  desc "Extract downloaded tarball to #{WORDPRESS_DIR}"
+  task :extract do
+    verbose VERBOSE do
+      unless File.directory?(WORDPRESS_DIR)
+        mkdir_p 'tmp/wordpress'
+        mkdir_p 'tmp/extract'
+        sh 'tar', '-xzf', WORDPRESS_TARBALL, '-C', 'tmp/extract'
+        mv 'tmp/extract/wordpress', WORDPRESS_DIR
+        puts "*************************************************"
+        puts "*** Now update #{WORDPRESS_DIR}/wp-config.php ***"
+        puts "*************************************************"
+      end
+    end
+  end
+
+  desc "Copy speckle support files to #{WORDPRESS_DIR}"
+  task :copy do
+    verbose VERBOSE do
+      cp 'spec/wordpress/echo_wp_content.php', WORDPRESS_DIR
+      cp 'spec/wordpress/readme.txt', WORDPRESS_DIR
+
+      mkdir_p 'tmp/wpcli_with_local'
+      cp 'spec/wordpress/cli.yml', 'tmp/wpcli_with_local/wp-cli.local.yml'
+    end
+  end
+
+  task :init => [:download, :extract, :copy]
+end
+
 namespace :dynamo do
   desc "Run dynamo's rspec tests"
   RSpec::Core::RakeTask.new(:spec)

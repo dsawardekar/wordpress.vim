@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'wpcli'
 riml_include 'post'
 riml_include 'container'
@@ -11,7 +10,7 @@ class PostSpec
     self.container.register('post', 'Post', true)
 
     self.wpcli = self.container.lookup('wpcli')
-    self.wpcli.set_path('wp --path=tmp/wordpress/3.8.1')
+    self.wpcli.set_path("wp --path=#{g:WORDPRESS_DIR}")
     self.post = self.container.lookup('post')
   end
 

@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'container'
 riml_include 'command_registry'
 riml_include 'buffer'
@@ -89,7 +88,7 @@ class WpCliCommandSpec
   end
 
   defm it_has_with_dir_with_project_as_target
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
@@ -105,7 +104,7 @@ class WpCliCommandSpec
     self.container.register('wpcli_completer', 'MockCompleter', true)
     self.container.register('with_dir', 'MockWithDir', true)
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
@@ -123,7 +122,7 @@ class WpCliCommandSpec
     self.container.register('wpcli_completer', 'MockCompleter', true)
     self.container.register('with_dir', 'MockWithDir', true)
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)
@@ -141,7 +140,7 @@ class WpCliCommandSpec
     self.container.register('wpcli_runner', 'MockRunner', true)
     self.container.register('with_dir', 'MockWithDir', true)
 
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     buffer_collection = self.lookup('buffer_collection')
     buffer_collection.set_current(buffer)

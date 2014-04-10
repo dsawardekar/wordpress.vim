@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'container'
 riml_include 'command_registry'
 riml_include 'buffer'
@@ -31,15 +30,15 @@ class ScaffoldCommandSpec
   end
 
   defm it_can_extract_path_to_child_theme_with_single_line_msg
-    result = "Success: Created wordpress.vim/repo/tmp/wordpress/3.8.1/wp-content/themes/a1"
-    expected = "wordpress.vim/repo/tmp/wordpress/3.8.1/wp-content/themes/a1/style.css"
+    result = "Success: Created wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1"
+    expected = "wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1/style.css"
     actual = self.command.find_scaffold_file(result, 'style.css')
     expect(actual).to_equal(expected)
   end
 
   defm it_can_extract_path_to_child_theme_with_multiline_msg
-    result = "Success: Created wordpress.vim/repo/tmp/wordpress/3.8.1/wp-content/themes/a1\nSuccess: Switched to 'A1' theme."
-    expected = "wordpress.vim/repo/tmp/wordpress/3.8.1/wp-content/themes/a1/style.css"
+    result = "Success: Created wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1\nSuccess: Switched to 'A1' theme."
+    expected = "wordpress.vim/repo/#{g:WORDPRESS_DIR}/wp-content/themes/a1/style.css"
     actual = self.command.find_scaffold_file(result, 'style.css')
     expect(actual).to_equal(expected)
   end

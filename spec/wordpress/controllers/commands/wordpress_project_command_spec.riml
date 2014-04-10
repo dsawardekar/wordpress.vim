@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'container'
 riml_include 'command_registry'
 riml_include 'buffer'
@@ -24,7 +23,7 @@ class WordpressProjectCommandSpec
   end
 
   defm it_can_lookup_objects_via_current_project_container
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     self.buffer_collection.set_current(buffer)
     self.project_collection.add(buffer.get_project_path())
 
@@ -37,7 +36,7 @@ class WordpressProjectCommandSpec
   end
 
   defm it_can_lookup_objects_in_parent_container
-    buffer = new Buffer('tmp/wordpress/3.8.1/wp-load.php')
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
     self.buffer_collection.set_current(buffer)
     self.project_collection.add(buffer.get_project_path())
 

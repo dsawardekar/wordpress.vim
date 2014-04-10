@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'ctags_builder'
 riml_include 'with_dir'
 riml_include 'container'
@@ -64,10 +63,10 @@ class CTagsBuilderSpec
   end
 
   defm it_knows_if_tags_file_exists
-    self.builder.set_project_path('tmp/wordpress/3.8.1')
-    execute(":!touch tmp/wordpress/3.8.1/tags")
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    execute(":!touch #{g:WORDPRESS_DIR}/tags")
     expect(self.builder.has_tags()).to_be_true()
-    delete("tmp/wordpress/3.8.1/tags")
+    delete("#{g:WORDPRESS_DIR}/tags")
   end
 
   defm it_can_build_cmd_to_execute
@@ -80,31 +79,31 @@ class CTagsBuilderSpec
   end
 
   defm it_can_remove_tags_file
-    self.builder.set_project_path('tmp/wordpress/3.8.1')
-    execute(":!touch tmp/wordpress/3.8.1/tags")
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    execute(":!touch #{g:WORDPRESS_DIR}/tags")
 
     self.builder.clean()
     expect(self.builder.has_tags()).to_be_false()
   end
 
   defm it_can_run_ctags_command
-    self.builder.set_project_path('tmp/wordpress/3.8.1')
+    self.builder.set_project_path(g:WORDPRESS_DIR)
     [error_code, result] = self.builder.run('ctags --version')
 
     expect(error_code).to_equal(0)
   end
 
   defm it_runs_within_project_dir
-    self.builder.set_project_path('tmp/wordpress/3.8.1')
-    expect(self.builder.get_with_dir().get_dir()).to_equal('tmp/wordpress/3.8.1')
+    self.builder.set_project_path(g:WORDPRESS_DIR)
+    expect(self.builder.get_with_dir().get_dir()).to_equal(g:WORDPRESS_DIR)
   end
 
   defm it_can_generate_ctags
-    self.builder.set_project_path('tmp/wordpress/3.8.1')
+    self.builder.set_project_path(g:WORDPRESS_DIR)
     self.builder.clean()
 
     result = self.builder.generate()
     expect(result).to_be_true()
-    delete("tmp/wordpress/3.8.1/tags")
+    delete("#{g:WORDPRESS_DIR}/tags")
   end
 end

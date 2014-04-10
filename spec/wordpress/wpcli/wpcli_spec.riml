@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'wpcli'
 
 class WpCliSpec
@@ -8,7 +7,7 @@ class WpCliSpec
     self.cli = new WpCli()
     self.parser = new JSONParser()
 
-    self.cli.set_path('wp --path=tmp/wordpress/3.8.1')
+    self.cli.set_path("wp --path=#{g:WORDPRESS_DIR}")
   end
 
   defm after_each

@@ -1,5 +1,4 @@
-riml_include 'dsl'
-riml_include 'log_helpers'
+riml_include 'spec_helper'
 riml_include 'container'
 riml_include 'project'
 riml_include 'project_collection'
@@ -13,7 +12,7 @@ class ProjectCollectionSpec
     self.container.register('with_dir', 'WithDir', false)
 
     self.project_collection = self.container.lookup('project_collection')
-    self.project_path = fnamemodify('tmp/wordpress/3.8.1/wp-login.php', ':p:h')
+    self.project_path = fnamemodify("#{g:WORDPRESS_DIR}/wp-login.php", ':p:h')
   end
 
   defm it_has_a_container
