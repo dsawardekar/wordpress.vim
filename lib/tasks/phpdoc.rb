@@ -44,7 +44,6 @@ end
 def phpdoc
   save_phpdoc_config
 
-  #cmd = "#{PHPDOC} run --config=#{File.expand_path(BUILD_PHPDOC_CONFIG)}"
-  cmd = "#{PHPDOC} run"
+  cmd = "#{Dir.pwd}/#{PHPDOC} run"
   cmd
 end

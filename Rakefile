@@ -3,6 +3,13 @@ require 'rspec/core/rake_task'
 require_relative 'lib/tasks/paths'
 require_relative 'lib/tasks/utils'
 
+namespace :composer do
+  desc "Install Composer Dependencies"
+  task :install do
+    sh 'composer install'
+  end
+end
+
 namespace :dynamo do
   desc "Run dynamo's rspec tests"
   RSpec::Core::RakeTask.new(:spec)
@@ -62,7 +69,7 @@ namespace :dynamo do
   task :dict => [:build, :phpdoc, :build_dict]
 
   desc 'Move Generated Syntax & Dictionary into Vim directories - only copy'
-  task :dist => [:dict, :dist_copy]
+  task :dist => [:syntax, :dict, :dist_copy]
 end
 
 namespace :riml do
@@ -118,7 +125,7 @@ desc 'Default task :build'
 task :default => :test
 
 desc 'Run all tests'
-task :test => ['dynamo:test', 'riml:test']
+task :test => ['composer:install', 'dynamo:phpdoc', 'dynamo:test', 'riml:test']
 
 desc 'Remove generated files'
 task :clean => ['dynamo:clean', 'riml:clean']

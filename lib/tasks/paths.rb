@@ -8,7 +8,7 @@ DEBUG   = ENV['DEBUG'] || false
 WORDPRESS_DIR = ENV['WORDPRESS_DIR'] || 'tmp/wordpress/3.8.1'
 
 # phpdoc
-PHPDOC       = ENV['PHPDOC'] || 'phpdoc'
+PHPDOC       = ENV['PHPDOC'] || 'vendor/bin/phpdoc.php'
 PHPDOC_INCLUDES = [
   'wp-includes'
 ]
