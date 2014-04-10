@@ -5,7 +5,10 @@ VERBOSE = ENV['VERBOSE'] || false
 DEBUG   = ENV['DEBUG'] || false
 
 # wordpress paths
-WORDPRESS_DIR = ENV['WORDPRESS_DIR'] || 'tmp/wordpress/3.8.1'
+WORDPRESS_VERSION = '3.8.2'
+WORDPRESS_DIR     = ENV['WORDPRESS_DIR'] || "tmp/wordpress/#{WORDPRESS_VERSION}"
+WORDPRESS_TARBALL = "tmp/wordpress-#{WORDPRESS_VERSION}.tar.gz"
+WORDPRESS_URL     = "http://wordpress.org/wordpress-#{WORDPRESS_VERSION}.tar.gz"
 
 # phpdoc
 PHPDOC       = ENV['PHPDOC'] || 'vendor/bin/phpdoc.php'
