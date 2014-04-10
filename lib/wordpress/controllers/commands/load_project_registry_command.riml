@@ -1,0 +1,18 @@
+riml_include 'wordpress_project_command'
+riml_include 'wpcli_command'
+riml_include 'wpcli_command_factory'
+
+class LoadProjectRegistryCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'LoadProjectRegistry'
+  end
+
+  defm run(opts)
+    registry = self.lookup('project_registry')
+    registry.register_commands()
+  end
+end

@@ -1,0 +1,41 @@
+riml_include 'base_command'
+
+class WordPressCommand < BaseCommand
+  def initialize(container)
+    super()
+    self.container = container
+  end
+
+  defm lookup(key)
+    return self.container.lookup(key)
+  end
+
+  defm process(*args)
+    registry = self.lookup('registry')
+    return call(registry['run_action'], args, registry)
+  end
+
+  defm current_buffer
+    return self.lookup('buffer_collection').get_current()
+  end
+
+  defm current_buffer_full_path
+    return self.current_buffer().get_full_path()
+  end
+
+  defm current_buffer_project_path
+    return self.current_buffer().get_project_path()
+  end
+
+  defm current_project
+    return self.lookup('project_collection').project_for(self.current_buffer_project_path())
+  end
+
+  defm expand_args(args)
+    n    = len(args)
+    opts = args[n - 1]
+    params = args[0:-2]
+
+    return [params, opts]
+  end
+end

@@ -1,0 +1,87 @@
+class FileOpener
+  def initialize()
+    self.is_file_opener = true
+    self.mkdir_mode = true
+    self.exec_mode = true
+    self.exec_cmd = ''
+    self.exec_mkdir = ''
+  end
+
+  " public api
+  defm set_mkdir_mode(mkdir_mode)
+    self.mkdir_mode = mkdir_mode
+  end
+
+  defm get_mkdir_mode()
+    return self.mkdir_mode
+  end
+
+  defm set_exec_mode(exec_mode)
+    self.exec_mode = exec_mode
+  end
+
+  defm get_exec_mode()
+    return self.exec_mode
+  end
+
+  defm open(file, mode)
+    cmd = self.build_cmd(file, mode)
+
+    self.mkdir(file)
+    self.open_with(cmd)
+  end
+
+  " helpers
+  defm open_with(cmd)
+    if self.exec_mode
+      execute("#{cmd}")
+    else
+      self.exec_cmd = cmd
+    end
+  end
+
+  defm mkdir(file)
+    parent_dir = fnamemodify(file, ':p:h')
+
+    if !isdirectory(parent_dir) && self.mkdir_mode
+      if self.exec_mode
+        " TODO: figure out a way to do mkdir on unsupported platforms
+        if exists('*mkdir')
+          mkdir(parent_dir, 'p')
+        end
+      else
+        self.exec_mkdir = parent_dir
+      end
+    end
+  end
+
+  " TODO: Does CtrlP have these modes ?
+  defm build_cmd(file, mode)
+    cmd = ''
+
+    if mode == 'e' || mode == 'edit'
+      cmd = 'edit'
+    elseif mode == 's' || mode == 'h' || mode == 'split'
+      cmd = 'split'
+    elseif mode == 'v' || mode == 'vsplit'
+      cmd = 'vsplit'
+    elseif mode == 't' || mode == 'tab'
+      cmd = 'tabedit'
+    elseif mode == 'd' || mode == 'read'
+      cmd = 'read'
+    elseif mode == 'abo' || mode == 'aboveleft' || mode == 'lefta' || mode == 'leftabove'
+      cmd = 'leftabove'
+    elseif mode == 'rightb' || mode == 'rightbelow' || mode == 'bel' || mode == 'belowright'
+      cmd = 'rightbelow'
+    elseif mode == 'to' || mode == 'topleft'
+      cmd = 'topleft'
+    elseif mode == 'bo' || mode == 'botright'
+      cmd = 'botright'
+    else
+      cmd = 'edit'
+    end
+
+    cmd = ":#{cmd} #{file}"
+    return cmd
+  end
+end

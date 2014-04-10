@@ -1,0 +1,40 @@
+riml_include 'wordpress_command'
+riml_include 'msg'
+
+class ChangeCurrentBufferCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'ChangeCurrentBuffer'
+  end
+
+  defm run(buffer, opts)
+    buffer_collection  = self.lookup('buffer_collection')
+    project_collection = self.lookup('project_collection')
+    project_path       = buffer.get_project_path()
+    project_added      = false
+
+    buffer_collection.set_current(buffer)
+
+    " add project to collection, only once
+    unless project_collection.contains(project_path)
+      project = project_collection.add(project_path)
+      project_added = true
+    end
+
+    " load the ex commands for current buffer
+    if project_collection.contains(project_path)
+      self.process('LoadProjectRegistry')
+      self.process('LoadSyntax')
+      self.process('ConfigureTags')
+    end
+
+    " ready!
+    if project_added
+      :redraw
+      echo_msg("WordPress: Loading ... DONE")
+    end
+  end
+end

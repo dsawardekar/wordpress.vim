@@ -1,0 +1,18 @@
+riml_include 'wpcli_command'
+
+class EvalFileCommand < WpCliCommand
+  def initialize(container)
+    super(container)
+    self.is_eval_file_command = true
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+
+    if len(params) == 0
+      add(params, self.current_buffer_full_path())
+    end
+
+    return self.do_run(params, opts)
+  end
+end

@@ -1,0 +1,53 @@
+class WpCliCompleter
+  defm needs
+    return ['wpcli']
+  end
+
+  defm complete(cmd_name, word, cmd_line, cursor)
+    args    = self.to_complete_args(cmd_name, word, cmd_line, cursor)
+    result  = call(self.wpcli['run'], args, self.wpcli)
+    choices = split(result, "\n")
+    choices = self.trim_choices(choices)
+
+    return choices
+  end
+
+  defm trim_choices(choices)
+    return map(choices, 'self.trim(v:val)')
+  end
+
+  defm trim(text)
+    return substitute(text, '^\s*\(.\{-}\)\s*$', '\1', '')
+  end
+
+  defm to_complete_args(cmd_name, word, cmd_line, cursor)
+    args = []
+    add(args, 'cli')
+    add(args, 'completions')
+    add(args, self.to_line_arg(cmd_name, cmd_line))
+    add(args, self.to_cursor_arg(cmd_name, cursor))
+    "echo_msg(args)
+
+    return args
+  end
+
+  " Wcache => wp cache"
+  " shifts the cursor 2 characters ahead
+  " TODO: account for hyphens, Eg:- search-replace
+  defm to_cursor_arg(cmd_name, cursor)
+    arg = cursor + 2
+    return "--point=#{arg}"
+  end
+
+  defm to_line_arg(cmd_name, cmd_line)
+    wpcli_line = self.to_wpcli_line(cmd_name, cmd_line)
+    return "--line=\"" . wpcli_line . "\""
+  end
+
+  defm to_wpcli_line(cmd_name, cmd_line)
+    pattern = "\\VW#{cmd_name}"
+    replacement = "wp #{cmd_name}"
+
+    return substitute(cmd_line, pattern, replacement, '')
+  end
+end

@@ -1,0 +1,42 @@
+class ThemeDetector < BufferTypeDetector
+  defm detect(path)
+    found  = findfile('style.css', "#{path};")
+    result = {}
+
+    if found != '' && self.has_theme_header(found)
+      result.status = true
+      result.path = self.get_wp_path(found)
+    else
+      result.status = false
+      result.path = ''
+    end
+
+    return result
+  end
+
+  defm get_wp_path(found)
+    parent_path  = fnamemodify(found, ':h')
+    core_path    = fnamemodify(found, ':h:h:h:h')
+
+    if self.is_core_path(core_path)
+      return core_path
+    else
+      return parent_path
+    end
+  end
+
+  defm has_theme_header(file)
+    lines = readfile(file)
+    for line in lines
+      if line =~ '^\s*Theme Name:'
+        return true
+      end
+    end
+
+    return false
+  end
+
+  defm get_type
+    return 'theme'
+  end
+end

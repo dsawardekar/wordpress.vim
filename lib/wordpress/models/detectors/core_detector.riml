@@ -1,0 +1,22 @@
+riml_include 'buffer_type_detector'
+
+class CoreDetector < BufferTypeDetector
+  defm detect(path)
+    found = findfile('wp-load.php', "#{path};")
+    result = {}
+
+    if found != ''
+      result.status = true
+      result.path = fnamemodify(found, ':h')
+    else
+      result.status = false
+      result.path = ''
+    end
+
+    return result
+  end
+
+  defm get_type
+    return 'core'
+  end
+end

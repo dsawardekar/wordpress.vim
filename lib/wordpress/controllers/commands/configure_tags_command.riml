@@ -1,0 +1,45 @@
+riml_include 'ctags_builder'
+riml_include 'tags_option'
+riml_include 'wordpress_project_command'
+
+class ConfigureTagsCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+    self.is_configure_tags_command = true
+  end
+
+  defm get_name
+    return 'ConfigureTags'
+  end
+
+  defm run(opts)
+    buffer = self.current_buffer()
+    project = self.current_project()
+
+    if project.has_wordpress_path()
+      self.generate_ctags()
+    end
+
+    self.configure_tag_option()
+  end
+
+  defm generate_ctags
+    ctags_builder = self.lookup('ctags_builder')
+
+    unless ctags_builder.has_tags()
+      :redraw
+      echo_msg("WordPress: Generating ctags ...")
+      ctags_builder.generate()
+    end
+  end
+
+  defm configure_tag_option
+    ctags_builder = self.lookup('ctags_builder')
+    tags_option   = self.lookup('tags_option')
+
+    if ctags_builder.has_tags()
+      tags_path = fnamemodify(ctags_builder.get_project_tags(), ':p')
+      tags_option.prepend(tags_path)
+    end
+  end
+end

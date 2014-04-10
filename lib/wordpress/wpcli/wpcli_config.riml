@@ -1,0 +1,91 @@
+class WpCliConfig
+  def initialize
+    self.is_wpcli_config = true
+    self.did_read = false
+    self.params = {}
+    self.pattern = '\v^(.+):\s*(.+)$'
+  end
+
+  defm get_config_param(param)
+    if has_key(self.params, param)
+      return self.params[param]
+    else
+      return ''
+    end
+  end
+
+  defm load(root)
+    lines = self.read(root)
+    self.parse(lines)
+  end
+
+  " very primitive YAML parsing, we only need path: foo
+  " TODO: improve this if we need other YAML params
+  defm parse(lines)
+    for line in lines
+      result = self.parse_line(line)
+      if result.status
+        self.params[result.param] = result.value
+      end
+    end
+  end
+
+  defm parse_line(line)
+    matches = matchlist(line, self.pattern)
+    result = {}
+
+    if len(matches) > 0 && matches[2] != ' '
+      result.status = true
+      result.param = matches[1]
+      result.value = matches[2]
+    else
+      result.status = false
+    end
+
+    return result
+  end
+
+  defm read(root)
+    config = self.get_config_path(root)
+    if config != ''
+      return readfile(config)
+    else
+      return []
+    end
+  end
+
+  defm get_config_path(root)
+    if has_key(self, 'config_path')
+      return self.config_path
+    end
+
+    config = self.local_config_path_for(root)
+
+    unless filereadable(config)
+      config = self.config_path_for(root)
+    end
+
+    unless filereadable(config)
+      config = self.global_config_path_for(root)
+    end
+
+    unless filereadable(config)
+      config = ''
+    end
+
+    self.config_path = config
+    return config
+  end
+
+  defm local_config_path_for(root)
+    return "#{root}/wp-cli.local.yml"
+  end
+
+  defm config_path_for(root)
+    return "#{root}/wp-cli.yml"
+  end
+
+  defm global_config_path_for(root)
+    return expand("~/.wp-cli/config.yml")
+  end
+end

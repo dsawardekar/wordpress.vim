@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<phpdoc>
+  <parser>
+    <target>build/phpdoc</target>
+  </parser>
+  <files>
+    <file>tmp/wordpress/3.8.1/wp-includes/post.php</file>
+  </files>
+</phpdoc>

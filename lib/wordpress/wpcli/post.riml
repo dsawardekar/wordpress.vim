@@ -1,0 +1,50 @@
+class Post
+  def initialize
+    self.is_post = true
+  end
+
+  defm needs
+    return ['wpcli']
+  end
+
+  defm create(post_content, params)
+    cli_params = ['post', 'create', self.to_arg('post_content', post_content), '--porcelain']
+    cli_params += params
+
+    result = call(self.wpcli['run'], cli_params, self.wpcli)
+    return self.to_post_id(result)
+  end
+
+  defm update(post_id, post_content, params)
+    cli_params = ['post', 'update', post_id, self.to_arg('post_content', post_content)]
+    cli_params += params
+
+    return call(self.wpcli['run'], cli_params, self.wpcli)
+  end
+
+  defm find(post_id)
+    cli_params = ['post', 'get', post_id, '--format=json']
+    result = call(self.wpcli['run'], cli_params, self.wpcli)
+
+    if has_key(result, 'post_content')
+      return result['post_content']
+    else
+      return ''
+    end
+  end
+
+  defm to_arg(name, value)
+    return "--#{name}=#{shellescape(value)}"
+  end
+
+  defm to_post_id(result)
+    lines = split(result, "\n")
+    if len(lines) >= 0
+      post_id = lines[0]
+    else
+      post_id = 0
+    end
+
+    return post_id
+  end
+end

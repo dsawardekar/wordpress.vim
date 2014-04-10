@@ -1,0 +1,70 @@
+riml_include 'post'
+riml_include 'autocmd_loader'
+riml_include 'delegate'
+
+class PostSaver
+  def initialize
+    self.post_id = '0'
+    self.params = []
+  end
+
+  defm needs
+    return ['post', 'wpcli_printer']
+  end
+
+  defm set_post_id(post_id)
+    self.post_id = post_id
+  end
+
+  defm get_post_id
+    return self.post_id
+  end
+
+  defm watch(path, params)
+    self.params = params
+
+    loader = new AutocmdLoader()
+    loader.set_group_name('wordpress_vim_post_buffer')
+    loader.cmd("BufWritePre #{path} call #{new_delegate(self, 'before_file_save')}()")
+    loader.cmd("BufWritePost #{path} call #{new_delegate(self, 'after_file_save')}()")
+    loader.load()
+  end
+
+  defm before_file_save
+    self.modified = &mod
+  end
+
+  defm after_file_save
+    unless self.modified
+      return
+    end
+
+    post_content = self.load_current_buffer()
+
+    if self.post_exists()
+      result = self.post.update(self.post_id, post_content, self.params)
+    else
+      self.post_id = self.post.create(post_content, self.params)
+      result = self.message_for(self.post_id)
+    end
+
+    self.wpcli_printer.print('post', result)
+    return result
+  end
+
+  defm load_current_buffer
+    return join(getline(1, '$'), "\n")
+  end
+
+  defm post_exists
+    return self.post_id != '0'
+  end
+
+  defm message_for(post_id)
+    if post_id != '0'
+      return "Success: Created post #{post_id}."
+    else
+      return "Error: Failed to create post."
+    end
+  end
+end

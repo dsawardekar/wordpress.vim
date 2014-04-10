@@ -1,0 +1,79 @@
+riml_include 'msg'
+
+class WpCliPrinter
+  def initialize
+    self.is_wpcli_printer = true
+  end
+
+  defm print(cmd_name, result)
+    if self.is_json(result)
+      self.print_json(cmd_name, result)
+    else
+      self.print_text(cmd_name, result)
+    end
+  end
+
+  " TODO: pretty print json
+  defm print_json(cmd_name, json)
+    echo_msg(json)
+  end
+
+  defm print_text(cmd_name, text)
+    text = self.replace(cmd_name, text)
+    lines = self.lines_for(text)
+
+    for line in lines
+      self.print_line(line)
+    end
+  end
+
+  defm replace(cmd_name, text)
+    if cmd_name != ''
+      result = substitute(text, self.get_command_pattern(cmd_name), self.get_command_replacement(cmd_name), 'g')
+      result = substitute(result, self.get_help_pattern(cmd_name), self.get_help_replacement(cmd_name), 'g')
+      result = self.replace_colors(result)
+    else
+      result = text
+    end
+
+    return result
+  end
+
+  defm get_command_pattern(cmd_name)
+    return "\\Vwp #{cmd_name}"
+  end
+
+  defm get_help_pattern(cmd_name)
+    return "\\Vwp help #{cmd_name} <command>"
+  end
+
+  defm get_command_replacement(cmd_name)
+    name = substitute(cmd_name, '\V-', '', 'g')
+    return "W#{name}"
+  end
+
+  defm get_help_replacement(cmd_name)
+    return "#{self.get_command_replacement(cmd_name)}!"
+  end
+
+  defm print_line(line)
+    text = self.replace_tabs(line)
+    echo_msg(text)
+  end
+
+  defm replace_tabs(line)
+    return substitute(line, "\t", "  ", 'g')
+  end
+
+  defm replace_colors(line)
+    return substitute(line, '\e\[[0-9;]\+[mK]', '', 'g')
+  end
+
+  defm is_json(result)
+    return type(result) == type({})
+  end
+
+  defm lines_for(result)
+    return split(result, "\n")
+  end
+end

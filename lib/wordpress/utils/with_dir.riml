@@ -1,0 +1,52 @@
+riml_include 'delegate'
+
+class WithDir
+  def initialize(dir = '')
+    self.dir = dir
+    self.trap_errors = true
+  end
+
+  defm set_dir(dir)
+    self.dir = dir
+  end
+
+  defm get_dir
+    return self.dir
+  end
+
+  defm get_trap_errors
+    return self.trap_errors
+  end
+
+  defm set_trap_errors(trap_errors)
+    self.trap_errors = trap_errors
+  end
+
+  defm run(scope, method, args)
+    orig_dir = getcwd()
+
+    if haslocaldir()
+      chdir_cmd = 'lcd'
+    else
+      chdir_cmd = 'cd'
+    end
+
+    execute(":#{chdir_cmd} #{self.get_dir()}")
+
+    " Swallowing errors here is good for simple tasks
+    " but will makes debugging harder
+    if self.trap_errors
+      try
+        result = call(scope[method], args, scope)
+      catch
+        result = false
+      finally
+        execute("#{chdir_cmd} #{orig_dir}")
+      end
+    else
+      result = call(scope[method], args, scope)
+    end
+
+    return result
+  end
+end

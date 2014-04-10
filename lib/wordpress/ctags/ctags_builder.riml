@@ -1,0 +1,89 @@
+riml_include 'with_dir'
+
+class CTagsBuilder
+  def initialize
+    self.is_ctags_builder = true
+    self.project_path = ''
+  end
+
+  defm needs
+    return ['with_dir']
+  end
+
+  defm set_project_path(project_path)
+    self.project_path = project_path
+  end
+
+  defm get_project_path
+    return self.project_path
+  end
+
+  defm get_tags_name
+    if exists('g:wordpress_vim_tags_file_name')
+      return g:wordpress_vim_tags_file_name
+    else
+      return "tags"
+    end
+  end
+
+  defm get_project_tags
+    return "#{self.get_project_path()}/#{self.get_tags_name()}"
+  end
+
+  defm get_executable
+    if exists('g:wordpress_vim_ctags_path')
+      ctags = g:wordpress_vim_ctags_path
+    else
+      ctags = 'ctags'
+    end
+
+    return ctags
+  end
+
+  defm has_executable
+    return executable(self.get_executable())
+  end
+
+  defm has_tags
+    return filereadable(self.get_project_tags())
+  end
+
+  defm clean
+    tags = self.get_project_tags()
+    if filereadable(tags)
+      delete(tags)
+    end
+  end
+
+  defm generate
+    unless self.has_executable()
+      return false
+    end
+
+    cmd                  = self.build()
+    with_dir             = self.get_with_dir()
+    [error_code, result] = self.with_dir.run(self, 'run', [cmd])
+
+    return error_code == 0
+  end
+
+  defm get_with_dir
+    with_dir = self.with_dir
+    with_dir.set_dir(self.get_project_path())
+
+    return with_dir
+  end
+
+  defm run(cmd)
+    result = system(cmd)
+    return [v:shell_error, result]
+  end
+
+  defm build
+    cmd = self.get_executable()
+    cmd .= " -R ."
+    cmd .= " -f #{shellescape(self.get_tags_name())}"
+
+    return cmd
+  end
+end

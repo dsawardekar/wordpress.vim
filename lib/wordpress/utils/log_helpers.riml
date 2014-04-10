@@ -1,0 +1,20 @@
+def info(*args)
+  logger = get_logger()
+  return call(logger['info'], args, logger)
+end
+
+def warn(*args)
+  logger = get_logger()
+  return call(logger['warn'], args, logger)
+end
+
+def error(*args)
+  logger = get_logger()
+  return call(logger['error'], args, logger)
+end
+
+def fatal(*args)
+  logger = get_logger()
+  return call(logger['fatal'], args, logger)
+end
+

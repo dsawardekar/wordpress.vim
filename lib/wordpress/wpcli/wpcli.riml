@@ -1,0 +1,87 @@
+riml_include 'json_parser'
+riml_include 'msg'
+
+class WpCli
+  def initialize
+    self.is_wpcli = true
+    self.path = 'wp'
+    self.env_vars = {}
+    self.env_vars['SHELL_PIPE'] = 0
+  end
+
+  defm set_path(path)
+    self.path = path
+  end
+
+  defm get_path
+    return self.path
+  end
+
+  defm add_env_var(key, value)
+    self.env_vars[key] = value
+  end
+
+  defm remove_env_var(key)
+    :unlet self.env_vars[a:key]
+  end
+
+  defm get_env_vars
+    vars = ''
+    for var in keys(self.env_vars)
+      vars .= "#{var}=#{self.env_vars[var]} "
+    end
+
+    return vars
+  end
+
+  defm build(args)
+    env      = self.get_env_vars()
+    cmd_args = join(args, ' ')
+    cmd      = "#{env} #{self.path} #{cmd_args}"
+    "echo_msg("wpcli: #{cmd}")
+
+    return cmd
+  end
+
+  defm exec(args)
+    cmd = self.build(args)
+    result = system(cmd)
+
+    if result[0] == '{'
+      return self.parse(result)
+    else
+      return result
+    end
+  end
+
+  defm parse(text)
+    return self.get_parser().parse(text)
+  end
+
+  defm get_parser()
+    unless has_key(self, 'parser')
+      self.parser = new JSONParser()
+    end
+
+    return self.parser
+  end
+
+  defm run(*params)
+    return self.exec(params)
+  end
+
+  defm dump()
+    return self.run('cli', 'cmd-dump', '--format=json')
+  end
+
+  defm list()
+    meta = self.dump()
+    cmds = []
+
+    for cmd in meta.subcommands
+      add(cmds, cmd.name)
+    end
+
+    return cmds
+  end
+end

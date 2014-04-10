@@ -1,0 +1,34 @@
+riml_include 'buffer_type_detector'
+
+class WpCliDetector < BufferTypeDetector
+  defm detect(path)
+    configs = self.get_wp_cli_configs()
+    result = {}
+    result.status = false
+    result.path = ''
+
+    for config in configs
+      found = self.has_wp_cli(config, path)
+      if found != ''
+        result.status = true
+        result.path = fnamemodify(found, ':h')
+        break
+      end
+    end
+
+    return result
+  end
+
+  defm get_wp_cli_configs
+    return ['wp-cli.local.yml', 'wp-cli.yml']
+  end
+
+  " returns path to the wp cli config or empty string
+  defm has_wp_cli(config, path)
+    return findfile(config, "#{path};")
+  end
+
+  defm get_type
+    return 'wpcli'
+  end
+end

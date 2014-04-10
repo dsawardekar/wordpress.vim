@@ -1,0 +1,23 @@
+riml_include 'controller'
+riml_include 'msg'
+
+class App
+  def initialize()
+    self.controller = new Controller()
+  end
+
+  defm start()
+    self.controller.load()
+  end
+
+  defm on_buffer_open(buffer)
+    return self.controller.process('ConfigureBuffer', buffer)
+  end
+
+  defm on_buffer_enter(buffer)
+    return self.controller.process('ChangeCurrentBuffer', buffer)
+  end
+
+  defm on_buffer_leave(buffer)
+  end
+end

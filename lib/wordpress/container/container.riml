@@ -1,0 +1,123 @@
+class Container
+  def initialize(parent)
+    self.is_container = true
+    self.parent = parent
+    self.objects = {}
+  end
+
+  " classname = name of class constructor
+  " if classname is not string, it is considered to
+  " be a preexisting object and will be returned as
+  " it it were a singleton instance
+  defm register(name, classname, *opts)
+    if len(opts) == 0
+      singleton = false
+    else
+      singleton = opts[0]
+    end
+
+    if type(classname) == type('')
+      object = new ContainerObject(classname, singleton)
+    else
+      object = new ContainerObject('ExistingObject', true)
+      object.set_instance(classname)
+    end
+
+    self.objects[name] = object
+  end
+
+  defm unregister(name, from_parent)
+    if has_key(self.objects, name)
+      :unlet self.objects[a:name]
+    end
+
+    if from_parent && self.has_parent()
+      self.parent.unregister(name, from_parent)
+    end
+  end
+
+  defm lookup(name)
+    if has_key(self.objects, name)
+      object = self.objects[name]
+      instance = object.get_instance()
+      self.inject(instance)
+
+      return instance
+    elseif self.has_parent()
+      return self.parent.lookup(name)
+    else
+      throw "Container object not found: #{name}"
+    end
+  end
+
+  defm has(name)
+    return has_key(self.objects, name) || (self.has_parent() && self.parent.has(name))
+  end
+
+  defm has_parent
+    return has_key(self.parent, 'is_container')
+  end
+
+  defm inject(instance)
+    " prevents injection on externally initialized instance
+    if type(instance) != type({}) || has_key(instance, 'container')
+      return
+    end
+
+    if has_key(instance, 'needs')
+      needs = instance.needs()
+      for need in needs
+        dependency = self.lookup(need)
+        instance[need] = dependency
+      end
+    end
+
+    instance['container'] = self
+
+    if has_key(instance, 'on_inject')
+      instance.on_inject()
+    end
+  end
+
+  defm child
+    return new Container(self)
+  end
+
+  defm get_parent
+    return self.parent
+  end
+end
+
+class ContainerObject
+  def initialize(classname, singleton)
+    self.classname = classname
+    self.singleton = singleton
+    self.is_container_object = true
+  end
+
+  defm get_instance
+    if self.needs_new_instance()
+      Klass = function("s:#{self.classname}Constructor")
+      self.instance_object = self.create(Klass)
+    end
+
+    return self.instance_object
+  end
+
+  defm set_instance(instance)
+    self.instance_object = instance
+  end
+
+  " helpers
+  defm instantiated
+    return has_key(self, 'instance_object')
+  end
+
+  defm needs_new_instance
+    return !self.instantiated() || !self.singleton
+  end
+
+  defm create(Klass)
+    return Klass()
+  end
+end
