@@ -2535,10 +2535,14 @@ function! s:ScaffoldCommandConstructor(container)
   let scaffoldCommandObj.find_scaffold_file = function('<SNR>' . s:SID() . '_s:ScaffoldCommand_find_scaffold_file')
   let scaffoldCommandObj.insert_into_buffer = function('<SNR>' . s:SID() . '_s:ScaffoldCommand_insert_into_buffer')
   let scaffoldCommandObj.WpCliCommand_do_run = function('<SNR>' . s:SID() . '_s:WpCliCommand_do_run')
+  let scaffoldCommandObj.WpCliCommand_do_run = function('<SNR>' . s:SID() . '_s:WpCliCommand_do_run')
   return scaffoldCommandObj
 endfunction
 
 function! <SID>s:ScaffoldCommand_do_run(params, opts) dict
+  if len(a:params) ==# 0 || a:opts.bang
+    return self.WpCliCommand_do_run(a:params, a:opts)
+  endif
   let action = a:params[0]
   let file_to_open = ''
   if action ==# 'post-type' || action ==# 'taxonomy'
