@@ -1,0 +1,380 @@
+*wordpress.txt*    Vim Plugin for WordPress Development
+
+===============================================================================
+Contents
+
+1. Introduction                      |wordpress-introduction|
+2. Auto-Completion                   |wordpress-auto-completion|
+3. WP-CLI Integration                |wordpress-wp-cli|
+  3.1 :Wcommand                      |wordpress-wp-cli-commands|
+  3.2 :Weval                         |wordpress-wp-cli-eval|
+  3.3 :Wevalfile                     |wordpress-wp-cli-evalfile|
+  3.4 :Wscaffold                     |wordpress-wp-cli-scaffold|
+  3.5 :Wpost                         |wordpress-wp-cli-post|
+4. Jump to Core Definition           |wordpress-jump-to-core|
+5. Snippets                          |wordpress-snippets|
+  5.1 Custom Taxonomy                |wordpress-snippets-taxonomy|
+  5.2 Custom Post Type               |wordpress-snippets-post-type|
+  5.3 Register Post Status           |wordpress-snippets-post-status|
+  5.4 Menus                          |wordpress-snippets-menus|
+  5.5 Queries                        |wordpress-snippets-queries|
+  5.6 Loop                           |wordpress-snippets-loop|
+  5.7 Misc                           |wordpress-snippets-misc|
+6. Syntax Higlighting                |wordpress-syntax-highlighting|
+  6.1 PHP Syntax Highlighting        |wordpress-php-syntax-highlighting|
+  6.2 Readme.txt Syntax Highlighting |wordpress-readme-syntax-highlighting|
+7. System Requirements               |wordpress-system-requirements|
+8. Customization                     |wordpress-customization|
+9. License                           |wordpress-license|
+10. Thanks                           |wordpress-thanks|
+11. Contributing                     |wordpress-contributing|
+12. Todo                             |wordpress-todo|
+13. Contact                          |wordpress-contact|
+
+
+
+===============================================================================
+1. Introduction                                        *wordpress-introduction*
+
+WordPress.vim is a Vim plugin for WordPress Development.
+
+Features:
+
+* Auto-Completion for the WordPress API
+* WP-CLI Integration
+* Jump to Definition in WordPress Core
+* UltiSnips Snippets
+* Syntax Highlighting for WordPress PHP files.
+* Markdown Syntax Highlighting for readme.txt
+
+===============================================================================
+2. Auto-Completion                                  *wordpress-auto-completion*
+
+WordPress.vim extends phpcomplete.vim to provide Auto-Completions for
+WordPress PHP files. If you have phpcomplete.vim installed no additional
+configuration is required.
+
+The default Vim completion key is 'C-x C-o' in insert mode. This will
+open up a menu with the choices for the word at the cursor.
+
+A couple of Vim plugins that make using completions much simpler are
+*SuperTab* and *YouCompleteMe*.
+
+SuperTab allows you to hit the 'Tab' key to view completions. And to
+cycle through them with arrow keys.
+
+A more advanced plugin is 'YouCompleteMe'. Unlike SuperTab which
+requires you to hit a key to show the list of completions, YCM is an
+as-you-type completion system, often only seen in IDEs.
+
+It works well with the 'omnifunc' provided by phpcomplete. Hitting
+any one of the PHP trigger keys, '->' or '::' will automatically show
+completions for it.
+
+===============================================================================
+3. WP-CLI Integration                                        *wordpress-wp-cli*
+
+WordPress.vim is closely integrated with WP-CLI. You can easily run
+WP-CLI commands without leaving Vim. When the presence of WP-CLI is
+detected in a project, WordPress.vim adds corresponding Ex commands to
+Vim.
+
+For the WP-CLI command like, 'wp cache' the corresponding ex command
+will be ':Wcache'. ie:- :W{command}. For commands with hyphens like 'wp
+search-replace' you need to drop the hyphen and just use,
+':Wsearchreplace' instead.
+
+The Ex commands provide auto-completion using WP-CLI's 'wp cli
+completions' subcommand.
+
+You can get help for any command by using a Bang after the name of the
+command or at the end.
+
+:Wcache! - will show the details of the 'wp cache' command.
+
+Most WP-CLI commands will work as expected. However some behaviour is
+enhanced for better integration with Vim. These are listed below.
+
+3.1 :Weval                                             *wordpress-wp-cli-eval*
+----------------
+
+The :Weval adds support for Vim ranges. You can make a Visual Mode
+selection and then use the command :'<,'>Weval and it will run 'wp eval'
+on your selected lines.
+
+Ranges can also be provide manually like, :5,10Weval.
+
+3.2 :Wevalfile                                     *wordpress-wp-cli-evalfile*
+----------------
+
+The :Wevalfile command runs the 'wp evalfile' WP-CLI command. When the
+file argument is not provided it runs 'evalfile' on the current file
+itself.
+
+3.3 :Wscaffold                                     *wordpress-wp-cli-scaffold*
+----------------
+
+WordPress.vim makes a few useful additions to 'wp scaffold'.
+
+When you use ':Wscaffold' with the subcommands '_s', 'child-theme' or plugin,
+it runs the corresponding 'wp scaffold' commands and immediately puts
+you into the main generated file.
+
+For themes this is the 'style.css' and for plugins it's the main plugin
+PHP file.
+
+When using ':Wscaffold taxonomy' or ':Wscaffold post-type' WordPress.vim
+directly inserts the scaffolded snippet into the current file.
+
+3.4 :Wpost                                            *wordpress-wp-cli-post*
+
+WordPress.vim wraps the 'wp post' WP-CLI command with greater integration with
+Vim. The default 'wp post create' starts a new editor instance and
+creates a post once you have finished editing and close the
+file.
+
+Instead the ':Wpost create' command just creates a new Vim Buffer. Any
+changes you write in this new buffer will create a new post. And subsequent
+changes will result in updating the same post.
+
+Similarly the ':Wpost edit {post_id}' command opens an existing post
+into a new Vim Buffer. And changes written to this buffer will update
+that post.
+
+3.5 Long Running Commands                     *wordpress-wp-cli-long-running*
+
+Some WP-CLI commands like 'wp core' are network dependent and take longer to
+complete. Running them through Vim will block execution of the editor
+until they complete. It is recommended that you run such commands via a
+shell.
+
+3.6 Shell Commands                                  *wordpress-wp-cli-shell*
+
+Commands like 'wp shell' that require a shell prompt currently aren't
+supported. This feature will be looked at in the future.
+
+===============================================================================
+4. Jump to Core Definition                             *wordpress-jump-to-core*
+
+As the name suggests this feature allows you to Jump to the Definition
+of a function inside WordPress Core. To use this feature your project
+needs to use WP-CLI or provide a manual path to WordPress with
+g:wordpress_vim_wordpress_path.
+
+This feature is implemented with CTags. You will only need to install
+CTags. The plugin takes care of creating the tags file and configuring
+Vim to use it.
+
+To jump to the definition of a function place your cursor on it, and hit
+the key combo Ctrl-]. To move back to the where you were earlier use Ctrl-t
+or Ctrl-o. You can also use the Ex command, :tjump name to jump to a tag.
+
+To learn more about navigation with tags see, |tags-and-searches|.
+
+===============================================================================
+5. Snippets                                                *wordpress-snippets*
+
+WordPress.vim comes with a few useful snippets to speed up common
+WordPress development tasks. The snippets require the UltiSnips Vim
+plugin.
+
+A Snippet is like an interactive Web Form. Once you enter a Snippet you
+are put at the first placeholder. As you start typing the placeholder
+changes and also affects any dependent placeholders.
+
+5.1 Custom Taxonomy                               *wordpress-snippets-taxonomy*
+------------------------------------------------------------
+
+This snippet provides code to add a Custom Taxonomy to WordPress.
+You need to enter the name of the taxonomy, plural and singular names
+and text domain. The rest of the code auto-updates to reflect the values
+you input.
+
+Trigger: taxonomy
+
+5.2 Custom Post Type                            *wordpress-snippets-post-type*
+------------------------------------------------------------
+
+Snippet for WordPress CPTs. Placeholders are provided for the name,
+singular and plural names, text domain, and description.
+
+Trigger: posttype
+
+5.3 Register Post Status                     *wordpress-snippets-post-status*
+------------------------------------------------------------
+
+Snippet for adding or modifying a Post Status. Placeholders are name and
+text domain.
+
+Trigger: poststatus
+
+5.4 Menus                                         *wordpress-snippets-menus*
+------------------------------------------------------------
+
+Sidebars can be quickly created with the sidebar snippet. Placeholders
+are id, name and description.
+
+Trigger: sidebar
+
+The Custom Navigation Menu snippets prompts for the locations with
+the placeholders name, description and text domain.
+
+Trigger: navmenu
+
+5.5 Queries                                     *wordpress-snippets-navmenu*
+------------------------------------------------------------
+
+Create a new WP_Query with the wpquery snippet. It drops you directly into the
+array of query arguments.
+
+Trigger: wpquery
+
+Similar snippets are provided for WP_User_Query and WP_Comment_Query.
+
+WP_User_Query - Trigger: userquery
+WP_Comment_Query - Trigger: commentquery
+
+5.6 Loop                                           *wordpress-snippets-loop*
+------------------------------------------------------------
+
+Starts a new WordPress Loop, and puts you in the middle.
+
+Trigger: loop
+
+5.7 Misc                                          *wordpress-snippets-misc*
+------------------------------------------------------------
+
+Some other useful snippets are listed below.
+
+Trigger: salts (Adds wp-config.php salts)
+Trigger: register_theme_headers (Provides theme image header registration)
+
+===============================================================================
+6. Syntax Highlighting                          *wordpress-syntax-highlighting*
+
+6.1 PHP Syntax Highlighting                 *wordpress-php-syntax-highlighting*
+-----------------------------------------------------------------------
+
+WordPress.vim extends the default PHP syntax highlighting with support
+for the WordPress API. Importantly it highlights the use
+of any deprecated function as Errors.
+
+6.2 Readme.txt Syntax Highlighting          *wordpress-php-syntax-highlighting*
+-----------------------------------------------------------------------
+
+The readme.txt file used by WordPress plugins & themes is treated as a
+Markdown file and is highlighted as such. Further support is added for
+highlighting fenced blocks as embedded PHP code.
+
+===============================================================================
+7. System Requirements                          *wordpress-system-requirements*
+
+WordPress.vim requires Vim 7.3p97+.
+
+WordPress.vim uses Progressive Enhancement to enable/disable features.
+This means that the features that depend on other plugins/external tools are
+only enabled if their presence is detected. A missing requirement will
+not affect the behaviour of the rest of the plugin.
+
+It is highly recommended to install the following plugins to get the
+best experience.
+
+* phpcomplete.vim - Enables Auto-Completion
+* UltiSnips - Enables Code Snippets
+* vim-markdown - Enables Markdown Syntax Highlighting of readme.txt
+* SuperTab or YouCompleteMe - More intuitive Auto Completion &
+  integration with UltiSnips
+
+Additionally the following tools enhance WordPress.vim.
+
+* WP-CLI - Enables :W ex commands & automatic WordPress path lookup.
+* Exuberant CTags - Enables the Jump to Core Definition feature
+
+===============================================================================
+8. Customization                                       *wordpress-customization*
+
+- g:wordpress_vim_autostart
+
+Opening Vim inside a WordPress project directory will start
+WordPress.vim automatically. When disabled you will need to open a file
+inside a buffer first.
+
+default: 1 (yes)
+valid values: 1 or 0
+
+- g:wordpress_vim_php_syntax_highlight
+
+Controls whether custom PHP syntax highlighting is enabled. This option
+if present toggles the custom syntax highlighting.
+
+default: 1 (yes)
+valid values: 1 or 0
+
+- g:wordpress_vim_tags_file_name
+
+The name of the Ctags file generated by Exuberant CTags.
+
+default: tags
+valid values: valid file name
+
+- g:wordpress_vim_wordpress_path
+
+The path to your WordPress installation. By default WordPress.vim
+uses WP-CLI to find the path to your WordPress installation
+automatically. However if you do not have WP-CLI installed you can still
+use the |wordpress-jump-to-core| feature, by providing a valid
+WordPress path manually.
+
+default: not set
+valid values: path to a WordPress install
+
+
+===============================================================================
+9. License                                                  *wordpress-license*
+
+MIT License. Copyright © 2014 Darshan Sawardekar.
+
+===============================================================================
+10. Thanks                                                   *wordpress-thanks*
+
+WordPress.vim builds on top a number of other excellent Projects.
+Many Thanks in particular to,
+
+Shawn Biddle - for phpcomplete.vim
+Cristi Burcă - for WP-CLI
+Luke Gruber  - for Riml
+
+===============================================================================
+11. Contributing                                       *wordpress-contributing*
+
+WordPress.vim needs the help of the WordPress community to keep
+improving. Please consider joining this effort by providing new
+snippets, new features or bug reports.
+
+If you find that a feature is missing or find a big, please contact me
+or and add an issue to the issues tracker on GitHub.
+
+For further details on setting up a development environment for
+WordPress.vim and the implementation of the plugin see CONTRIBUTING.md.
+
+===============================================================================
+12. Todo                                                       *wordpress-todo*
+
+* WordPress Hook Integration
+* Find current word in Codex
+* Highlight Constants
+* Improve snippets
+* Integrate with the wpseek.com API
+* Improve Javascript Support
+* Figure out how to run WP-CLI shell commands.
+
+===============================================================================
+13. Contact                                                 *wordpress-contact*
+
+You can reach me at the following places.
+
+Website : http://pressing-matters.io
+Email   : darshan@sawardekar.org
+Twitter : @_dsawardekar
+
+vim: ft=help
