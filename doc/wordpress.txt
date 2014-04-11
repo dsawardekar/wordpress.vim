@@ -261,7 +261,7 @@ WordPress.vim extends the default PHP syntax highlighting with support
 for the WordPress API. Importantly it highlights the use
 of any deprecated function as Errors.
 
-6.2 Readme.txt Syntax Highlighting          *wordpress-php-syntax-highlighting*
+6.2 Readme.txt Syntax Highlighting          *wordpress-readme-syntax-highlighting*
 -----------------------------------------------------------------------
 
 The readme.txt file used by WordPress plugins & themes is treated as a
