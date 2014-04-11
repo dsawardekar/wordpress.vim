@@ -29,11 +29,11 @@ $args = array(
 register_taxonomy( 'taxonomy', array( '${5:post}' ), $args );
 endsnippet
 
-snippet post_type "Custom Post Type"
+snippet posttype "Custom Post Type"
 // Custom Post Type: ${1:name}
 $labels = array(
-	'name'                => _x( '${2:$1}', 'Post Type General Name', '${4:text_domain}' ),
-	'singular_name'       => _x( '${3:singular_name}', 'Post Type Singular Name', '$4' ),
+	'name'                => _x( '${2:$1}', '${1} General Name', '${4:text_domain}' ),
+	'singular_name'       => _x( '${3:singular_name}', '${1} Singular Name', '$4' ),
 	'menu_name'           => __( 'Post Type', '$4' ),
 	'parent_item_colon'   => __( 'Parent $3:', '$4' ),
 	'all_items'           => __( 'All $2', '$4' ),
@@ -63,7 +63,7 @@ $args = array(
 register_post_type( 'post_type', $args );
 endsnippet
 
-snippet post_status "Register Post Status"
+snippet poststatus "Register Post Status"
 register_post_status('${1:name}',
 	array(
 		'label' => _x( '${1/.*/\u$0/}', '${1/.*/\u$0/}', '${2:text_domain}' ),
