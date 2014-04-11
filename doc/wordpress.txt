@@ -180,7 +180,9 @@ plugin.
 
 A Snippet is like an interactive Web Form. Once you enter a Snippet you
 are put at the first placeholder. As you start typing the placeholder
-changes and also affects any dependent placeholders.
+changes and also affects any dependent placeholders. You can cycle back and
+forth between placeholders and Escape out when done.
+
 
 5.1 Custom Taxonomy                               *wordpress-snippets-taxonomy*
 ------------------------------------------------------------
@@ -284,6 +286,7 @@ best experience.
 * vim-markdown - Enables Markdown Syntax Highlighting of readme.txt
 * SuperTab or YouCompleteMe - More intuitive Auto Completion &
   integration with UltiSnips
+* php.vim - Better Syntax Highlighting
 
 Additionally the following tools enhance WordPress.vim.
 
