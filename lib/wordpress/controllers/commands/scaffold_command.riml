@@ -9,6 +9,10 @@ class ScaffoldCommand < WpCliCommand
   end
 
   defm do_run(params, opts)
+    if len(params) == 0 || opts.bang
+      return super(params, opts)
+    end
+
     action       = params[0]
     file_to_open = ''
 
