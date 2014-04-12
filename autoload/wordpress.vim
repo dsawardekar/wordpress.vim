@@ -3144,6 +3144,95 @@ function! <SID>s:ConfigureTagsCommand_configure_tag_option() dict
   endif
 endfunction
 
+" included: 'codex_search_command.riml'
+function! s:CodexSearchCommandConstructor(container)
+  let codexSearchCommandObj = {}
+  let wordPressCommandObj = s:WordPressCommandConstructor(a:container)
+  call extend(codexSearchCommandObj, wordPressCommandObj)
+  let codexSearchCommandObj.is_codex_search_command = 1
+  let codexSearchCommandObj.get_name = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_name')
+  let codexSearchCommandObj.get_bang = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_bang')
+  let codexSearchCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_auto_register')
+  let codexSearchCommandObj.get_range = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_range')
+  let codexSearchCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_has_ex_mode')
+  let codexSearchCommandObj.run = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_run')
+  let codexSearchCommandObj.get_codex_query = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_codex_query')
+  let codexSearchCommandObj.get_word_to_query = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_word_to_query')
+  let codexSearchCommandObj.get_selected_text = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_selected_text')
+  let codexSearchCommandObj.has_open_browser = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_has_open_browser')
+  let codexSearchCommandObj.urlencode = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_urlencode')
+  return codexSearchCommandObj
+endfunction
+
+function! <SID>s:CodexSearchCommand_get_name() dict
+  return 'Wcodexsearch'
+endfunction
+
+function! <SID>s:CodexSearchCommand_get_bang() dict
+  return 0
+endfunction
+
+function! <SID>s:CodexSearchCommand_get_auto_register() dict
+  return 1
+endfunction
+
+function! <SID>s:CodexSearchCommand_get_range() dict
+  return 1
+endfunction
+
+function! <SID>s:CodexSearchCommand_has_ex_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:CodexSearchCommand_run(...) dict
+  let [params, opts] = self.expand_args(a:000)
+  if has_key(opts, 'range')
+    let word = self.get_selected_text()
+  else
+    let word = self.get_word_to_query(params)
+  endif
+  if self.has_open_browser()
+    let search_query = self.get_codex_query(word)
+    execute ":OpenBrowser " . search_query
+  else
+    call s:echo_error("Error: OpenBrowser.vim plugin was not found.")
+  endif
+endfunction
+
+function! <SID>s:CodexSearchCommand_get_codex_query(query) dict
+  return "http://wordpress.org/search/" . a:query
+endfunction
+
+function! <SID>s:CodexSearchCommand_get_word_to_query(params) dict
+  if len(a:params) ># 0
+    let word = join(a:params, ' ')
+  else
+    let word = expand("<cword>")
+  endif
+  return word
+endfunction
+
+function! <SID>s:CodexSearchCommand_get_selected_text() dict
+  let [lnum1, col1] = getpos("'<")[1 : 2]
+  let [lnum2, col2] = getpos("'>")[1 : 2]
+  let lines = getline(lnum1, lnum2)
+  let lines[-1] = lines[-1][: col2 - (&selection ==# 'inclusive' ? 1 : 2)]
+  let lines[0] = lines[0][col1 - 1 :]
+  return join(lines, "\n")
+endfunction
+
+function! <SID>s:CodexSearchCommand_has_open_browser() dict
+  return exists(':OpenBrowser') ==# 2
+endfunction
+
+function! <SID>s:CodexSearchCommand_urlencode(query) dict
+  if has('python')
+    return execute ":python import urllib; print urllib.quote_plus('" . a:query . "')"
+  else
+    return a:query
+  endif
+endfunction
+
 function! s:ControllerConstructor()
   let controllerObj = {}
   let controllerObj.container = s:ContainerConstructor({})
@@ -3184,6 +3273,7 @@ function! <SID>s:Controller_load_commands() dict
   call r.add(s:LoadSyntaxCommandConstructor(c))
   call r.add(s:LoadProjectRegistryCommandConstructor(c))
   call r.add(s:ConfigureTagsCommandConstructor(c))
+  call r.add(s:CodexSearchCommandConstructor(c))
 endfunction
 
 function! <SID>s:Controller_lookup(key) dict
