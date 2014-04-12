@@ -1,0 +1,37 @@
+riml_include 'wordpress_project_command'
+riml_include 'delegate'
+
+class LoadMappingsCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'LoadMappings'
+  end
+
+  defm run(opts)
+    DefDelegate = self.get_def_delegate()
+
+    execute(":nnoremap <buffer> <c-]> :call #{DefDelegate}(0)<cr>")
+    execute(":vnoremap <buffer> <c-]> :call #{DefDelegate}(0)<cr>")
+    execute(":nnoremap <buffer> <c-w>] :call #{DefDelegate}(1)<cr>")
+    execute(":vnoremap <buffer> <c-w>] :call #{DefDelegate}(1)<cr>")
+  end
+
+  defm get_def_delegate
+    unless has_key(self, 'DefDelegate')
+      self.DefDelegate = new_delegate(self, 'jump_to_def')
+    end
+
+    return self.DefDelegate
+  end
+
+  defm jump_to_def(split_buffer)
+    if (split_buffer)
+      :sp
+    end
+
+    self.process('Wdef')
+  end
+end

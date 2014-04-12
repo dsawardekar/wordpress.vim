@@ -25,7 +25,8 @@ end
 class LoadProjectRegistryCommandSpec
   defm before_each
     self.container = new Container({})
-    self.container.register('project_registry', 'CommandRegistry')
+    self.container.register('registry', 'CommandRegistry', true)
+    self.container.register('project_registry', 'CommandRegistry', true)
     self.container.register('buffer_collection', 'BufferCollection', true)
     self.container.register('project_collection', 'ProjectCollection', true)
     self.container.register('project', 'Project', false)
@@ -34,6 +35,25 @@ class LoadProjectRegistryCommandSpec
   end
 
   defm it_load_registry_commands
+    mock = new MockCommand()
+    mock.cmd_name = 'MyMockCommand'
+
+    buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+    buffer_collection = self.container.lookup('buffer_collection')
+    buffer_collection.set_current(buffer)
+
+    project_collection = self.container.lookup('project_collection')
+    project_collection.add(buffer.get_project_path())
+
+    registry = self.container.lookup('registry')
+    registry.add(mock)
+
+    self.cmd.run({})
+
+    expect(exists(':MyMockCommand')).to_equal(2)
+  end
+
+  defm it_load_project_registry_commands
     mock = new MockCommand()
     mock.cmd_name = 'MyMockCommand'
 

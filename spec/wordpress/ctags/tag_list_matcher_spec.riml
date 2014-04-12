@@ -1,0 +1,94 @@
+riml_include 'spec_helper'
+riml_include 'tag_list_matcher'
+
+class TagListMatcherSpec
+  defm before_each
+    self.matcher = new TagListMatcher()
+  end
+
+  defm it_knows_if_pattern_contains_a_variable
+    pattern = '/^^I^I$is_ssl = isset( $args[''ssl''] ) && $args[''ssl''];$/'
+    expect(self.matcher.is_variable('is_ssl', pattern)).to_be_true()
+  end
+
+  defm it_knows_if_pattern_does_not_contain_a_variable
+    pattern = '/^function is_ssl() {$/'
+    expect(self.matcher.is_variable('is_ssl', pattern)).to_be_false()
+  end
+
+  defm it_knows_if_pattern_contains_a_stub_function
+    pattern = '/^function add_action() {}$/'
+    expect(self.matcher.is_stub_function('add_action', pattern)).to_be_true()
+  end
+
+  defm it_knows_if_pattern_does_not_contain_stub_function
+    pattern = '/^function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {$/'
+    expect(self.matcher.is_stub_function('add_action', pattern)).to_be_false()
+  end
+
+  defm it_knows_if_pattern_contains_a_function
+    pattern = '/^function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {$/'
+    expect(self.matcher.is_function('add_action', pattern)).to_be_true()
+  end
+
+  defm it_knows_variable_pattern_does_not_contain_function
+    pattern = '/^^I^I$is_ssl = isset( $args[''ssl''] ) && $args[''ssl''];$/'
+    expect(self.matcher.is_function('add_action', pattern)).to_be_false()
+  end
+
+  defm it_knows_stub_function_pattern_does_not_contain_function
+    pattern = '/^function add_action() {}$/'
+    expect(self.matcher.is_function('add_action', pattern)).to_be_false()
+  end
+
+  defm it_can_find_empty_match
+    match = self.matcher.match('some_unknown_function')
+    expect(match.is_match()).to_be_false()
+  end
+
+  defm it_can_find_add_action_position
+    list = []
+    add(list, { 'cmd': '/^function add_action() {}$/' })
+    add(list, { 'cmd': '/^function add_action() {}$/' })
+    add(list, { 'cmd': '/^function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {$/' })
+
+    self.matcher.mock_taglist = list
+    match = self.matcher.match('add_action')
+    expect(match.is_match()).to_be_true()
+    expect(match.get_position()).to_equal(3)
+  end
+
+  defm it_can_find_add_action_position
+    list = []
+    add(list, { 'cmd': '/^function add_action() {}$/' })
+    add(list, { 'cmd': '/^function add_action() {}$/' })
+    add(list, { 'cmd': '/^function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {$/' })
+
+    self.matcher.mock_taglist = list
+    match = self.matcher.match('add_action')
+    expect(match.is_match()).to_be_true()
+    expect(match.get_position()).to_equal(2)
+  end
+
+  defm it_can_find_is_ssl_position
+    list = []
+    add(list, { 'cmd': '/^^I^I$is_ssl = isset( $args[''ssl''] ) && $args[''ssl''];$/' })
+    add(list, { 'cmd': '/^function is_ssl() {$/' })
+
+    self.matcher.mock_taglist = list
+    match = self.matcher.match('is_ssl')
+    expect(match.is_match()).to_be_true()
+    expect(match.get_position()).to_equal(1)
+  end
+
+  defm it_can_find_force_ssl_position
+    list = []
+    add(list, { 'cmd': '/^function force_ssl_admin( $force = null ) {$/' })
+    add(list, { 'cmd': '/^^I^Idefine(''FORCE_SSL_ADMIN'', false);$/' })
+
+    self.matcher.mock_taglist = list
+    match = self.matcher.match('force_ssl_admin')
+    expect(match.is_match()).to_be_true()
+    expect(match.get_position()).to_equal(0)
+  end
+end
