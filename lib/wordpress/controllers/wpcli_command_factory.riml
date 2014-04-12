@@ -4,6 +4,7 @@ riml_include 'eval_file_command'
 riml_include 'eval_command'
 riml_include 'post_command'
 riml_include 'scaffold_command'
+riml_include 'shell_command'
 
 class WpCliCommandFactory
   defm build(cmd_name)
@@ -25,7 +26,7 @@ class WpCliCommandFactory
     elseif cmd_name == 'scaffold'
       cmd = new ScaffoldCommand(self.container)
     elseif cmd_name == 'shell'
-      cmd = { 'is_wpcli_command': false }
+      cmd = new ShellCommand(self.container)
     else
       cmd = new WpCliCommand(self.container)
     end
