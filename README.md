@@ -166,7 +166,7 @@ WordPress.vim and the implementation of the plugin see
 * Improve snippets
 * Integrate with the wpseek.com API
 * Improve Javascript Support
-* Figure out how to run WP-CLI shell commands.
+* ~~Figure out how to run WP-CLI shell commands.~~ DONE
 
 ## License
 
