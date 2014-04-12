@@ -1,0 +1,35 @@
+riml_include 'spec_helper'
+riml_include 'choice_prompter'
+
+class ChoicePrompterSpec
+  defm before_each
+    self.prompter = new ChoicePrompter()
+  end
+
+  defm it_returns_selected_choice_prompt
+    unless exists('g:speckle_tag') && g:speckle_tag == 'g'
+      return
+    end
+
+    choices = []
+    add(choices, 'lorem')
+    add(choices, 'ipsum')
+    add(choices, 'dolor')
+    add(choices, 'sit')
+    add(choices, 'amet')
+
+    choice = self.prompter.prompt_for(choices)
+  end
+
+  defm it_can_validate_selected_choice
+    expect(self.prompter.validate("1", 1)).to_equal(1)
+  end
+
+  defm it_can_validate_selected_choice_at_end
+    expect(self.prompter.validate("5", 5)).to_equal(5)
+  end
+
+  defm it_wont_validate_invalid_choice
+    expect(self.prompter.validate("5", 4)).to_equal(0)
+  end
+end
