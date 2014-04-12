@@ -11,6 +11,7 @@ riml_include 'configure_buffer_command'
 riml_include 'load_syntax_command'
 riml_include 'load_project_registry_command'
 riml_include 'configure_tags_command'
+riml_include 'codex_search_command'
 
 " utils
 riml_include 'with_dir'
@@ -57,6 +58,7 @@ class Controller
     r.add(new LoadSyntaxCommand(c))
     r.add(new LoadProjectRegistryCommand(c))
     r.add(new ConfigureTagsCommand(c))
+    r.add(new CodexSearchCommand(c))
   end
 
   defm lookup(key)
