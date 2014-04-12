@@ -151,8 +151,10 @@ shell.
 
 3.6 Shell Commands                                  *wordpress-wp-cli-shell*
 
-Commands like 'wp shell' that require a shell prompt currently aren't
-supported. This feature will be looked at in the future.
+The shell command `:Wshell` requires an interactive shell to work
+correctly. This command is equivalent to running `:!wp shell`. It will
+drop down to the shell while making sure to put you into the correct
+project directory for WP-CLI.
 
 ===============================================================================
 4. Jump to Core Definition                             *wordpress-jump-to-core*
