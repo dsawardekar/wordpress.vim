@@ -1,0 +1,66 @@
+riml_include 'wordpress_project_command'
+riml_include 'tag_list_matcher'
+riml_include 'msg'
+
+class GotoDefinitionCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'Wdef'
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm get_range
+    return true
+  end
+
+  defm run(*args)
+    [params, opts]   = self.expand_args(args)
+    current_word     = self.get_current_word(params, opts)
+    ctags_builder    = self.lookup('ctags_builder')
+    tag_list_matcher = self.lookup('tag_list_matcher')
+    found            = tag_list_matcher.match(current_word)
+
+    if found.is_match()
+      position = found.get_position()
+      cmd      = self.get_jump_cmd(current_word, position)
+      success  = self.jump_to(cmd)
+    else
+      success = false
+    end
+
+    unless success
+      echo_error("No match for: #{current_word}")
+    end
+  end
+
+  " sometimes taglist returns matches to a tag it can't find
+  " this exception guards against that
+  defm jump_to(cmd)
+    try
+      execute(cmd)
+      return true
+    catch
+      return false
+    end
+  end
+
+  defm get_jump_cmd(keyword, position)
+    if position != 0
+      " since tags are 1 based
+      position = position + 1
+      return ":#{position}tag #{keyword}"
+    else
+      return ":tag #{keyword}"
+    end
+  end
+end

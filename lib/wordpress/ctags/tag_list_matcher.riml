@@ -1,0 +1,60 @@
+riml_include 'tag_match'
+
+" TODO: patterns may need to be improved
+class TagListMatcher
+  defm match(keyword)
+    matches = self.get_taglist(keyword)
+    total_matches = len(matches)
+
+    if total_matches > 0
+      index = -1
+      for match in matches
+        index = index + 1
+        unless has_key(match, 'cmd')
+          continue
+        end
+
+        pattern = match.cmd
+        if self.is_variable(keyword, pattern)
+          continue
+        end
+
+        if self.is_stub_function(keyword, pattern)
+          continue
+        end
+
+        return new TagMatch(keyword, true, index)
+      end
+    else
+      return new TagMatch(keyword, false, 0)
+    end
+  end
+
+  defm get_taglist(keyword)
+    if has_key(self, 'mock_taglist')
+      return self.mock_taglist
+    end
+
+    return taglist(keyword)
+  end
+
+  defm is_function(keyword, pattern)
+    if self.is_variable(keyword, pattern)
+      return false
+    end
+
+    if self.is_stub_function(keyword, pattern)
+      return false
+    end
+
+    return pattern =~ "function #{keyword}"
+  end
+
+  defm is_stub_function(keyword, pattern)
+    return pattern =~ '{}'
+  end
+
+  defm is_variable(keyword, pattern)
+    return pattern =~ "$#{keyword}"
+  end
+end

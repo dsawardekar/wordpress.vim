@@ -33,10 +33,6 @@ class CodexSearchCommandSpec
     expect(self.command.get_auto_register()).to_be_true()
   end
 
-  defm it_can_convert_params_to_query
-    expect(self.command.get_word_to_query(['a', 'b', 'c'])).to_equal('a b c')
-  end
-
   defm it_knows_if_open_browser_is_present
     :delcommand OpenBrowser
     :command! -nargs=* OpenBrowser echo('OpenBrowser')

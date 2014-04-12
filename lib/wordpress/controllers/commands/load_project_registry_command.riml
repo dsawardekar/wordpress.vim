@@ -12,7 +12,12 @@ class LoadProjectRegistryCommand < WordPressProjectCommand
   end
 
   defm run(opts)
-    registry = self.lookup('project_registry')
+    registry = self.lookup('registry')
     registry.register_commands()
+
+    project_registry = self.lookup('project_registry')
+    project_registry.register_commands()
+
+    self.process('LoadMappings')
   end
 end
