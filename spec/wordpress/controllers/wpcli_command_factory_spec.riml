@@ -36,8 +36,8 @@ class WpCliCommandFactorySpec
     expect(cmd.is_post_command).to_be_true()
   end
 
-  defm it_does_not_build_shell_command
+  defm it_can_build_shell_command
     cmd = self.factory.build('shell')
-    expect(cmd.is_wpcli_command).to_be_false()
+    expect(cmd.is_wpcli_command).to_be_true()
   end
 end

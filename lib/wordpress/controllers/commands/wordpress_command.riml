@@ -38,4 +38,27 @@ class WordPressCommand < BaseCommand
 
     return [params, opts]
   end
+
+  defm get_current_word(params, opts)
+    if len(params) > 0
+      word = join(params, ' ')
+    elseif has_key(opts, 'range')
+      word = self.get_selected_text()
+    else
+      word = expand("<cword>")
+    end
+
+    return word
+  end
+
+  " code below by @xolox
+  " http://stackoverflow.com/questions/1533565/how-to-get-visually-selected-text-in-vimscript
+  defm get_selected_text
+    [lnum1, col1] = getpos("'<")[1:2]
+    [lnum2, col2] = getpos("'>")[1:2]
+    lines = getline(lnum1, lnum2)
+    lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
+    lines[0] = lines[0][col1 - 1:]
+    return join(lines, "\n")
+  end
 end
