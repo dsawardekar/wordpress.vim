@@ -2613,6 +2613,37 @@ function! <SID>s:ScaffoldCommand_insert_into_buffer(line_num, text) dict
   execute ":" . a:line_num . "put=a:text"
 endfunction
 
+" included: 'shell_command.riml'
+function! s:ShellCommandConstructor(container)
+  let shellCommandObj = {}
+  let wpCliCommandObj = s:WpCliCommandConstructor(a:container)
+  call extend(shellCommandObj, wpCliCommandObj)
+  let shellCommandObj.is_shell_command = 1
+  let shellCommandObj.do_run = function('<SNR>' . s:SID() . '_s:ShellCommand_do_run')
+  let shellCommandObj.get_shell_cmd = function('<SNR>' . s:SID() . '_s:ShellCommand_get_shell_cmd')
+  let shellCommandObj.run_shell = function('<SNR>' . s:SID() . '_s:ShellCommand_run_shell')
+  let shellCommandObj.WpCliCommand_do_run = function('<SNR>' . s:SID() . '_s:WpCliCommand_do_run')
+  return shellCommandObj
+endfunction
+
+function! <SID>s:ShellCommand_do_run(params, opts) dict
+  if a:opts.bang
+    return self.WpCliCommand_do_run(a:params, a:opts)
+  else
+    let with_dir = self.get_with_dir()
+    let cmd = self.get_shell_cmd(a:params)
+    return with_dir.run(self, 'run_shell', [cmd])
+  endif
+endfunction
+
+function! <SID>s:ShellCommand_get_shell_cmd(params) dict
+  return "wp shell " . join(a:params, ' ')
+endfunction
+
+function! <SID>s:ShellCommand_run_shell(cmd) dict
+  execute "!" . a:cmd
+endfunction
+
 function! s:WpCliCommandFactoryConstructor()
   let wpCliCommandFactoryObj = {}
   let wpCliCommandFactoryObj.build = function('<SNR>' . s:SID() . '_s:WpCliCommandFactory_build')
@@ -2638,7 +2669,7 @@ function! <SID>s:WpCliCommandFactory_command_for(cmd_name) dict
   elseif a:cmd_name ==# 'scaffold'
     let cmd = s:ScaffoldCommandConstructor(self.container)
   elseif a:cmd_name ==# 'shell'
-    let cmd = {'is_wpcli_command': 0}
+    let cmd = s:ShellCommandConstructor(self.container)
   else
     let cmd = s:WpCliCommandConstructor(self.container)
   endif

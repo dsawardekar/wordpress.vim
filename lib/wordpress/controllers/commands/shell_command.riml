@@ -1,0 +1,27 @@
+riml_include 'wpcli_command'
+
+class ShellCommand < WpCliCommand
+  def initialize(container)
+    super(container)
+    self.is_shell_command = true
+  end
+
+  defm do_run(params, opts)
+    if opts.bang
+      return super(params, opts)
+    else
+      with_dir = self.get_with_dir()
+      cmd      = self.get_shell_cmd(params)
+
+      return with_dir.run(self, 'run_shell', [cmd])
+    end
+  end
+
+  defm get_shell_cmd(params)
+    return "wp shell " . join(params, ' ')
+  end
+
+  defm run_shell(cmd)
+    execute("!#{cmd}")
+  end
+end
