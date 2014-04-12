@@ -10,6 +10,7 @@
 * UltiSnips Snippets
 * Syntax Highlighting for WordPress PHP files.
 * Markdown Syntax Highlighting for readme.txt
+* Search in Codex
 
 ## Auto-Completion
 
@@ -82,6 +83,18 @@ Markdown.
 
 See `:h wordpress-syntax-highlighting` for more.
 
+## Search in Codex
+
+The `:Wcodexsearch` Ex command provides searching for keywords on the Codex. When
+arguments are omitted it uses the current Visual selection or the word
+under the cursor to query for.
+
+For faster searches, You can map this to a key sequence like, `<leader>co` with,
+
+```viml
+:nnoremap <leader>co :Wcodexsearch<CR>
+```
+
 ## Installation
 
 ##### 1. With [Vundle][12]
@@ -111,6 +124,7 @@ best experience.
 * [UltiSnips][5] - Enables Code Snippets
 * [php.vim][10] - Better PHP Syntax Highlighting
 * [vim-markdown][6] - Enables Markdown Syntax Highlighting of readme.txt
+* [open-browser.vim][15] - Enables Search in Codex
 
 Additionally the following tools enhance WordPress.vim.
 
@@ -147,7 +161,7 @@ WordPress.vim and the implementation of the plugin see
 ## TODO
 
 * WordPress Hook Integration
-* Find current word in Codex
+* ~~Find current word in Codex~~ DONE
 * Highlight Constants
 * Improve snippets
 * Integrate with the wpseek.com API
@@ -172,6 +186,8 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [12]: https://github.com/gmarik/Vundle.vim
 [13]: https://github.com/Shougo/neobundle.vim
 [14]: https://github.com/tpope/vim-pathogen
+[15]: https://github.com/tyru/open-browser.vim
+
 [20]: http://i.imgur.com/YClNJML.png
 [21]: http://i.imgur.com/3i7qrHJ.gif
 [22]: http://i.imgur.com/iZgMFHk.gif
