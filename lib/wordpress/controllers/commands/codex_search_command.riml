@@ -1,0 +1,84 @@
+riml_include 'wordpress_command'
+riml_include 'msg'
+
+class CodexSearchCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+    self.is_codex_search_command = true
+  end
+
+  defm get_name
+    return 'Wcodexsearch'
+  end
+
+  defm get_bang
+    return false
+  end
+
+  defm get_auto_register
+    return true
+  end
+
+  defm get_range
+    return true
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+
+    if has_key(opts, 'range')
+      word = self.get_selected_text()
+    else
+      word = self.get_word_to_query(params)
+    end
+
+    if self.has_open_browser()
+      search_query = self.get_codex_query(word)
+      execute(":OpenBrowser #{search_query}")
+    else
+      echo_error("Error: OpenBrowser.vim plugin was not found.")
+    end
+  end
+
+  defm get_codex_query(query)
+    return "http://wordpress.org/search/#{query}"
+  end
+
+  defm get_word_to_query(params)
+    if len(params) > 0
+      word = join(params, ' ')
+    else
+      word = expand("<cword>")
+    end
+
+    return word
+  end
+
+  " code below by @xolox
+  " http://stackoverflow.com/questions/1533565/how-to-get-visually-selected-text-in-vimscript
+  defm get_selected_text
+    [lnum1, col1] = getpos("'<")[1:2]
+    [lnum2, col2] = getpos("'>")[1:2]
+    lines = getline(lnum1, lnum2)
+    lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
+    lines[0] = lines[0][col1 - 1:]
+    return join(lines, "\n")
+  end
+
+  defm has_open_browser
+    return exists(':OpenBrowser') == 2
+  end
+
+  " TODO: remove this, OpenBrowser already does urlencoding
+  defm urlencode(query)
+    if has('python')
+      return execute(":python import urllib; print urllib.quote_plus('#{query}')")
+    else
+      return query
+    end
+  end
+end

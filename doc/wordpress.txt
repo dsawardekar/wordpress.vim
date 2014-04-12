@@ -23,13 +23,14 @@ Contents
 6. Syntax Higlighting                |wordpress-syntax-highlighting|
   6.1 PHP Syntax Highlighting        |wordpress-php-syntax-highlighting|
   6.2 Readme.txt Syntax Highlighting |wordpress-readme-syntax-highlighting|
-7. System Requirements               |wordpress-system-requirements|
-8. Customization                     |wordpress-customization|
-9. License                           |wordpress-license|
-10. Thanks                           |wordpress-thanks|
-11. Contributing                     |wordpress-contributing|
-12. Todo                             |wordpress-todo|
-13. Contact                          |wordpress-contact|
+7. Search in Codex                   |wordpress-search-in-codex|
+8. System Requirements               |wordpress-system-requirements|
+9. Customization                     |wordpress-customization|
+10. License                          |wordpress-license|
+11. Thanks                           |wordpress-thanks|
+12. Contributing                     |wordpress-contributing|
+13. Todo                             |wordpress-todo|
+14. Contact                          |wordpress-contact|
 
 
 
@@ -269,7 +270,25 @@ Markdown file and is highlighted as such. Further support is added for
 highlighting fenced blocks as embedded PHP code.
 
 ===============================================================================
-7. System Requirements                          *wordpress-system-requirements*
+7. Search in Codex                                  *wordpress-search-in-codex*
+
+The :Wsearchcodex ex command adds support for searching on the Codex.
+You can specify arguments to the command for the query to search.
+
+The OpenBrowser.vim plugin is required to use this feature.
+
+Eg:- :Wsearchcodex WP_User_Query
+
+When arguments are omitted the current selection if present or the word
+under cursor is used to query the Codex.
+
+You can map this to a key sequence to allow quicker searching. For
+instance, to map <leader>co to the :Wsearchcodex command use,
+
+:nnoremap <leader>co :Wsearchcodex<CR>
+
+===============================================================================
+8. System Requirements                          *wordpress-system-requirements*
 
 WordPress.vim requires Vim 7.3p97+.
 
@@ -287,6 +306,7 @@ best experience.
 * SuperTab or YouCompleteMe - More intuitive Auto Completion &
   integration with UltiSnips
 * php.vim - Better Syntax Highlighting
+* OpenBrowser.vim - Enables Search in Codex
 
 Additionally the following tools enhance WordPress.vim.
 
@@ -294,7 +314,7 @@ Additionally the following tools enhance WordPress.vim.
 * Exuberant CTags - Enables the Jump to Core Definition feature
 
 ===============================================================================
-8. Customization                                       *wordpress-customization*
+9. Customization                                       *wordpress-customization*
 
 - g:wordpress_vim_autostart
 
@@ -333,12 +353,12 @@ valid values: path to a WordPress install
 
 
 ===============================================================================
-9. License                                                  *wordpress-license*
+10. License                                                  *wordpress-license*
 
 MIT License. Copyright © 2014 Darshan Sawardekar.
 
 ===============================================================================
-10. Thanks                                                   *wordpress-thanks*
+11. Thanks                                                   *wordpress-thanks*
 
 WordPress.vim builds on top a number of other excellent Projects.
 Many Thanks in particular to,
@@ -348,7 +368,7 @@ Cristi Burcă - for WP-CLI
 Luke Gruber  - for Riml
 
 ===============================================================================
-11. Contributing                                       *wordpress-contributing*
+12. Contributing                                       *wordpress-contributing*
 
 WordPress.vim needs the help of the WordPress community to keep
 improving. Please consider joining this effort by providing new
@@ -361,7 +381,7 @@ For further details on setting up a development environment for
 WordPress.vim and the implementation of the plugin see CONTRIBUTING.md.
 
 ===============================================================================
-12. Todo                                                       *wordpress-todo*
+13. Todo                                                       *wordpress-todo*
 
 * WordPress Hook Integration
 * Find current word in Codex
@@ -372,7 +392,7 @@ WordPress.vim and the implementation of the plugin see CONTRIBUTING.md.
 * Figure out how to run WP-CLI shell commands.
 
 ===============================================================================
-13. Contact                                                 *wordpress-contact*
+14. Contact                                                 *wordpress-contact*
 
 You can reach me at the following places.
 
