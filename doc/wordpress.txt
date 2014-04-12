@@ -275,6 +275,8 @@ highlighting fenced blocks as embedded PHP code.
 The :Wsearchcodex ex command adds support for searching on the Codex.
 You can specify arguments to the command for the query to search.
 
+The OpenBrowser.vim plugin is required to use this feature.
+
 Eg:- :Wsearchcodex WP_User_Query
 
 When arguments are omitted the current selection if present or the word
@@ -304,6 +306,7 @@ best experience.
 * SuperTab or YouCompleteMe - More intuitive Auto Completion &
   integration with UltiSnips
 * php.vim - Better Syntax Highlighting
+* OpenBrowser.vim - Enables Search in Codex
 
 Additionally the following tools enhance WordPress.vim.
 
