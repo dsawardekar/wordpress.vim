@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.4
+
+* Adds `:Wshell` command that corresponds to `!wp shell`.
+
 ### 0.1.3
 
 * Adds Search in Codex Feature with `:Wcodexsearch`
