@@ -11,6 +11,7 @@
 * Syntax Highlighting for WordPress PHP files.
 * Markdown Syntax Highlighting for readme.txt
 * Search in Codex
+* Integration with WpSeek API.
 
 ## Auto-Completion
 
@@ -95,6 +96,17 @@ For faster searches, You can map this to a key sequence like, `<leader>co` with,
 :nnoremap <leader>co :Wcodexsearch<CR>
 ```
 
+## WpSeek.com Integration
+
+WordPress.vim integrates with the [WpSeek API][16]. This allows
+searching using the wpseek api directly from within Vim.
+
+The demo below shows the `:Wsimilar` Ex command in action.
+
+![Wsimilar demo][25]
+
+see `:h wordpress-wpseek-integration` for more.
+
 ## Installation
 
 ##### 1. With [Vundle][12]
@@ -108,7 +120,7 @@ For faster searches, You can map this to a key sequence like, `<leader>co` with,
 
 ## System Requirements
 
-WordPress.vim requires Vim 7.3p97+.
+WordPress.vim requires Vim 7.3p97+ with Python support.
 
 WordPress.vim uses Progressive Enhancement to enable/disable features.
 This means that the features that depend on other plugins/external tools are
@@ -124,7 +136,7 @@ best experience.
 * [UltiSnips][5] - Enables Code Snippets
 * [php.vim][10] - Better PHP Syntax Highlighting
 * [vim-markdown][6] - Enables Markdown Syntax Highlighting of readme.txt
-* [open-browser.vim][15] - Enables Search in Codex
+* [open-browser.vim][15] - Enables Search in Codex & `:Wtopics` launching.
 
 Additionally the following tools enhance WordPress.vim.
 
@@ -144,6 +156,7 @@ Many Thanks in particular to,
 * Shawn Biddle - for [phpcomplete.vim][2]
 * Cristi Burcă - for [WP-CLI][3]
 * Luke Gruber  - for [Riml][4]
+* Oliver Schlöbe - for the [WpSeek][16] API
 
 ## Contributing
 
@@ -187,9 +200,11 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [13]: https://github.com/Shougo/neobundle.vim
 [14]: https://github.com/tpope/vim-pathogen
 [15]: https://github.com/tyru/open-browser.vim
+[16]: http://wpseek.com/
 
 [20]: http://i.imgur.com/YClNJML.png
 [21]: http://i.imgur.com/3i7qrHJ.gif
 [22]: http://i.imgur.com/iZgMFHk.gif
 [23]: http://i.imgur.com/CGvCMUJ.gif
 [24]: http://i.imgur.com/FWGrAN6.gif
+[25]: http://i.imgur.com/CEBIxpn.gif
