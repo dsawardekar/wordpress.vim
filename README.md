@@ -112,10 +112,10 @@ see `:h wordpress-wpseek-integration` for more.
 ##### 1. With [Vundle][12]
 `Bundle 'dsawardekar/wordpress.vim'`
 
-##### 1. With [NeoBundle][13]
+##### 2. With [NeoBundle][13]
 `NeoBundle 'dsawardekar/wordpress.vim'`
 
-##### 2. With [Pathogen][14]
+##### 3. With [Pathogen][14]
 `git clone https://github.com/dsawardekar/wordpress.vim ~/.vim/bundle/wordpress.vim`
 
 ## System Requirements
