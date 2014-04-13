@@ -24,13 +24,16 @@ Contents
   6.1 PHP Syntax Highlighting        |wordpress-php-syntax-highlighting|
   6.2 Readme.txt Syntax Highlighting |wordpress-readme-syntax-highlighting|
 7. Search in Codex                   |wordpress-search-in-codex|
-8. System Requirements               |wordpress-system-requirements|
-9. Customization                     |wordpress-customization|
-10. License                          |wordpress-license|
-11. Thanks                           |wordpress-thanks|
-12. Contributing                     |wordpress-contributing|
-13. Todo                             |wordpress-todo|
-14. Contact                          |wordpress-contact|
+8. WpSeek.com API Integration        |wordpress-wpseek-integration|
+  8.1 Similar Functions              |wordpress-wpseek-similar-functions|
+  8.2 Find Topics on WordPress.org   |wordpress-wpseek-topics|
+9. System Requirements               |wordpress-system-requirements|
+10. Customization                    |wordpress-customization|
+11. License                          |wordpress-license|
+12. Thanks                           |wordpress-thanks|
+13. Contributing                     |wordpress-contributing|
+14. Todo                             |wordpress-todo|
+15. Contact                          |wordpress-contact|
 
 
 
@@ -172,6 +175,15 @@ To jump to the definition of a function place your cursor on it, and hit
 the key combo Ctrl-]. To move back to the where you were earlier use Ctrl-t
 or Ctrl-o. You can also use the Ex command, :tjump name to jump to a tag.
 
+The ex-command :Wdef can be used to jump to a definition from ex mode.
+It takes the name to look for. If not specified it defaults to using the
+current visual selection and finally the current word under the cursor.
+
+The default mappings for <c-]> and <c-w>] are modified to improve
+sorting of the ctags results. To disable these custom mappings use,
+
+    let g:wordpress_vim_jump_to_core_mappings = 0
+
 To learn more about navigation with tags see, |tags-and-searches|.
 
 ===============================================================================
@@ -290,7 +302,44 @@ instance, to map <leader>co to the :Wsearchcodex command use,
 :nnoremap <leader>co :Wsearchcodex<CR>
 
 ===============================================================================
-8. System Requirements                          *wordpress-system-requirements*
+8. WpSeek.com API Integration                    *wordpress-wpseek-integration*
+
+WordPress.vim integrates with the WpSeek.com to offer faster navigation
+and searching.
+
+8.1 Similar Functions                      *wordpress-wpseek-similar-functions*
+-----------------------------------------------------------------------
+
+The :Wsimilar ex command adds support for searching for similar
+functions. It takes the keyword to search for as an argument. If absent
+the current selection is used instead. If a visual mode selection is
+absent the current word under the cursor is used as the keyword.
+
+For Eg:- to search for functions similar to 'wp_redirect' use,
+
+    :Wsimilar wp_redirect
+
+This will show you prompt with the matches. Choosing an option will take
+you directly to the definition of that function in WordPress Core.
+
+8.2 Find Topics on WordPress.org                      *wordpress-wpseek-similar-functions*
+-----------------------------------------------------------------------
+
+The :Wtopics ex command adds support for searching for topics on
+WordPress.org. It also takes the keyword to search for as an argument.
+And if absent uses the current selection or current word under the
+cursor instead.
+
+For Eg:- to search for topics with matching the keyword, 'wp_redirect'
+use,
+
+    :Wtopics wp_redirect
+
+You will be prompted to choose from an option. Choosing an option will
+open the corresponding link in your browser.
+
+===============================================================================
+9. System Requirements                          *wordpress-system-requirements*
 
 WordPress.vim requires Vim 7.3p97+.
 
@@ -316,7 +365,7 @@ Additionally the following tools enhance WordPress.vim.
 * Exuberant CTags - Enables the Jump to Core Definition feature
 
 ===============================================================================
-9. Customization                                       *wordpress-customization*
+10. Customization                                       *wordpress-customization*
 
 - g:wordpress_vim_autostart
 
@@ -353,14 +402,20 @@ WordPress path manually.
 default: not set
 valid values: path to a WordPress install
 
+- g:wordpress_vim_jump_to_core_mappings
+
+Determines whether to add the custom mappings for <c-]> and <c-w>].
+
+default: 1
+valid values: 1 or 0
 
 ===============================================================================
-10. License                                                  *wordpress-license*
+11. License                                                  *wordpress-license*
 
 MIT License. Copyright © 2014 Darshan Sawardekar.
 
 ===============================================================================
-11. Thanks                                                   *wordpress-thanks*
+12. Thanks                                                   *wordpress-thanks*
 
 WordPress.vim builds on top a number of other excellent Projects.
 Many Thanks in particular to,
@@ -368,9 +423,10 @@ Many Thanks in particular to,
 Shawn Biddle - for phpcomplete.vim
 Cristi Burcă - for WP-CLI
 Luke Gruber  - for Riml
+Oliver Schlöbe - for the WpSeek.com API
 
 ===============================================================================
-12. Contributing                                       *wordpress-contributing*
+13. Contributing                                       *wordpress-contributing*
 
 WordPress.vim needs the help of the WordPress community to keep
 improving. Please consider joining this effort by providing new
@@ -383,7 +439,7 @@ For further details on setting up a development environment for
 WordPress.vim and the implementation of the plugin see CONTRIBUTING.md.
 
 ===============================================================================
-13. Todo                                                       *wordpress-todo*
+14. Todo                                                       *wordpress-todo*
 
 * WordPress Hook Integration
 * Find current word in Codex
@@ -394,7 +450,7 @@ WordPress.vim and the implementation of the plugin see CONTRIBUTING.md.
 * Figure out how to run WP-CLI shell commands.
 
 ===============================================================================
-14. Contact                                                 *wordpress-contact*
+15. Contact                                                 *wordpress-contact*
 
 You can reach me at the following places.
 

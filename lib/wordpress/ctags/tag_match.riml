@@ -1,0 +1,19 @@
+class TagMatch
+  def initialize(keyword, status, position = 0)
+    self.keyword = keyword
+    self.status = status
+    self.position = position
+  end
+
+  defm get_keyword
+    return self.keyword
+  end
+
+  defm is_match
+    return self.status
+  end
+
+  defm get_position
+    return self.position
+  end
+end

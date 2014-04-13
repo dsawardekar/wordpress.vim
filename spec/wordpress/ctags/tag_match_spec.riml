@@ -1,0 +1,26 @@
+riml_include 'spec_helper'
+riml_include 'tag_match'
+
+class TagMatchSpec
+  defm before_each
+    self.match = new TagMatch('foo', true, 1)
+  end
+
+  defm it_stores_keyword
+    expect(self.match.get_keyword()).to_equal('foo')
+  end
+
+  defm it_knows_if_matched
+    expect(self.match.is_match()).to_be_true()
+  end
+
+  defm it_knows_if_not_matched
+    self.match = new TagMatch('foo', false, 1)
+    expect(self.match.is_match()).to_be_false()
+  end
+
+  defm it_stores_position_of_match
+    self.match = new TagMatch('foo', true, 5)
+    expect(self.match.get_position()).to_equal(5)
+  end
+end

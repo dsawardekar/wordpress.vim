@@ -98,4 +98,33 @@ class WordpressCommandSpec
     expect(params).to_equal([1, 2, 3])
     expect(opts).to_equal({ 'foo': 'bar' })
   end
+
+  defm it_can_find_current_word_from_params
+    expect(self.command.get_current_word(['a', 'b', 'c'], {})).to_equal('a b c')
+  end
+
+  " TODO: figure out how to test this
+  " currently out of bounds
+  defm _it_can_find_current_word_from_visual_selection
+    execute(":normal 0V$")
+    result = self.command.get_current_word([], { 'range': true })
+    expect(result).to_not_equal('')
+    execute(":normal V")
+  end
+
+  defm it_knows_dict_is_false
+    expect(self.command.is_false({})).to_be_false()
+  end
+
+  defm it_knows_false_is_false
+    expect(self.command.is_false(false)).to_be_true()
+  end
+
+  defm it_knows_dict_is_not_true
+    expect(self.command.is_true({})).to_be_false()
+  end
+
+  defm it_knows_true_is_true
+    expect(self.command.is_true(true)).to_be_true()
+  end
 end

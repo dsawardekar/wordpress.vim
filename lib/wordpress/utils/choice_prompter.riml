@@ -1,0 +1,42 @@
+riml_include 'msg'
+
+class ChoicePrompter
+  defm prompt_for(choices)
+    index = 1
+    total = len(choices)
+
+    for choice in choices
+      echo_msg("#{index}. #{choice}")
+      index = index + 1
+    end
+
+    prompt = "Enter Choice (1-#{total}) [q to quit]: "
+    return self.get_input(prompt, total)
+  end
+
+  defm get_input(prompt, total_choices)
+    user_input = input(prompt)
+    if user_input == 'q' || empty(user_input)
+      return -1
+    end
+
+    parsed_input = self.validate(user_input, total_choices)
+
+    if parsed_input == false
+      echo_msg("Invalid Choice: #{user_input}")
+      return self.get_input(prompt, total_choices)
+    end
+
+    return parsed_input
+  end
+
+  defm validate(text, total_choices)
+    for valid_input in range(1, total_choices)
+      if text == "#{valid_input}"
+        return valid_input
+      end
+    end
+
+    return false
+  end
+end

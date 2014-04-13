@@ -1,0 +1,56 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'load_mappings_command'
+riml_include 'with_dir'
+
+class LoadMappingsCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new LoadMappingsCommand(self.container)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+  end
+
+  defm it_can_load_goto_definition_mappings
+    :silent! nunmap <c-]>
+    :silent! nunmap <c-w>]
+    :silent! vunmap <c-]>
+    :silent! vunmap <c-w>]
+
+    self.command.run({})
+
+    expect(maparg('<c-]>', 'n')).to_not_equal('')
+    expect(maparg('<c-]>', 'v')).to_not_equal('')
+
+    expect(maparg('<c-w>]', 'n')).to_not_equal('')
+    expect(maparg('<c-w>]', 'v')).to_not_equal('')
+  end
+
+  defm it_does_not_load_jump_mappings_if_disabled
+    :silent! nunmap <c-]>
+    :silent! nunmap <c-w>]
+    :silent! vunmap <c-]>
+    :silent! vunmap <c-w>]
+
+    g:wordpress_vim_jump_to_core_mappings = 0
+    self.command.run({})
+
+    expect(maparg('<c-]>', 'n')).to_equal('')
+    expect(maparg('<c-]>', 'v')).to_equal('')
+
+    expect(maparg('<c-w>]', 'n')).to_equal('')
+    expect(maparg('<c-w>]', 'v')).to_equal('')
+
+    :unlet g:wordpress_vim_jump_to_core_mappings
+  end
+end
