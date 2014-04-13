@@ -2031,6 +2031,10 @@ function! s:WordPressCommandConstructor(container)
   let wordPressCommandObj.current_buffer_project_path = function('<SNR>' . s:SID() . '_s:WordPressCommand_current_buffer_project_path')
   let wordPressCommandObj.current_project = function('<SNR>' . s:SID() . '_s:WordPressCommand_current_project')
   let wordPressCommandObj.expand_args = function('<SNR>' . s:SID() . '_s:WordPressCommand_expand_args')
+  let wordPressCommandObj.get_current_word = function('<SNR>' . s:SID() . '_s:WordPressCommand_get_current_word')
+  let wordPressCommandObj.get_selected_text = function('<SNR>' . s:SID() . '_s:WordPressCommand_get_selected_text')
+  let wordPressCommandObj.is_false = function('<SNR>' . s:SID() . '_s:WordPressCommand_is_false')
+  let wordPressCommandObj.is_true = function('<SNR>' . s:SID() . '_s:WordPressCommand_is_true')
   return wordPressCommandObj
 endfunction
 
@@ -2064,6 +2068,34 @@ function! <SID>s:WordPressCommand_expand_args(args) dict
   let opts = a:args[n - 1]
   let params = a:args[0 : -2]
   return [params, opts]
+endfunction
+
+function! <SID>s:WordPressCommand_get_current_word(params, opts) dict
+  if len(a:params) ># 0
+    let word = join(a:params, ' ')
+  elseif has_key(a:opts, 'range')
+    let word = self.get_selected_text()
+  else
+    let word = expand("<cword>")
+  endif
+  return word
+endfunction
+
+function! <SID>s:WordPressCommand_get_selected_text() dict
+  let [lnum1, col1] = getpos("'<")[1 : 2]
+  let [lnum2, col2] = getpos("'>")[1 : 2]
+  let lines = getline(lnum1, lnum2)
+  let lines[-1] = lines[-1][: col2 - (&selection ==# 'inclusive' ? 1 : 2)]
+  let lines[0] = lines[0][col1 - 1 :]
+  return join(lines, "\n")
+endfunction
+
+function! <SID>s:WordPressCommand_is_false(value) dict
+  return type(a:value) ==# type(0) && a:value ==# 0
+endfunction
+
+function! <SID>s:WordPressCommand_is_true(value) dict
+  return type(a:value) ==# type(0) && a:value ==# 1
 endfunction
 
 " included: 'wpcli_command.riml'
@@ -2892,6 +2924,153 @@ function! <SID>s:TagsOption_to_value(items) dict
   return join(a:items, ',')
 endfunction
 
+" included: 'choice_prompter.riml'
+function! s:ChoicePrompterConstructor()
+  let choicePrompterObj = {}
+  let choicePrompterObj.prompt_for = function('<SNR>' . s:SID() . '_s:ChoicePrompter_prompt_for')
+  let choicePrompterObj.get_input = function('<SNR>' . s:SID() . '_s:ChoicePrompter_get_input')
+  let choicePrompterObj.validate = function('<SNR>' . s:SID() . '_s:ChoicePrompter_validate')
+  return choicePrompterObj
+endfunction
+
+function! <SID>s:ChoicePrompter_prompt_for(choices) dict
+  let index = 1
+  let total = len(a:choices)
+  for choice in a:choices
+    call s:echo_msg(index . ". " . choice)
+    let index = index + 1
+  endfor
+  let prompt = "Enter Choice (1-" . total . ") [q to quit]: "
+  return self.get_input(prompt, total)
+endfunction
+
+function! <SID>s:ChoicePrompter_get_input(prompt, total_choices) dict
+  let user_input = input(a:prompt)
+  if user_input ==# 'q' || empty(user_input)
+    return -1
+  endif
+  let parsed_input = self.validate(user_input, a:total_choices)
+  if parsed_input ==# 0
+    call s:echo_msg("Invalid Choice: " . user_input)
+    return self.get_input(a:prompt, a:total_choices)
+  endif
+  return parsed_input
+endfunction
+
+function! <SID>s:ChoicePrompter_validate(text, total_choices) dict
+  for valid_input in range(1, a:total_choices)
+    if a:text ==# valid_input
+      return valid_input
+    endif
+  endfor
+  return 0
+endfunction
+
+" included: 'wpseek_api.riml'
+function! s:WpSeekApiConstructor()
+  let wpSeekApiObj = {}
+  let wpSeekApiObj.api_loaded = 0
+  let wpSeekApiObj.find_similar = function('<SNR>' . s:SID() . '_s:WpSeekApi_find_similar')
+  let wpSeekApiObj.find_topics = function('<SNR>' . s:SID() . '_s:WpSeekApi_find_topics')
+  let wpSeekApiObj.is_false = function('<SNR>' . s:SID() . '_s:WpSeekApi_is_false')
+  let wpSeekApiObj.to_query = function('<SNR>' . s:SID() . '_s:WpSeekApi_to_query')
+  let wpSeekApiObj.to_function_names = function('<SNR>' . s:SID() . '_s:WpSeekApi_to_function_names')
+  let wpSeekApiObj.get_result_items = function('<SNR>' . s:SID() . '_s:WpSeekApi_get_result_items')
+  let wpSeekApiObj.invoke = function('<SNR>' . s:SID() . '_s:WpSeekApi_invoke')
+  let wpSeekApiObj.has_python = function('<SNR>' . s:SID() . '_s:WpSeekApi_has_python')
+  let wpSeekApiObj.load_api = function('<SNR>' . s:SID() . '_s:WpSeekApi_load_api')
+  let wpSeekApiObj.loaded = function('<SNR>' . s:SID() . '_s:WpSeekApi_loaded')
+  let wpSeekApiObj.get_api_path = function('<SNR>' . s:SID() . '_s:WpSeekApi_get_api_path')
+  return wpSeekApiObj
+endfunction
+
+function! <SID>s:WpSeekApi_find_similar(keyword, limit) dict
+  let result = self.invoke('find_similar', a:keyword, a:limit)
+  if self.is_false(result)
+    return 0
+  endif
+  let items = self.get_result_items(result)
+  let function_names = self.to_function_names(a:keyword, items)
+  return function_names
+endfunction
+
+function! <SID>s:WpSeekApi_find_topics(keyword, limit) dict
+  let result = self.invoke('find_topics', a:keyword, a:limit)
+  if self.is_false(result)
+    return 0
+  endif
+  return self.get_result_items(result)
+endfunction
+
+function! <SID>s:WpSeekApi_is_false(result) dict
+  return type(a:result) ==# type(0) && a:result ==# 0
+endfunction
+
+function! <SID>s:WpSeekApi_to_query(keyword) dict
+  return substitute(a:keyword, "'", "\\'", 'g')
+endfunction
+
+function! <SID>s:WpSeekApi_to_function_names(keyword, items) dict
+  let function_names = []
+  for item in a:items
+    if item.name !=# a:keyword
+      call add(function_names, item.name)
+    endif
+  endfor
+  return function_names
+endfunction
+
+function! <SID>s:WpSeekApi_get_result_items(result) dict
+  if has_key(a:result, 'items')
+    let items = a:result.items
+  else
+    let items = []
+  endif
+  return items
+endfunction
+
+function! <SID>s:WpSeekApi_invoke(method, keyword, limit) dict
+  call self.load_api()
+  if !(self.has_python())
+    call s:echo_error("Error: Vim with Python support is required.")
+    return 0
+  endif
+  try
+    execute ":python wpseek_api." . a:method . "('" . self.to_query(a:keyword) . "', " . a:limit . ")"
+  catch
+    call s:echo_error("Call to WpSeek API failed for: " . a:method)
+    let api_result = 0
+  endtry
+  return api_result
+endfunction
+
+function! <SID>s:WpSeekApi_has_python() dict
+  if has_key(self, 'mock_python')
+    return self.mock_python
+  endif
+  return has('python')
+endfunction
+
+function! <SID>s:WpSeekApi_load_api() dict
+  if self.api_loaded
+    return 0
+  endif
+  execute ":python import sys"
+  execute ":python sys.path.append('" . self.get_api_path() . "')"
+  execute ":python from wpseek import WpSeekApi"
+  execute ":python wpseek_api = WpSeekApi()"
+  let self.api_loaded = 1
+  return 1
+endfunction
+
+function! <SID>s:WpSeekApi_loaded() dict
+  return self.api_loaded
+endfunction
+
+function! <SID>s:WpSeekApi_get_api_path() dict
+  return g:wordpress_vim_path . "/lib/wpseek"
+endfunction
+
 " included: 'container.riml'
 function! s:ContainerConstructor(parent)
   let containerObj = {}
@@ -3127,8 +3306,11 @@ function! <SID>s:LoadProjectRegistryCommand_get_name() dict
 endfunction
 
 function! <SID>s:LoadProjectRegistryCommand_run(opts) dict
-  let registry = self.lookup('project_registry')
+  let registry = self.lookup('registry')
   call registry.register_commands()
+  let project_registry = self.lookup('project_registry')
+  call project_registry.register_commands()
+  call self.process('LoadMappings')
 endfunction
 
 " included: 'configure_tags_command.riml'
@@ -3188,8 +3370,6 @@ function! s:CodexSearchCommandConstructor(container)
   let codexSearchCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_has_ex_mode')
   let codexSearchCommandObj.run = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_run')
   let codexSearchCommandObj.get_codex_query = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_codex_query')
-  let codexSearchCommandObj.get_word_to_query = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_word_to_query')
-  let codexSearchCommandObj.get_selected_text = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_get_selected_text')
   let codexSearchCommandObj.has_open_browser = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_has_open_browser')
   let codexSearchCommandObj.urlencode = function('<SNR>' . s:SID() . '_s:CodexSearchCommand_urlencode')
   return codexSearchCommandObj
@@ -3217,13 +3397,9 @@ endfunction
 
 function! <SID>s:CodexSearchCommand_run(...) dict
   let [params, opts] = self.expand_args(a:000)
-  if has_key(opts, 'range')
-    let word = self.get_selected_text()
-  else
-    let word = self.get_word_to_query(params)
-  endif
+  let current_word = self.get_current_word()
   if self.has_open_browser()
-    let search_query = self.get_codex_query(word)
+    let search_query = self.get_codex_query(current_word)
     execute ":OpenBrowser " . search_query
   else
     call s:echo_error("Error: OpenBrowser.vim plugin was not found.")
@@ -3232,24 +3408,6 @@ endfunction
 
 function! <SID>s:CodexSearchCommand_get_codex_query(query) dict
   return "http://wordpress.org/search/" . a:query
-endfunction
-
-function! <SID>s:CodexSearchCommand_get_word_to_query(params) dict
-  if len(a:params) ># 0
-    let word = join(a:params, ' ')
-  else
-    let word = expand("<cword>")
-  endif
-  return word
-endfunction
-
-function! <SID>s:CodexSearchCommand_get_selected_text() dict
-  let [lnum1, col1] = getpos("'<")[1 : 2]
-  let [lnum2, col2] = getpos("'>")[1 : 2]
-  let lines = getline(lnum1, lnum2)
-  let lines[-1] = lines[-1][: col2 - (&selection ==# 'inclusive' ? 1 : 2)]
-  let lines[0] = lines[0][col1 - 1 :]
-  return join(lines, "\n")
 endfunction
 
 function! <SID>s:CodexSearchCommand_has_open_browser() dict
@@ -3262,6 +3420,324 @@ function! <SID>s:CodexSearchCommand_urlencode(query) dict
   else
     return a:query
   endif
+endfunction
+
+" included: 'goto_definition_command.riml'
+" included: 'tag_list_matcher.riml'
+" included: 'tag_match.riml'
+function! s:TagMatchConstructor(keyword, status, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let position = remove(__splat_var_cpy, 0)
+  else
+    let position = 0
+  endif
+  let tagMatchObj = {}
+  let tagMatchObj.keyword = a:keyword
+  let tagMatchObj.status = a:status
+  let tagMatchObj.position = position
+  let tagMatchObj.get_keyword = function('<SNR>' . s:SID() . '_s:TagMatch_get_keyword')
+  let tagMatchObj.is_match = function('<SNR>' . s:SID() . '_s:TagMatch_is_match')
+  let tagMatchObj.get_position = function('<SNR>' . s:SID() . '_s:TagMatch_get_position')
+  return tagMatchObj
+endfunction
+
+function! <SID>s:TagMatch_get_keyword() dict
+  return self.keyword
+endfunction
+
+function! <SID>s:TagMatch_is_match() dict
+  return self.status
+endfunction
+
+function! <SID>s:TagMatch_get_position() dict
+  return self.position
+endfunction
+
+function! s:TagListMatcherConstructor()
+  let tagListMatcherObj = {}
+  let tagListMatcherObj.match = function('<SNR>' . s:SID() . '_s:TagListMatcher_match')
+  let tagListMatcherObj.get_taglist = function('<SNR>' . s:SID() . '_s:TagListMatcher_get_taglist')
+  let tagListMatcherObj.is_function = function('<SNR>' . s:SID() . '_s:TagListMatcher_is_function')
+  let tagListMatcherObj.is_stub_function = function('<SNR>' . s:SID() . '_s:TagListMatcher_is_stub_function')
+  let tagListMatcherObj.is_variable = function('<SNR>' . s:SID() . '_s:TagListMatcher_is_variable')
+  return tagListMatcherObj
+endfunction
+
+function! <SID>s:TagListMatcher_match(keyword) dict
+  let matches = self.get_taglist(a:keyword)
+  let total_matches = len(matches)
+  if total_matches ># 0
+    let index = -1
+    for match in matches
+      let index = index + 1
+      if !(has_key(match, 'cmd'))
+        continue
+      endif
+      let pattern = match.cmd
+      if self.is_variable(a:keyword, pattern)
+        continue
+      endif
+      if self.is_stub_function(a:keyword, pattern)
+        continue
+      endif
+      return s:TagMatchConstructor(a:keyword, 1, index)
+    endfor
+  else
+    return s:TagMatchConstructor(a:keyword, 0, 0)
+  endif
+endfunction
+
+function! <SID>s:TagListMatcher_get_taglist(keyword) dict
+  if has_key(self, 'mock_taglist')
+    return self.mock_taglist
+  endif
+  return taglist(a:keyword)
+endfunction
+
+function! <SID>s:TagListMatcher_is_function(keyword, pattern) dict
+  if self.is_variable(a:keyword, a:pattern)
+    return 0
+  endif
+  if self.is_stub_function(a:keyword, a:pattern)
+    return 0
+  endif
+  return a:pattern =~# "function " . a:keyword
+endfunction
+
+function! <SID>s:TagListMatcher_is_stub_function(keyword, pattern) dict
+  return a:pattern =~# '{}'
+endfunction
+
+function! <SID>s:TagListMatcher_is_variable(keyword, pattern) dict
+  return a:pattern =~# "$" . a:keyword
+endfunction
+
+function! s:GotoDefinitionCommandConstructor(container)
+  let gotoDefinitionCommandObj = {}
+  let wordPressProjectCommandObj = s:WordPressProjectCommandConstructor(a:container)
+  call extend(gotoDefinitionCommandObj, wordPressProjectCommandObj)
+  let gotoDefinitionCommandObj.get_name = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_get_name')
+  let gotoDefinitionCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_has_ex_mode')
+  let gotoDefinitionCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_get_auto_register')
+  let gotoDefinitionCommandObj.get_range = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_get_range')
+  let gotoDefinitionCommandObj.run = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_run')
+  let gotoDefinitionCommandObj.jump_to = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_jump_to')
+  let gotoDefinitionCommandObj.get_jump_cmd = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_get_jump_cmd')
+  return gotoDefinitionCommandObj
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_get_name() dict
+  return 'Wdef'
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_has_ex_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_get_auto_register() dict
+  return 0
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_get_range() dict
+  return 1
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_run(...) dict
+  let [params, opts] = self.expand_args(a:000)
+  let current_word = self.get_current_word(params, opts)
+  let ctags_builder = self.lookup('ctags_builder')
+  let tag_list_matcher = self.lookup('tag_list_matcher')
+  let found = tag_list_matcher.match(current_word)
+  if found.is_match()
+    let position = found.get_position()
+    let cmd = self.get_jump_cmd(current_word, position)
+    let success = self.jump_to(cmd)
+  else
+    let success = 0
+  endif
+  if !(success)
+    call s:echo_error("No match for: " . current_word)
+  endif
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_jump_to(cmd) dict
+  try
+    execute a:cmd
+    return 1
+  catch
+    return 0
+  endtry
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_get_jump_cmd(keyword, position) dict
+  if a:position !=# 0
+    let position = a:position + 1
+    return ":" . position . "tag " . a:keyword
+  else
+    return ":tag " . a:keyword
+  endif
+endfunction
+
+" included: 'load_mappings_command.riml'
+function! s:LoadMappingsCommandConstructor(container)
+  let loadMappingsCommandObj = {}
+  let wordPressProjectCommandObj = s:WordPressProjectCommandConstructor(a:container)
+  call extend(loadMappingsCommandObj, wordPressProjectCommandObj)
+  let loadMappingsCommandObj.get_name = function('<SNR>' . s:SID() . '_s:LoadMappingsCommand_get_name')
+  let loadMappingsCommandObj.run = function('<SNR>' . s:SID() . '_s:LoadMappingsCommand_run')
+  let loadMappingsCommandObj.needs_jump_mappings = function('<SNR>' . s:SID() . '_s:LoadMappingsCommand_needs_jump_mappings')
+  let loadMappingsCommandObj.load_jump_mappings = function('<SNR>' . s:SID() . '_s:LoadMappingsCommand_load_jump_mappings')
+  let loadMappingsCommandObj.get_def_delegate = function('<SNR>' . s:SID() . '_s:LoadMappingsCommand_get_def_delegate')
+  let loadMappingsCommandObj.jump_to_def = function('<SNR>' . s:SID() . '_s:LoadMappingsCommand_jump_to_def')
+  return loadMappingsCommandObj
+endfunction
+
+function! <SID>s:LoadMappingsCommand_get_name() dict
+  return 'LoadMappings'
+endfunction
+
+function! <SID>s:LoadMappingsCommand_run(opts) dict
+  if self.needs_jump_mappings()
+    call self.load_jump_mappings()
+  endif
+endfunction
+
+function! <SID>s:LoadMappingsCommand_needs_jump_mappings() dict
+  if exists('g:wordpress_vim_jump_to_core_mappings')
+    return g:wordpress_vim_jump_to_core_mappings
+  else
+    return 1
+  endif
+endfunction
+
+function! <SID>s:LoadMappingsCommand_load_jump_mappings() dict
+  let DefDelegate = self.get_def_delegate()
+  execute ":nnoremap <buffer> <c-]> :call " . DefDelegate . "(0)<cr>"
+  execute ":vnoremap <buffer> <c-]> :call " . DefDelegate . "(0)<cr>"
+  execute ":nnoremap <buffer> <c-w>] :call " . DefDelegate . "(1)<cr>"
+  execute ":vnoremap <buffer> <c-w>] :call " . DefDelegate . "(1)<cr>"
+endfunction
+
+function! <SID>s:LoadMappingsCommand_get_def_delegate() dict
+  if !(has_key(self, 'DefDelegate'))
+    let self.DefDelegate = s:new_delegate(self, 'jump_to_def')
+  endif
+  return self.DefDelegate
+endfunction
+
+function! <SID>s:LoadMappingsCommand_jump_to_def(split_buffer) dict
+  if (a:split_buffer)
+    sp
+  endif
+  call self.process('Wdef')
+endfunction
+
+" included: 'similar_functions_command.riml'
+function! s:SimilarFunctionsCommandConstructor(container)
+  let similarFunctionsCommandObj = {}
+  let wordPressProjectCommandObj = s:WordPressProjectCommandConstructor(a:container)
+  call extend(similarFunctionsCommandObj, wordPressProjectCommandObj)
+  let similarFunctionsCommandObj.is_similar_command = 1
+  let similarFunctionsCommandObj.get_name = function('<SNR>' . s:SID() . '_s:SimilarFunctionsCommand_get_name')
+  let similarFunctionsCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:SimilarFunctionsCommand_get_auto_register')
+  let similarFunctionsCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:SimilarFunctionsCommand_has_ex_mode')
+  let similarFunctionsCommandObj.get_range = function('<SNR>' . s:SID() . '_s:SimilarFunctionsCommand_get_range')
+  let similarFunctionsCommandObj.run = function('<SNR>' . s:SID() . '_s:SimilarFunctionsCommand_run')
+  return similarFunctionsCommandObj
+endfunction
+
+function! <SID>s:SimilarFunctionsCommand_get_name() dict
+  return 'Wsimilar'
+endfunction
+
+function! <SID>s:SimilarFunctionsCommand_get_auto_register() dict
+  return 0
+endfunction
+
+function! <SID>s:SimilarFunctionsCommand_has_ex_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:SimilarFunctionsCommand_get_range() dict
+  return 1
+endfunction
+
+function! <SID>s:SimilarFunctionsCommand_run(...) dict
+  let [params, opts] = self.expand_args(a:000)
+  let prompter = self.lookup('choice_prompter')
+  let current_word = self.get_current_word(params, opts)
+  let wpseek_api = self.lookup('wpseek_api')
+  call s:echo_msg("Looking for Functions similar to '" . current_word . "' ...")
+  let functions = wpseek_api.find_similar(current_word, 10)
+  if self.is_false(functions) || len(functions) ==# 0
+    call s:echo_msg("No results found for: '" . current_word . "'")
+    return
+  endif
+  let choice_id = prompter.prompt_for(functions)
+  if !(choice_id ==# -1)
+    let choice = functions[choice_id - 1]
+    call self.process('Wdef', choice)
+  endif
+endfunction
+
+" included: 'similar_topics_command.riml'
+function! s:SimilarTopicsCommandConstructor(container)
+  let similarTopicsCommandObj = {}
+  let wordPressProjectCommandObj = s:WordPressProjectCommandConstructor(a:container)
+  call extend(similarTopicsCommandObj, wordPressProjectCommandObj)
+  let similarTopicsCommandObj.is_similar_topics_command = 1
+  let similarTopicsCommandObj.get_name = function('<SNR>' . s:SID() . '_s:SimilarTopicsCommand_get_name')
+  let similarTopicsCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:SimilarTopicsCommand_get_auto_register')
+  let similarTopicsCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:SimilarTopicsCommand_has_ex_mode')
+  let similarTopicsCommandObj.get_range = function('<SNR>' . s:SID() . '_s:SimilarTopicsCommand_get_range')
+  let similarTopicsCommandObj.run = function('<SNR>' . s:SID() . '_s:SimilarTopicsCommand_run')
+  let similarTopicsCommandObj.to_topic_labels = function('<SNR>' . s:SID() . '_s:SimilarTopicsCommand_to_topic_labels')
+  return similarTopicsCommandObj
+endfunction
+
+function! <SID>s:SimilarTopicsCommand_get_name() dict
+  return 'Wtopics'
+endfunction
+
+function! <SID>s:SimilarTopicsCommand_get_auto_register() dict
+  return 0
+endfunction
+
+function! <SID>s:SimilarTopicsCommand_has_ex_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:SimilarTopicsCommand_get_range() dict
+  return 1
+endfunction
+
+function! <SID>s:SimilarTopicsCommand_run(...) dict
+  let [params, opts] = self.expand_args(a:000)
+  let prompter = self.lookup('choice_prompter')
+  let current_word = self.get_current_word(params, opts)
+  let wpseek_api = self.lookup('wpseek_api')
+  call s:echo_msg("Searching wordpress.org for Topic: '" . current_word . "' ...")
+  let topics = wpseek_api.find_topics(current_word, 10)
+  if self.is_false(topics) || len(topics) ==# 0
+    call s:echo_msg("No topics found for: '" . current_word . "'")
+    return
+  endif
+  let topic_labels = self.to_topic_labels(topics)
+  let topic_id = prompter.prompt_for(topic_labels)
+  if !(topic_id ==# -1)
+    let topic = topics[topic_id - 1]
+    let topic_url = topic.link
+    execute ":OpenBrowser " . topic_url
+  endif
+endfunction
+
+function! <SID>s:SimilarTopicsCommand_to_topic_labels(topics) dict
+  let topic_labels = []
+  for topic in a:topics
+    call add(topic_labels, topic.title)
+  endfor
+  return topic_labels
 endfunction
 
 function! s:ControllerConstructor()
@@ -3294,6 +3770,9 @@ function! <SID>s:Controller_configure_container() dict
   call c.register('with_dir', 'WithDir', 0)
   call c.register('file_opener', 'FileOpener', 0)
   call c.register('tags_option', 'TagsOption', 1)
+  call c.register('tag_list_matcher', 'TagListMatcher', 1)
+  call c.register('choice_prompter', 'ChoicePrompter', 1)
+  call c.register('wpseek_api', 'WpSeekApi', 1)
 endfunction
 
 function! <SID>s:Controller_load_commands() dict
@@ -3305,6 +3784,10 @@ function! <SID>s:Controller_load_commands() dict
   call r.add(s:LoadProjectRegistryCommandConstructor(c))
   call r.add(s:ConfigureTagsCommandConstructor(c))
   call r.add(s:CodexSearchCommandConstructor(c))
+  call r.add(s:GotoDefinitionCommandConstructor(c))
+  call r.add(s:LoadMappingsCommandConstructor(c))
+  call r.add(s:SimilarFunctionsCommandConstructor(c))
+  call r.add(s:SimilarTopicsCommandConstructor(c))
 endfunction
 
 function! <SID>s:Controller_lookup(key) dict
@@ -3336,6 +3819,7 @@ endfunction
 function! <SID>s:App_on_buffer_leave(buffer) dict
 endfunction
 
+let g:wordpress_vim_path = expand('<sfile>:h:h')
 function! wordpress#app()
   if !(exists('s:app'))
     let s:app = s:AppConstructor()
