@@ -5,3 +5,4 @@ build
 notes.txt
 .rspec
 vendor
+*.pyc
