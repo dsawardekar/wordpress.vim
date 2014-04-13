@@ -1,0 +1,48 @@
+riml_include 'wordpress_project_command'
+riml_include 'msg'
+riml_include 'choice_prompter'
+
+class SimilarFunctionsCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+    self.is_similar_command = true
+  end
+
+  defm get_name
+    return 'Wsimilar'
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_range
+    return true
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+    prompter       = self.lookup('choice_prompter')
+    current_word   = self.get_current_word(params, opts)
+    wpseek_api     = self.lookup('wpseek_api')
+
+    echo_msg("Looking for Functions similar to '#{current_word}' ...")
+
+    functions = wpseek_api.find_similar(current_word, 10)
+    if self.is_false(functions) || len(functions) == 0
+      echo_msg("No results found for: '#{current_word}'")
+      return
+    end
+
+    choice_id = prompter.prompt_for(functions)
+
+    unless choice_id == -1
+      choice = functions[choice_id - 1]
+      self.process('Wdef', choice)
+    end
+  end
+end
