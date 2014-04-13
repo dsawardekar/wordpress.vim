@@ -172,6 +172,15 @@ To jump to the definition of a function place your cursor on it, and hit
 the key combo Ctrl-]. To move back to the where you were earlier use Ctrl-t
 or Ctrl-o. You can also use the Ex command, :tjump name to jump to a tag.
 
+The ex-command :Wdef can be used to jump to a definition from ex mode.
+It takes the name to look for. If not specified it defaults to using the
+current visual selection and finally the current word under the cursor.
+
+The default mappings for <c-]> and <c-w>] are modified to improve
+sorting of the ctags results. To disable these custom mappings use,
+
+    let g:wordpress_vim_jump_to_core_mappings = 0
+
 To learn more about navigation with tags see, |tags-and-searches|.
 
 ===============================================================================
@@ -353,6 +362,12 @@ WordPress path manually.
 default: not set
 valid values: path to a WordPress install
 
+- g:wordpress_vim_jump_to_core_mappings
+
+Determines whether to add the custom mappings for <c-]> and <c-w>].
+
+default: 1
+valid values: 1 or 0
 
 ===============================================================================
 10. License                                                  *wordpress-license*
