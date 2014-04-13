@@ -175,7 +175,7 @@ WordPress.vim and the implementation of the plugin see
 
 * WordPress Hook Integration
 * ~~Find current word in Codex~~ DONE
-* Highlight Constants
+* ~~Highlight Constants~~ DONE
 * Improve snippets
 * ~~Integrate with the wpseek.com API~~ DONE
 * Improve Javascript Support

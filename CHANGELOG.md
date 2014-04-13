@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.6
+
+* Adds support for highlighting WordPress constants.
+
 ### 0.1.5
 
 * Adds `:Wdef` command to jump to core definition from ex mode.
