@@ -111,4 +111,20 @@ class WordpressCommandSpec
     expect(result).to_not_equal('')
     execute(":normal V")
   end
+
+  defm it_knows_dict_is_false
+    expect(self.command.is_false({})).to_be_false()
+  end
+
+  defm it_knows_false_is_false
+    expect(self.command.is_false(false)).to_be_true()
+  end
+
+  defm it_knows_dict_is_not_true
+    expect(self.command.is_true({})).to_be_false()
+  end
+
+  defm it_knows_true_is_true
+    expect(self.command.is_true(true)).to_be_true()
+  end
 end

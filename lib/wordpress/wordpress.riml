@@ -4,6 +4,8 @@ end
 
 riml_include 'app'
 
+let g:wordpress_vim_path = expand('<sfile>:h:h')
+
 def wordpress#app
   unless exists('s:app')
     s:app = new App()

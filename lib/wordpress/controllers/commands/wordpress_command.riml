@@ -61,4 +61,13 @@ class WordPressCommand < BaseCommand
     lines[0] = lines[0][col1 - 1:]
     return join(lines, "\n")
   end
+
+  " TODO: move into utility
+  defm is_false(value)
+    return type(value) == type(false) && value == false
+  end
+
+  defm is_true(value)
+    return type(value) == type(false) && value == true
+  end
 end

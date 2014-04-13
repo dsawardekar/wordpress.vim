@@ -1,0 +1,107 @@
+riml_include 'msg'
+
+class WpSeekApi
+  def initialize
+    self.api_loaded = false
+  end
+
+  defm find_similar(keyword, limit)
+    result = self.invoke('find_similar', keyword, limit)
+    if self.is_false(result)
+      return false
+    end
+
+    items          = self.get_result_items(result)
+    function_names = self.to_function_names(keyword, items)
+
+    return function_names
+  end
+
+  defm find_topics(keyword, limit)
+    result = self.invoke('find_topics', keyword, limit)
+    if self.is_false(result)
+      return false
+    end
+
+    return self.get_result_items(result)
+  end
+
+  defm is_false(result)
+    return type(result) == type(false) && result == false
+  end
+
+  defm to_query(keyword)
+    return substitute(keyword, "'", "\\'", 'g')
+  end
+
+  defm to_function_names(keyword, items)
+    function_names = []
+
+    for item in items
+      if item.name != keyword
+        add(function_names, item.name)
+      end
+    end
+
+    return function_names
+  end
+
+  defm get_result_items(result)
+    if has_key(result, 'items')
+      items = result.items
+    else
+      items = []
+    end
+
+    return items;
+  end
+
+  defm invoke(method, keyword, limit)
+    self.load_api()
+
+    unless self.has_python()
+      echo_error("Error: Vim with Python support is required.")
+      return false
+    end
+
+    try
+      execute(":python wpseek_api.#{method}('#{self.to_query(keyword)}', #{limit})")
+    catch
+      echo_error("Call to WpSeek API failed for: #{method}")
+      api_result = false
+    end
+
+    return api_result
+  end
+
+  defm has_python
+    if has_key(self, 'mock_python')
+      return self.mock_python
+    end
+
+    return has('python')
+  end
+
+  defm load_api
+    if self.api_loaded
+      return false
+    end
+
+    execute(":python import sys")
+    execute(":python sys.path.append('#{self.get_api_path()}')")
+    execute(":python from wpseek import WpSeekApi")
+    execute(":python wpseek_api = WpSeekApi()")
+
+    self.api_loaded = true
+
+    return true
+  end
+
+  defm loaded
+    return self.api_loaded
+  end
+
+  defm get_api_path
+    return "#{g:wordpress_vim_path}/lib/wpseek"
+  end
+end

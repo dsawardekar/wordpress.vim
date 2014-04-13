@@ -35,4 +35,22 @@ class LoadMappingsCommandSpec
     expect(maparg('<c-w>]', 'n')).to_not_equal('')
     expect(maparg('<c-w>]', 'v')).to_not_equal('')
   end
+
+  defm it_does_not_load_jump_mappings_if_disabled
+    :silent! nunmap <c-]>
+    :silent! nunmap <c-w>]
+    :silent! vunmap <c-]>
+    :silent! vunmap <c-w>]
+
+    g:wordpress_vim_jump_to_core_mappings = 0
+    self.command.run({})
+
+    expect(maparg('<c-]>', 'n')).to_equal('')
+    expect(maparg('<c-]>', 'v')).to_equal('')
+
+    expect(maparg('<c-w>]', 'n')).to_equal('')
+    expect(maparg('<c-w>]', 'v')).to_equal('')
+
+    :unlet g:wordpress_vim_jump_to_core_mappings
+  end
 end

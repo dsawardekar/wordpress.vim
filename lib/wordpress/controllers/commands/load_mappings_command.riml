@@ -11,6 +11,20 @@ class LoadMappingsCommand < WordPressProjectCommand
   end
 
   defm run(opts)
+    if self.needs_jump_mappings()
+      self.load_jump_mappings()
+    end
+  end
+
+  defm needs_jump_mappings
+    if exists('g:wordpress_vim_jump_to_core_mappings')
+      return g:wordpress_vim_jump_to_core_mappings
+    else
+      return true
+    end
+  end
+
+  defm load_jump_mappings
     DefDelegate = self.get_def_delegate()
 
     execute(":nnoremap <buffer> <c-]> :call #{DefDelegate}(0)<cr>")

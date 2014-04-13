@@ -1,0 +1,97 @@
+riml_include 'spec_helper'
+riml_include 'wpseek_api'
+
+class WpSeekApiSpec
+  defm before
+    g:wordpress_vim_path = getcwd()
+  end
+
+  defm before_each
+    self.api = new WpSeekApi()
+  end
+
+  defm it_knows_if_api_is_loaded
+    expect(self.api.loaded()).to_be_false()
+  end
+
+  defm it_can_load_wpseek_python_api
+    expect(self.api.load_api()).to_be_true()
+    expect(self.api.loaded()).to_be_true()
+  end
+
+  defm it_can_build_path_to_wpseek_api
+    expect(self.api.get_api_path()).to_match('lib/wpseek$')
+  end
+
+  defm it_escapes_quotes_from_query_arg
+    expect(self.api.to_query("'a'")).to_equal("\'a\'")
+  end
+
+  defm it_knows_if_python_is_present
+    expect(self.api.has_python()).to_be_true()
+  end
+
+  defm it_wont_call_python_api_if_python_is_absent
+    self.api.mock_python = false
+    expect(self.api.invoke('find_similar', 'foo', 5)).to_be_false()
+  end
+
+  defm it_can_call_wpseek_python_api
+    result = self.api.invoke('find_similar', 'wp_redirect', 1)
+    expect(result.status).to_equal('ok')
+  end
+
+  defm it_can_handle_wpseek_api_error
+    result = self.api.invoke('find_unknown', 'wp_redirect', 1)
+    expect(result).to_be_false()
+  end
+
+  defm it_can_convert_items_to_function_names
+    items = []
+    add(items, { 'name': 'a' })
+    add(items, { 'name': 'b' })
+    add(items, { 'name': 'c' })
+
+    expect(self.api.to_function_names('foo', items)).to_equal(['a', 'b', 'c'])
+  end
+
+  defm it_filters_out_keyword_from_function_names
+    items = []
+    add(items, { 'name': 'a' })
+    add(items, { 'name': 'b' })
+    add(items, { 'name': 'c' })
+
+    expect(self.api.to_function_names('a', items)).to_equal(['b', 'c'])
+  end
+
+  defm it_can_find_items_in_api_result
+    result = { 'items': ['foo'] }
+    expect(self.api.get_result_items(result)).to_equal(['foo'])
+  end
+
+  defm it_results_empty_list_if_items_key_is_absent
+    expect(self.api.get_result_items({})).to_equal([])
+  end
+
+  defm it_can_find_similar_functions
+    result = self.api.find_similar('wp_redirect', 2)
+    expect(result).to_equal(['wp_redirect_admin_locations'])
+  end
+
+  defm it_returns_false_if_find_similar_api_failed
+    self.api.mock_python = false
+    result = self.api.find_similar('wp_redirect', 2)
+    expect(result).to_be_false()
+  end
+
+  defm it_can_find_similar_topics
+    result = self.api.find_topics('wp_redirect', 2)
+    expect(result).to_have_length(2)
+  end
+
+  defm it_returns_false_if_find_topics_api_failed
+    self.api.mock_python = false
+    result = self.api.find_topics('wp_redirect', 2)
+    expect(result).to_be_false()
+  end
+end

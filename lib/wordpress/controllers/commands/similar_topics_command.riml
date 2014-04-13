@@ -1,0 +1,61 @@
+riml_include 'wordpress_project_command'
+riml_include 'msg'
+riml_include 'choice_prompter'
+riml_include 'wpseek_api'
+
+class SimilarTopicsCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+    self.is_similar_topics_command = true
+  end
+
+  defm get_name
+    return 'Wtopics'
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_range
+    return true
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+    prompter       = self.lookup('choice_prompter')
+    current_word   = self.get_current_word(params, opts)
+    wpseek_api     = self.lookup('wpseek_api')
+
+    echo_msg("Searching wordpress.org for Topic: '#{current_word}' ...")
+
+    topics = wpseek_api.find_topics(current_word, 10)
+    if self.is_false(topics) || len(topics) == 0
+      echo_msg("No topics found for: '#{current_word}'")
+      return
+    end
+
+    topic_labels = self.to_topic_labels(topics)
+    topic_id     = prompter.prompt_for(topic_labels)
+
+    unless topic_id == -1
+      topic     = topics[topic_id - 1]
+      topic_url = topic.link
+
+      execute(":OpenBrowser #{topic_url}")
+    end
+  end
+
+  defm to_topic_labels(topics)
+    topic_labels = []
+    for topic in topics
+      add(topic_labels, topic.title)
+    end
+
+    return topic_labels
+  end
+end

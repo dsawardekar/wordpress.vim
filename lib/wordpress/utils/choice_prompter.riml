@@ -11,12 +11,12 @@ class ChoicePrompter
     end
 
     prompt = "Enter Choice (1-#{total}) [q to quit]: "
-    result = self.get_input(prompt, total)
+    return self.get_input(prompt, total)
   end
 
   defm get_input(prompt, total_choices)
     user_input = input(prompt)
-    if user_input == 'q'
+    if user_input == 'q' || empty(user_input)
       return -1
     end
 

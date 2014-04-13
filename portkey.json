@@ -84,5 +84,19 @@
   "spec/wordpress/ctags/*_spec.riml": {
     "type": "spec",
     "alternate": "lib/wordpress/ctags/%s.riml"
+  },
+
+  "lib/wpseek/*.py": {
+    "type": "wpseek",
+    "mapping": "s"
+  },
+  "lib/wordpress/wpseek/*.riml": {
+    "type": "wpseek",
+    "mapping": "s",
+    "test": "spec/wordpress/wpseek/%s_spec.riml"
+  },
+  "spec/wordpress/wpseek/*_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/wpseek/%s.riml"
   }
 }
