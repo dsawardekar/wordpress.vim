@@ -2181,10 +2181,19 @@ syn keyword wpDeprecated wp_cache_reset contained
 " Extend php.vim
 syn cluster phpClConst add=wpFunction,wpClass,wpDeprecated
 
+" Constants
+syn match wpConstant "\vWP_[A-Z_]+"
+syn match wpConstant "\vDB_[A-Z_]+"
+syn match wpConstant "\v[A-Z_]+_KEY"
+syn match wpConstant "\v[A-Z_]+_SALT"
+
+syn cluster phpClConst add=wpConstant
+
 " Highlighting
 hi def link wpFunction Function
 hi def link wpClass StorageClass
 hi def link wpDeprecated Error
+hi def link wpConstant Constant
 
 " Done
 let b:current_syntax = 'php.wordpress'
