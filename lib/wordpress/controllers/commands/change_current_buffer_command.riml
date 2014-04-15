@@ -28,7 +28,7 @@ class ChangeCurrentBufferCommand < WordPressCommand
     if project_collection.contains(project_path)
       self.process('LoadProjectRegistry')
       self.process('LoadSyntax')
-      self.process('ConfigureTags')
+      self.process('Wctags')
     end
 
     " ready!
