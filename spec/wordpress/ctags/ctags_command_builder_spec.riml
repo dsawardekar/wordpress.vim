@@ -1,0 +1,19 @@
+riml_include 'spec_helper'
+riml_include 'ctags_command_builder'
+riml_include 'container'
+riml_include 'leet_convertor'
+
+class CTagsCommandBuilderSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('leet_convertor', 'LeetConvertor', true)
+    self.container.register('ctags_command_builder', 'CTagsCommandBuilder', true)
+
+    self.builder = self.container.lookup('ctags_command_builder')
+  end
+
+  defm it_can_convert_word_to_leet
+    expect(self.builder.to_leet('action')).to_equal('foo')
+  end
+end
+

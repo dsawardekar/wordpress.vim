@@ -1,0 +1,32 @@
+riml_include 'leet_convertor'
+
+class CTagsCommandBuilder
+  defm needs
+    return ['leet_convertor']
+  end
+
+  defm to_leet(key)
+    variable = "#{key}_uid"
+    unless has_key(self, variable)
+      self[variable] = self.leet_convertor.convert(key)
+    end
+
+    return self[key]
+  end
+
+  defm get_action_uid
+    return self.to_leet('action')
+  end
+
+  defm get_action_listener_uid
+    return self.to_leet('alistener')
+  end
+
+  defm get_filter_uid
+    return self.to_leet('filter')
+  end
+
+  defm get_filter_listener_uid
+    return self.to_leet('flistener')
+  end
+end
