@@ -5,13 +5,104 @@ class CTagsCommandBuilder
     return ['leet_convertor']
   end
 
+  defm build
+    cmd   = self.get_executable()
+    cmd .= " -R"
+    cmd .= " -f #{shellescape(self.get_tags_name())}"
+
+    re   = self.to_invocation_regex('action', 'a', 'do_action')
+    cmd .= " --regex-PHP=#{shellescape(re)}"
+
+    re   = self.to_listener_regex('alistener', 'l', 'add_action')
+    cmd .= " --regex-PHP=#{shellescape(re)}"
+
+    re   = self.to_invocation_regex('filter', 'r', 'apply_filters')
+    cmd .= " --regex-PHP=#{shellescape(re)}"
+
+    re   = self.to_listener_regex('flistener', 'r', 'add_filter')
+    cmd .= " --regex-PHP=#{shellescape(re)}"
+
+    cmd .= " ."
+
+    return cmd
+  end
+
+  defm to_invocation_regex(type_name, type_letter, method)
+    pattern = self.to_invocation_pattern(method)
+    return self.to_tag_regex(type_name, type_letter, method, pattern)
+  end
+
+  defm to_listener_regex(type_name, type_letter, method)
+    pattern = self.to_listener_pattern(method)
+    return self.to_tag_regex(type_name, type_letter, method, pattern)
+  end
+
+  defm to_tag_regex(type_name, type_letter, method, pattern)
+    re  = "/"
+    re .= "#{pattern}"
+    re .= "/"
+    re .= self.to_capture_group(type_name)
+    re .= "/"
+    re .= self.to_kind(type_name, type_letter)
+    re .= "/"
+
+    return re
+  end
+
+  defm to_kind(letter, label)
+    return "#{label},#{letter}"
+  end
+
+  defm to_capture_group(type_name, group_num = 1)
+    uid = self.to_leet(type_name)
+    return "#{uid}_\\#{group_num}"
+  end
+
+  defm to_invocation_pattern(method)
+    pattern  = method
+    pattern .= "[a-z_]*\\(\\s*['\"]([a-z_]+)['\"]\\s*.*\)"
+    return pattern
+  end
+
+  defm to_listener_pattern(method)
+    pattern = method
+    pattern .= "\\s*\(\\s*['\"]([a-z_]+)['\"]\\s*.*\)"
+    return pattern
+  end
+
+  defm get_tags_name
+    if exists('g:wordpress_vim_tags_file_name')
+      return g:wordpress_vim_tags_file_name
+    else
+      return "tags"
+    end
+  end
+
+  defm has_executable
+    return executable(self.get_executable())
+  end
+
+  defm get_executable
+    if exists('g:wordpress_vim_ctags_path')
+      ctags = g:wordpress_vim_ctags_path
+    else
+      ctags = 'ctags'
+    end
+
+    return ctags
+  end
+
+  defm has_executable
+    return executable(self.get_executable())
+  end
+
   defm to_leet(key)
     variable = "#{key}_uid"
     unless has_key(self, variable)
       self[variable] = self.leet_convertor.convert(key)
     end
 
-    return self[key]
+    return self[variable]
   end
 
   defm get_action_uid

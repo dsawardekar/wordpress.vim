@@ -13,7 +13,105 @@ class CTagsCommandBuilderSpec
   end
 
   defm it_can_convert_word_to_leet
-    expect(self.builder.to_leet('action')).to_equal('foo')
+    expect(self.builder.to_leet('action')).to_equal('4c710n')
+  end
+
+  defm it_saves_uid_locally
+    expect(self.builder).to_not_have_key('action_uid')
+    uid = self.builder.get_action_uid()
+    expect(self.builder).to_have_key('action_uid')
+  end
+
+  defm it_has_action_uid
+    expect(self.builder.get_action_uid()).to_equal('4c710n')
+  end
+
+  defm it_has_action_listener_uid
+    expect(self.builder.get_action_listener_uid()).to_equal('4l1573n3r')
+  end
+
+  defm it_has_filter_listener
+    expect(self.builder.get_filter_uid()).to_equal('ph1l73r')
+  end
+
+  defm it_has_filter_listener_uid
+    expect(self.builder.get_filter_listener_uid()).to_equal('phl1573n3r')
+  end
+
+  defm it_can_find_path_to_system_ctags_executable
+    expect(self.builder.get_executable()).to_equal('ctags')
+  end
+
+  defm it_can_find_path_to_custom_ctags
+    g:wordpress_vim_ctags_path = 'phpctags'
+    expect(self.builder.get_executable()).to_equal('phpctags')
+    :unlet g:wordpress_vim_ctags_path
+  end
+
+  defm it_knows_if_ctags_is_available
+    expect(self.builder.has_executable()).to_be_true()
+  end
+
+  defm it_knows_if_ctags_is_not_available
+    g:wordpress_vim_ctags_path = 'no_such_ctags_binary'
+    expect(self.builder.has_executable()).to_be_false()
+    :unlet g:wordpress_vim_ctags_path
+  end
+
+  defm it_has_default_tags_file_name
+    expect(self.builder.get_tags_name()).to_equal('tags')
+  end
+
+  defm it_can_use_custom_tags_file_name
+    g:wordpress_vim_tags_file_name = 'foo'
+    expect(self.builder.get_tags_name()).to_equal('foo')
+    :unlet g:wordpress_vim_tags_file_name
+  end
+
+  defm it_can_build_invocation_pattern
+    result = self.builder.to_invocation_pattern('do_action')
+    expect(result).to_match('do_action')
+  end
+
+  defm it_can_build_listener_pattern
+    result = self.builder.to_invocation_pattern('add_action')
+    expect(result).to_match('add_action')
+  end
+
+  defm it_can_build_capture_group_for_action
+    result = self.builder.to_capture_group('action')
+    expect(result).to_equal('4c710n_\1')
+  end
+
+  defm it_can_build_capture_group_for_action_with_custom_group_id
+    result = self.builder.to_capture_group('action', 2)
+    expect(result).to_equal('4c710n_\2')
+  end
+
+  defm it_can_build_tag_regex
+    re = self.builder.to_tag_regex('action', 'a', 'do_action', 'do_action_pattern')
+    expect(re).to_match('a,action')
+    expect(re).to_match('do_action_pattern')
+  end
+
+  defm it_can_build_invocation_regex
+    re = self.builder.to_invocation_regex('action', 'a', 'do_action')
+    expect(re).to_match('a,action')
+    expect(re).to_match('do_action')
+  end
+
+  defm it_can_build_listener_regex
+    re = self.builder.to_listener_regex('alistener', 'l', 'add_action')
+    expect(re).to_match('l,alistener')
+    expect(re).to_match('add_action')
+  end
+
+  defm it_can_build_ctags_command
+    cmd = self.builder.build()
+    expect(cmd).to_match('do_action')
+    expect(cmd).to_match('add_action')
+    expect(cmd).to_match('apply_filters')
+    expect(cmd).to_match('add_filter')
   end
 end
 

@@ -9,6 +9,8 @@ riml_include 'goto_definition_command'
 riml_include 'with_dir'
 riml_include 'tag_list_matcher'
 riml_include 'ctags_builder'
+riml_include 'ctags_command_builder'
+riml_include 'leet_convertor'
 
 class MockTagListMatcher
   defm match(keyword)
@@ -25,6 +27,8 @@ class GotoDefinitionCommandSpec
     self.container.register('with_dir', 'WithDir', false)
     self.container.register('tag_list_matcher', 'MockTagListMatcher', true)
     self.container.register('ctags_builder', 'CTagsBuilder', true)
+    self.container.register('ctags_command_builder', 'CTagsCommandBuilder', true)
+    self.container.register('leet_convertor', 'LeetConvertor', true)
     self.command = new GotoDefinitionCommand(self.container)
 
     self.project_collection = self.container.lookup('project_collection')
