@@ -1,0 +1,71 @@
+class LeetConvertor
+  defm convert(text)
+    leet = ''
+    total = len(text)
+
+    for i in range(0, total)
+      char     = text[i]
+      new_char = self.convert_char(char)
+      leet .= new_char
+    end
+
+    return leet
+  end
+
+  defm convert_char(char)
+    unless has_key(self, 'basic_dict')
+      self.basic_dict = self.get_basic_dict()
+    end
+
+    if has_key(self.basic_dict, char)
+      return self.basic_dict[char]
+    else
+      return char
+    end
+  end
+
+  defm get_basic_dict
+    d = self.get_lower_case_dict()
+    basic_dict = {}
+    for char in keys(d)
+      value                  = d[char]
+      upper_char             = toupper(char)
+      basic_dict[char]       = value
+      basic_dict[upper_char] = value
+    end
+
+    return basic_dict
+  end
+
+  defm get_lower_case_dict
+    d = {}
+    d['a'] = '4'
+    d['b'] = '8'
+    d['c'] = 'c'
+    d['d'] = 'd'
+    d['e'] = '3'
+    d['f'] = 'ph'
+    d['g'] = '9'
+    d['h'] = 'h'
+    d['i'] = '1'
+    d['j'] = 'j'
+    d['k'] = 'k'
+    d['l'] = 'l'
+    d['m'] = 'm'
+    d['n'] = 'n'
+    d['o'] = '0'
+    d['p'] = 'p'
+    d['q'] = 'q'
+    d['r'] = 'r'
+    d['s'] = '5'
+    d['t'] = '7'
+    d['u'] = 'u'
+    d['v'] = 'v'
+    d['w'] = 'w'
+    d['x'] = 'x'
+    d['y'] = 'y'
+    d['z'] = '2'
+
+    return d
+  end
+end
