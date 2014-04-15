@@ -164,7 +164,7 @@ WordPress.vim needs the help of the WordPress community to keep
 improving. Please consider joining this effort by providing new
 snippets, new features or bug reports.
 
-If you find that a feature is missing or find a big, please contact me
+If you find that a feature is missing or find a bug, please contact me
 or and add an issue to the [issues tracker][11].
 
 For further details on setting up a development environment for
