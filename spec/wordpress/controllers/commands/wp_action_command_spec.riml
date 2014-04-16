@@ -1,0 +1,38 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wp_action_command'
+riml_include 'with_dir'
+riml_include 'ctags_command_builder'
+
+class WpActionCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.container.register('ctags_command_builder', 'CTagsCommandBuilder', true)
+    self.command = new WpActionCommand(self.container)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+  end
+
+  defm lookup(key)
+    return self.project.lookup(key)
+  end
+
+  defm it_has_action_kind_with_bang
+    expect(self.command.get_ctag_kind(true)).to_equal('action')
+  end
+
+  defm it_has_action_listener_kind_without_bang
+    expect(self.command.get_ctag_kind(false)).to_equal('alistener')
+  end
+end
+
