@@ -87,7 +87,9 @@ class CommandRegistry
     " default options for :CtrlPFoo ex-commands
     " this is just a launcher command, it has no arguments
     options = {}
-    options.bang = false
+
+    " allowing bang, but to be treated as pass through
+    options.bang = true
     options.bar = false
     options.nargs = '0'
     options.complete = false
@@ -337,7 +339,6 @@ class CommandRegistry
     " command! CtrlPAlternate :call SomeFunc('altCmdId', 'Alternate')
     builder.repr(self.get_ctrlp_repr(id, name))
     ex_cmd = builder.build()
-    "info(ex_cmd)
     execute(ex_cmd)
   end
 
@@ -388,7 +389,8 @@ class CommandRegistry
   defm get_ctrlp_repr(id, name)
     Callback = self.get_ctrlp_callback()
     callback_name = get_delegate_name(Callback)
-    return ":call #{callback_name}('#{id}', '#{name}')"
+    opts = "{'bang': '<bang>'}"
+    return ":call #{callback_name}('#{id}', '#{name}', #{opts})"
   end
 
   " unlinking
@@ -423,9 +425,10 @@ class CtrlPDelegate
     self.registry = registry
   end
 
-  defm invoke(id, name)
+  defm invoke(id, name, ex_opts)
     agent = self.extension.get_agent()
     agent.set_command(id, name)
+    agent.set_ex_opts(ex_opts)
     self.extension.set_name(self.registry.get_display_name(id, name))
 
     self.extension.show()
@@ -438,7 +441,7 @@ class CtrlPAgent
   end
 
   defm init()
-    return self.registry.complete_command(self.command_id, self.resource_type, '', self.resource_type, 0)
+    return self.registry.complete_command(self.command_id, self.resource_type, '', self.get_cmd_line(), 0)
   end
 
   defm accept(mode, str)
@@ -462,8 +465,25 @@ class CtrlPAgent
     self.resource_type = name
   end
 
+  defm set_ex_opts(ex_opts)
+    self.ex_opts = ex_opts
+  end
+
+  defm has_bang
+    return has_key(self.ex_opts, 'bang') && self.ex_opts.bang == '!'
+  end
+
   defm has_command
     return has_key(self, 'command_id')
+  end
+
+  defm get_cmd_line
+    cmd_line = self.resource_type
+    if self.has_bang()
+      cmd_line .= '!'
+    end
+
+    return cmd_line
   end
 end
 
