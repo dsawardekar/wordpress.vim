@@ -447,6 +447,7 @@ class CtrlPAgent
   defm accept(mode, str)
     opts = {}
     opts.mode = mode
+    opts.bang = self.has_bang()
     ""echomsg "CtrlPAgent.accept mode=#{mode}, str=#{str}"
     return self.registry.run_command(self.command_id, self.resource_type, [str], opts)
   end
