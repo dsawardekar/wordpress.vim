@@ -1,0 +1,25 @@
+riml_include 'wp_hook_command'
+riml_include 'msg'
+
+class WpFilterCommand < WpHookCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'Wfilter'
+  end
+
+  defm get_ctrlp_names
+    return ['filter']
+  end
+
+  defm get_ctag_kind(bang)
+    if bang
+      return 'filter'
+    else
+      return 'flistener'
+    end
+  end
+end
+
