@@ -912,6 +912,8 @@ function! s:CTagsBuilderConstructor()
   let cTagsBuilderObj.is_ctags_builder = 1
   let cTagsBuilderObj.project_path = ''
   let cTagsBuilderObj.needs = function('<SNR>' . s:SID() . '_s:CTagsBuilder_needs')
+  let cTagsBuilderObj.clean = function('<SNR>' . s:SID() . '_s:CTagsBuilder_clean')
+  let cTagsBuilderObj.generate = function('<SNR>' . s:SID() . '_s:CTagsBuilder_generate')
   let cTagsBuilderObj.set_project_path = function('<SNR>' . s:SID() . '_s:CTagsBuilder_set_project_path')
   let cTagsBuilderObj.get_project_path = function('<SNR>' . s:SID() . '_s:CTagsBuilder_get_project_path')
   let cTagsBuilderObj.get_tags_name = function('<SNR>' . s:SID() . '_s:CTagsBuilder_get_tags_name')
@@ -919,8 +921,6 @@ function! s:CTagsBuilderConstructor()
   let cTagsBuilderObj.get_executable = function('<SNR>' . s:SID() . '_s:CTagsBuilder_get_executable')
   let cTagsBuilderObj.has_executable = function('<SNR>' . s:SID() . '_s:CTagsBuilder_has_executable')
   let cTagsBuilderObj.has_tags = function('<SNR>' . s:SID() . '_s:CTagsBuilder_has_tags')
-  let cTagsBuilderObj.clean = function('<SNR>' . s:SID() . '_s:CTagsBuilder_clean')
-  let cTagsBuilderObj.generate = function('<SNR>' . s:SID() . '_s:CTagsBuilder_generate')
   let cTagsBuilderObj.get_with_dir = function('<SNR>' . s:SID() . '_s:CTagsBuilder_get_with_dir')
   let cTagsBuilderObj.run = function('<SNR>' . s:SID() . '_s:CTagsBuilder_run')
   let cTagsBuilderObj.build = function('<SNR>' . s:SID() . '_s:CTagsBuilder_build')
@@ -928,44 +928,7 @@ function! s:CTagsBuilderConstructor()
 endfunction
 
 function! <SID>s:CTagsBuilder_needs() dict
-  return ['with_dir']
-endfunction
-
-function! <SID>s:CTagsBuilder_set_project_path(project_path) dict
-  let self.project_path = a:project_path
-endfunction
-
-function! <SID>s:CTagsBuilder_get_project_path() dict
-  return self.project_path
-endfunction
-
-function! <SID>s:CTagsBuilder_get_tags_name() dict
-  if exists('g:wordpress_vim_tags_file_name')
-    return g:wordpress_vim_tags_file_name
-  else
-    return "tags"
-  endif
-endfunction
-
-function! <SID>s:CTagsBuilder_get_project_tags() dict
-  return self.get_project_path() . "/" . self.get_tags_name()
-endfunction
-
-function! <SID>s:CTagsBuilder_get_executable() dict
-  if exists('g:wordpress_vim_ctags_path')
-    let ctags = g:wordpress_vim_ctags_path
-  else
-    let ctags = 'ctags'
-  endif
-  return ctags
-endfunction
-
-function! <SID>s:CTagsBuilder_has_executable() dict
-  return executable(self.get_executable())
-endfunction
-
-function! <SID>s:CTagsBuilder_has_tags() dict
-  return filereadable(self.get_project_tags())
+  return ['with_dir', 'ctags_command_builder']
 endfunction
 
 function! <SID>s:CTagsBuilder_clean() dict
@@ -985,6 +948,34 @@ function! <SID>s:CTagsBuilder_generate() dict
   return error_code ==# 0
 endfunction
 
+function! <SID>s:CTagsBuilder_set_project_path(project_path) dict
+  let self.project_path = a:project_path
+endfunction
+
+function! <SID>s:CTagsBuilder_get_project_path() dict
+  return self.project_path
+endfunction
+
+function! <SID>s:CTagsBuilder_get_tags_name() dict
+  return self.ctags_command_builder.get_tags_name()
+endfunction
+
+function! <SID>s:CTagsBuilder_get_project_tags() dict
+  return self.get_project_path() . "/" . self.get_tags_name()
+endfunction
+
+function! <SID>s:CTagsBuilder_get_executable() dict
+  return self.ctags_command_builder.get_executable()
+endfunction
+
+function! <SID>s:CTagsBuilder_has_executable() dict
+  return self.ctags_command_builder.has_executable()
+endfunction
+
+function! <SID>s:CTagsBuilder_has_tags() dict
+  return filereadable(self.get_project_tags())
+endfunction
+
 function! <SID>s:CTagsBuilder_get_with_dir() dict
   let with_dir = self.with_dir
   call with_dir.set_dir(self.get_project_path())
@@ -997,10 +988,223 @@ function! <SID>s:CTagsBuilder_run(cmd) dict
 endfunction
 
 function! <SID>s:CTagsBuilder_build() dict
+  return self.ctags_command_builder.build()
+endfunction
+
+" included: 'leet_convertor.riml'
+function! s:LeetConvertorConstructor()
+  let leetConvertorObj = {}
+  let leetConvertorObj.convert = function('<SNR>' . s:SID() . '_s:LeetConvertor_convert')
+  let leetConvertorObj.convert_char = function('<SNR>' . s:SID() . '_s:LeetConvertor_convert_char')
+  let leetConvertorObj.get_basic_dict = function('<SNR>' . s:SID() . '_s:LeetConvertor_get_basic_dict')
+  let leetConvertorObj.get_lower_case_dict = function('<SNR>' . s:SID() . '_s:LeetConvertor_get_lower_case_dict')
+  return leetConvertorObj
+endfunction
+
+function! <SID>s:LeetConvertor_convert(text) dict
+  let leet = ''
+  let total = len(a:text)
+  for i in range(0, total)
+    let char = a:text[i]
+    let new_char = self.convert_char(char)
+    let leet .= new_char
+  endfor
+  return leet
+endfunction
+
+function! <SID>s:LeetConvertor_convert_char(char) dict
+  if !(has_key(self, 'basic_dict'))
+    let self.basic_dict = self.get_basic_dict()
+  endif
+  if has_key(self.basic_dict, a:char)
+    return self.basic_dict[a:char]
+  else
+    return a:char
+  endif
+endfunction
+
+function! <SID>s:LeetConvertor_get_basic_dict() dict
+  let d = self.get_lower_case_dict()
+  let basic_dict = {}
+  for char in keys(d)
+    let value = d[char]
+    let upper_char = toupper(char)
+    let basic_dict[char] = value
+    let basic_dict[upper_char] = value
+  endfor
+  return basic_dict
+endfunction
+
+function! <SID>s:LeetConvertor_get_lower_case_dict() dict
+  let d = {}
+  let d['a'] = '4'
+  let d['b'] = '8'
+  let d['c'] = 'c'
+  let d['d'] = 'd'
+  let d['e'] = '3'
+  let d['f'] = 'ph'
+  let d['g'] = '9'
+  let d['h'] = 'h'
+  let d['i'] = '1'
+  let d['j'] = 'j'
+  let d['k'] = 'k'
+  let d['l'] = 'l'
+  let d['m'] = 'm'
+  let d['n'] = 'n'
+  let d['o'] = '0'
+  let d['p'] = 'p'
+  let d['q'] = 'q'
+  let d['r'] = 'r'
+  let d['s'] = '5'
+  let d['t'] = '7'
+  let d['u'] = 'u'
+  let d['v'] = 'v'
+  let d['w'] = 'w'
+  let d['x'] = 'x'
+  let d['y'] = 'y'
+  let d['z'] = '2'
+  return d
+endfunction
+
+" included: 'ctags_command_builder.riml'
+function! s:CTagsCommandBuilderConstructor()
+  let cTagsCommandBuilderObj = {}
+  let cTagsCommandBuilderObj.needs = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_needs')
+  let cTagsCommandBuilderObj.build = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_build')
+  let cTagsCommandBuilderObj.to_invocation_regex = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_invocation_regex')
+  let cTagsCommandBuilderObj.to_listener_regex = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_listener_regex')
+  let cTagsCommandBuilderObj.to_tag_regex = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_tag_regex')
+  let cTagsCommandBuilderObj.to_kind = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_kind')
+  let cTagsCommandBuilderObj.to_capture_group = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_capture_group')
+  let cTagsCommandBuilderObj.to_invocation_pattern = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_invocation_pattern')
+  let cTagsCommandBuilderObj.to_listener_pattern = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_listener_pattern')
+  let cTagsCommandBuilderObj.get_tags_name = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_tags_name')
+  let cTagsCommandBuilderObj.has_executable = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_has_executable')
+  let cTagsCommandBuilderObj.get_executable = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_executable')
+  let cTagsCommandBuilderObj.has_executable = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_has_executable')
+  let cTagsCommandBuilderObj.to_leet = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_leet')
+  let cTagsCommandBuilderObj.get_action_uid = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_action_uid')
+  let cTagsCommandBuilderObj.get_action_listener_uid = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_action_listener_uid')
+  let cTagsCommandBuilderObj.get_filter_uid = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_filter_uid')
+  let cTagsCommandBuilderObj.get_filter_listener_uid = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_filter_listener_uid')
+  return cTagsCommandBuilderObj
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_needs() dict
+  return ['leet_convertor']
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_build() dict
   let cmd = self.get_executable()
-  let cmd .= " -R ."
+  let cmd .= " -R"
   let cmd .= " -f " . shellescape(self.get_tags_name())
+  let re = self.to_invocation_regex('action', 'a', 'do_action')
+  let cmd .= " --regex-PHP=" . shellescape(re)
+  let re = self.to_listener_regex('alistener', 'l', 'add_action')
+  let cmd .= " --regex-PHP=" . shellescape(re)
+  let re = self.to_invocation_regex('filter', 'r', 'apply_filters')
+  let cmd .= " --regex-PHP=" . shellescape(re)
+  let re = self.to_listener_regex('flistener', 'e', 'add_filter')
+  let cmd .= " --regex-PHP=" . shellescape(re)
+  let cmd .= " ."
   return cmd
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_invocation_regex(type_name, type_letter, method) dict
+  let pattern = self.to_invocation_pattern(a:method)
+  return self.to_tag_regex(a:type_name, a:type_letter, a:method, pattern)
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_listener_regex(type_name, type_letter, method) dict
+  let pattern = self.to_listener_pattern(a:method)
+  return self.to_tag_regex(a:type_name, a:type_letter, a:method, pattern)
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_tag_regex(type_name, type_letter, method, pattern) dict
+  let re = "/"
+  let re .= a:pattern
+  let re .= "/"
+  let re .= self.to_capture_group(a:type_name)
+  let re .= "/"
+  let re .= self.to_kind(a:type_name, a:type_letter)
+  let re .= "/"
+  return re
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_kind(letter, label) dict
+  return a:label . "," . a:letter
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_capture_group(type_name, ...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let group_num = remove(__splat_var_cpy, 0)
+  else
+    let group_num = 1
+  endif
+  let uid = self.to_leet(a:type_name)
+  return uid . "_\\" . group_num
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_invocation_pattern(method) dict
+  let pattern = a:method
+  let pattern .= "[a-z_]*\\(\\s*['\"]([a-z_]+)['\"]\\s*.*\)"
+  return pattern
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_listener_pattern(method) dict
+  let pattern = a:method
+  let pattern .= "\\s*\\(\\s*['\"]([a-z_]+)['\"]\\s*.*\)"
+  return pattern
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_tags_name() dict
+  if exists('g:wordpress_vim_tags_file_name')
+    return g:wordpress_vim_tags_file_name
+  else
+    return "tags"
+  endif
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_has_executable() dict
+  return executable(self.get_executable())
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_filter_listener_uid() dict
+  return self.to_leet('flistener')
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_filter_uid() dict
+  return self.to_leet('filter')
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_action_listener_uid() dict
+  return self.to_leet('alistener')
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_action_uid() dict
+  return self.to_leet('action')
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_leet(key) dict
+  let variable = a:key . "_uid"
+  if !(has_key(self, variable))
+    let self[variable] = self.leet_convertor.convert(a:key)
+  endif
+  return self[variable]
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_executable() dict
+  if exists('g:wordpress_vim_ctags_path')
+    let ctags = g:wordpress_vim_ctags_path
+  else
+    let ctags = 'ctags'
+  endif
+  return ctags
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_has_executable() dict
+  return executable(self.get_executable())
 endfunction
 
 " included: 'command_registry.riml'
@@ -1345,7 +1549,7 @@ endfunction
 function! <SID>s:CommandRegistry_register_ctrlp_commands(cmd) dict
   let names = a:cmd.get_ctrlp_names()
   let options = {}
-  let options.bang = 0
+  let options.bang = 1
   let options.bar = 0
   let options.nargs = '0'
   let options.complete = 0
@@ -1617,7 +1821,8 @@ endfunction
 function! <SID>s:CommandRegistry_get_ctrlp_repr(id, name) dict
   let Callback = self.get_ctrlp_callback()
   let callback_name = s:get_delegate_name(Callback)
-  return ":call " . callback_name . "('" . a:id . "', '" . a:name . "')"
+  let opts = "{'bang': '<bang>'}"
+  return ":call " . callback_name . "('" . a:id . "', '" . a:name . "', " . opts . ")"
 endfunction
 
 function! <SID>s:CommandRegistry_unlink() dict
@@ -1650,9 +1855,10 @@ function! s:CtrlPDelegateConstructor(extension, registry)
   return ctrlPDelegateObj
 endfunction
 
-function! <SID>s:CtrlPDelegate_invoke(id, name) dict
+function! <SID>s:CtrlPDelegate_invoke(id, name, ex_opts) dict
   let agent = self.extension.get_agent()
   call agent.set_command(a:id, a:name)
+  call agent.set_ex_opts(a:ex_opts)
   call self.extension.set_name(self.registry.get_display_name(a:id, a:name))
   call self.extension.show()
 endfunction
@@ -1666,17 +1872,21 @@ function! s:CtrlPAgentConstructor(registry)
   let ctrlPAgentObj.exit = function('<SNR>' . s:SID() . '_s:CtrlPAgent_exit')
   let ctrlPAgentObj.opts = function('<SNR>' . s:SID() . '_s:CtrlPAgent_opts')
   let ctrlPAgentObj.set_command = function('<SNR>' . s:SID() . '_s:CtrlPAgent_set_command')
+  let ctrlPAgentObj.set_ex_opts = function('<SNR>' . s:SID() . '_s:CtrlPAgent_set_ex_opts')
+  let ctrlPAgentObj.has_bang = function('<SNR>' . s:SID() . '_s:CtrlPAgent_has_bang')
   let ctrlPAgentObj.has_command = function('<SNR>' . s:SID() . '_s:CtrlPAgent_has_command')
+  let ctrlPAgentObj.get_cmd_line = function('<SNR>' . s:SID() . '_s:CtrlPAgent_get_cmd_line')
   return ctrlPAgentObj
 endfunction
 
 function! <SID>s:CtrlPAgent_init() dict
-  return self.registry.complete_command(self.command_id, self.resource_type, '', self.resource_type, 0)
+  return self.registry.complete_command(self.command_id, self.resource_type, '', self.get_cmd_line(), 0)
 endfunction
 
 function! <SID>s:CtrlPAgent_accept(mode, str) dict
   let opts = {}
   let opts.mode = a:mode
+  let opts.bang = self.has_bang()
   return self.registry.run_command(self.command_id, self.resource_type, [a:str], opts)
 endfunction
 
@@ -1694,8 +1904,24 @@ function! <SID>s:CtrlPAgent_set_command(id, name) dict
   let self.resource_type = a:name
 endfunction
 
+function! <SID>s:CtrlPAgent_set_ex_opts(ex_opts) dict
+  let self.ex_opts = a:ex_opts
+endfunction
+
+function! <SID>s:CtrlPAgent_has_bang() dict
+  return has_key(self.ex_opts, 'bang') && self.ex_opts.bang ==# '!'
+endfunction
+
 function! <SID>s:CtrlPAgent_has_command() dict
   return has_key(self, 'command_id')
+endfunction
+
+function! <SID>s:CtrlPAgent_get_cmd_line() dict
+  let cmd_line = self.resource_type
+  if self.has_bang()
+    let cmd_line .= '!'
+  endif
+  return cmd_line
 endfunction
 
 " included: 'wpcli.riml'
@@ -1812,9 +2038,11 @@ endfunction
 function! <SID>s:WpCli_list() dict
   let meta = self.dump()
   let cmds = []
-  for cmd in meta.subcommands
-    call add(cmds, cmd.name)
-  endfor
+  if has_key(meta, 'subcommands')
+    for cmd in meta.subcommands
+      call add(cmds, cmd.name)
+    endfor
+  endif
   return cmds
 endfunction
 
@@ -2744,7 +2972,9 @@ function! <SID>s:Project_on_inject() dict
   call self.container.register('wordpress_path', 'WordPressPath', 1)
   call self.container.register('post', 'Post', 1)
   call self.container.register('post_saver', 'PostSaver', 0)
+  call self.container.register('leet_convertor', 'LeetConvertor', 1)
   call self.container.register('ctags_builder', 'CTagsBuilder', 1)
+  call self.container.register('ctags_command_builder', 'CTagsCommandBuilder', 1)
 endfunction
 
 function! <SID>s:Project_lookup(key) dict
@@ -3241,7 +3471,7 @@ function! <SID>s:ChangeCurrentBufferCommand_run(buffer, opts) dict
   if project_collection.contains(project_path)
     call self.process('LoadProjectRegistry')
     call self.process('LoadSyntax')
-    call self.process('ConfigureTags')
+    call self.process('Wctags')
   endif
   if project_added
     redraw
@@ -3320,32 +3550,56 @@ function! s:ConfigureTagsCommandConstructor(container)
   call extend(configureTagsCommandObj, wordPressProjectCommandObj)
   let configureTagsCommandObj.is_configure_tags_command = 1
   let configureTagsCommandObj.get_name = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_get_name')
+  let configureTagsCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_has_ex_mode')
   let configureTagsCommandObj.run = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_run')
   let configureTagsCommandObj.generate_ctags = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_generate_ctags')
+  let configureTagsCommandObj.regenerate_ctags = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_regenerate_ctags')
   let configureTagsCommandObj.configure_tag_option = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_configure_tag_option')
   return configureTagsCommandObj
 endfunction
 
 function! <SID>s:ConfigureTagsCommand_get_name() dict
-  return 'ConfigureTags'
+  return 'Wctags'
+endfunction
+
+function! <SID>s:ConfigureTagsCommand_has_ex_mode() dict
+  return 1
 endfunction
 
 function! <SID>s:ConfigureTagsCommand_run(opts) dict
   let buffer = self.current_buffer()
   let project = self.current_project()
-  if project.has_wordpress_path()
+  if has_key(a:opts, 'bang') && a:opts.bang
+    call self.regenerate_ctags()
+  elseif project.has_wordpress_path()
     call self.generate_ctags()
   endif
   call self.configure_tag_option()
 endfunction
 
-function! <SID>s:ConfigureTagsCommand_generate_ctags() dict
+function! <SID>s:ConfigureTagsCommand_generate_ctags(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let msg = remove(__splat_var_cpy, 0)
+  else
+    let msg = 'Generating'
+  endif
   let ctags_builder = self.lookup('ctags_builder')
   if !(ctags_builder.has_tags())
     redraw
-    call s:echo_msg("WordPress: Generating ctags ...")
+    call s:echo_msg("WordPress: " . msg . " ctags ...")
     call ctags_builder.generate()
   endif
+endfunction
+
+function! <SID>s:ConfigureTagsCommand_regenerate_ctags() dict
+  let ctags_builder = self.lookup('ctags_builder')
+  let tags_path = ctags_builder.get_project_tags()
+  if filereadable(tags_path)
+    call delete(tags_path)
+  endif
+  call self.generate_ctags('Regenerating')
+  call s:echo_msg('WordPress: Regenerating ctags DONE')
 endfunction
 
 function! <SID>s:ConfigureTagsCommand_configure_tag_option() dict
@@ -3353,7 +3607,9 @@ function! <SID>s:ConfigureTagsCommand_configure_tag_option() dict
   let tags_option = self.lookup('tags_option')
   if ctags_builder.has_tags()
     let tags_path = fnamemodify(ctags_builder.get_project_tags(), ':p')
-    call tags_option.prepend(tags_path)
+    if !(tags_option.get_tags() =~# tags_path)
+      call tags_option.prepend(tags_path)
+    endif
   endif
 endfunction
 
@@ -3740,6 +3996,173 @@ function! <SID>s:SimilarTopicsCommand_to_topic_labels(topics) dict
   return topic_labels
 endfunction
 
+" included: 'wp_action_command.riml'
+" included: 'wp_hook_command.riml'
+function! s:WpHookCommandConstructor(container)
+  let wpHookCommandObj = {}
+  let wordPressProjectCommandObj = s:WordPressProjectCommandConstructor(a:container)
+  call extend(wpHookCommandObj, wordPressProjectCommandObj)
+  let wpHookCommandObj.is_wp_hook_command = 1
+  let wpHookCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:WpHookCommand_get_auto_register')
+  let wpHookCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:WpHookCommand_has_ex_mode')
+  let wpHookCommandObj.get_completer = function('<SNR>' . s:SID() . '_s:WpHookCommand_get_completer')
+  let wpHookCommandObj.has_ctrlp_mode = function('<SNR>' . s:SID() . '_s:WpHookCommand_has_ctrlp_mode')
+  let wpHookCommandObj.get_count = function('<SNR>' . s:SID() . '_s:WpHookCommand_get_count')
+  let wpHookCommandObj.cmd_line_has_bang = function('<SNR>' . s:SID() . '_s:WpHookCommand_cmd_line_has_bang')
+  let wpHookCommandObj.remove_uid_prefix = function('<SNR>' . s:SID() . '_s:WpHookCommand_remove_uid_prefix')
+  let wpHookCommandObj.add_uid_prefix = function('<SNR>' . s:SID() . '_s:WpHookCommand_add_uid_prefix')
+  let wpHookCommandObj.filter_hooks = function('<SNR>' . s:SID() . '_s:WpHookCommand_filter_hooks')
+  let wpHookCommandObj.get_tags_for_uid = function('<SNR>' . s:SID() . '_s:WpHookCommand_get_tags_for_uid')
+  let wpHookCommandObj.get_hooks_for = function('<SNR>' . s:SID() . '_s:WpHookCommand_get_hooks_for')
+  let wpHookCommandObj.get_ctag_kind = function('<SNR>' . s:SID() . '_s:WpHookCommand_get_ctag_kind')
+  let wpHookCommandObj.get_kind_uid = function('<SNR>' . s:SID() . '_s:WpHookCommand_get_kind_uid')
+  let wpHookCommandObj.complete = function('<SNR>' . s:SID() . '_s:WpHookCommand_complete')
+  let wpHookCommandObj.run = function('<SNR>' . s:SID() . '_s:WpHookCommand_run')
+  return wpHookCommandObj
+endfunction
+
+function! <SID>s:WpHookCommand_get_auto_register() dict
+  return 0
+endfunction
+
+function! <SID>s:WpHookCommand_has_ex_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:WpHookCommand_get_completer() dict
+  return 'customlist'
+endfunction
+
+function! <SID>s:WpHookCommand_has_ctrlp_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:WpHookCommand_get_count() dict
+  return 1
+endfunction
+
+function! <SID>s:WpHookCommand_cmd_line_has_bang(cmd_line) dict
+  return a:cmd_line =~# '!'
+endfunction
+
+function! <SID>s:WpHookCommand_remove_uid_prefix(text, uid) dict
+  return substitute(a:text, a:uid . "_", '', '')
+endfunction
+
+function! <SID>s:WpHookCommand_add_uid_prefix(text, uid) dict
+  return a:uid . "_" . a:text
+endfunction
+
+function! <SID>s:WpHookCommand_filter_hooks(hooks, start) dict
+  return filter(a:hooks, "v:val =~ '^" . a:start . "'")
+endfunction
+
+function! <SID>s:WpHookCommand_get_tags_for_uid(uid) dict
+  if has_key(self, 'mock_tags_for_uid')
+    return self.mock_tags_for_uid
+  endif
+  return taglist(a:uid)
+endfunction
+
+function! <SID>s:WpHookCommand_get_hooks_for(uid) dict
+  let tags = self.get_tags_for_uid(a:uid)
+  let hooks = []
+  let hooks_added = {}
+  for tag in tags
+    if has_key(tag, 'name') && !has_key(hooks_added, tag.name)
+      let hook = self.remove_uid_prefix(tag.name, a:uid)
+      let hooks_added[tag.name] = 1
+      call add(hooks, hook)
+    endif
+  endfor
+  return hooks
+endfunction
+
+function! <SID>s:WpHookCommand_get_ctag_kind(bang) dict
+  return 'action'
+endfunction
+
+function! <SID>s:WpHookCommand_get_kind_uid(kind) dict
+  let ctags_command_builder = self.lookup('ctags_command_builder')
+  return ctags_command_builder.to_leet(a:kind)
+endfunction
+
+function! <SID>s:WpHookCommand_complete(word, cmd_line, cursor) dict
+  let bang = self.cmd_line_has_bang(a:cmd_line)
+  let kind = self.get_ctag_kind(bang)
+  let uid = self.get_kind_uid(kind)
+  let hooks = self.get_hooks_for(uid)
+  let filtered = self.filter_hooks(hooks, a:word)
+  return filtered
+endfunction
+
+function! <SID>s:WpHookCommand_run(...) dict
+  let [params, opts] = self.expand_args(a:000)
+  if len(params) ==# 0
+    let param = self.get_current_word(params, opts)
+  else
+    let param = params[0]
+  endif
+  let bang = has_key(opts, 'bang') && opts.bang
+  let kind = self.get_ctag_kind(bang)
+  let uid = self.get_kind_uid(kind)
+  let definition = self.add_uid_prefix(param, uid)
+  call self.process('Wdef', definition)
+endfunction
+
+function! s:WpActionCommandConstructor(container)
+  let wpActionCommandObj = {}
+  let wpHookCommandObj = s:WpHookCommandConstructor(a:container)
+  call extend(wpActionCommandObj, wpHookCommandObj)
+  let wpActionCommandObj.get_name = function('<SNR>' . s:SID() . '_s:WpActionCommand_get_name')
+  let wpActionCommandObj.get_ctrlp_names = function('<SNR>' . s:SID() . '_s:WpActionCommand_get_ctrlp_names')
+  let wpActionCommandObj.get_ctag_kind = function('<SNR>' . s:SID() . '_s:WpActionCommand_get_ctag_kind')
+  return wpActionCommandObj
+endfunction
+
+function! <SID>s:WpActionCommand_get_name() dict
+  return 'Waction'
+endfunction
+
+function! <SID>s:WpActionCommand_get_ctrlp_names() dict
+  return ['action']
+endfunction
+
+function! <SID>s:WpActionCommand_get_ctag_kind(bang) dict
+  if a:bang
+    return 'action'
+  else
+    return 'alistener'
+  endif
+endfunction
+
+" included: 'wp_filter_command.riml'
+function! s:WpFilterCommandConstructor(container)
+  let wpFilterCommandObj = {}
+  let wpHookCommandObj = s:WpHookCommandConstructor(a:container)
+  call extend(wpFilterCommandObj, wpHookCommandObj)
+  let wpFilterCommandObj.get_name = function('<SNR>' . s:SID() . '_s:WpFilterCommand_get_name')
+  let wpFilterCommandObj.get_ctrlp_names = function('<SNR>' . s:SID() . '_s:WpFilterCommand_get_ctrlp_names')
+  let wpFilterCommandObj.get_ctag_kind = function('<SNR>' . s:SID() . '_s:WpFilterCommand_get_ctag_kind')
+  return wpFilterCommandObj
+endfunction
+
+function! <SID>s:WpFilterCommand_get_name() dict
+  return 'Wfilter'
+endfunction
+
+function! <SID>s:WpFilterCommand_get_ctrlp_names() dict
+  return ['filter']
+endfunction
+
+function! <SID>s:WpFilterCommand_get_ctag_kind(bang) dict
+  if a:bang
+    return 'filter'
+  else
+    return 'flistener'
+  endif
+endfunction
+
 function! s:ControllerConstructor()
   let controllerObj = {}
   let controllerObj.container = s:ContainerConstructor({})
@@ -3788,6 +4211,8 @@ function! <SID>s:Controller_load_commands() dict
   call r.add(s:LoadMappingsCommandConstructor(c))
   call r.add(s:SimilarFunctionsCommandConstructor(c))
   call r.add(s:SimilarTopicsCommandConstructor(c))
+  call r.add(s:WpActionCommandConstructor(c))
+  call r.add(s:WpFilterCommandConstructor(c))
 endfunction
 
 function! <SID>s:Controller_lookup(key) dict
