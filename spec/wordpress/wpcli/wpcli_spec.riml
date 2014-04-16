@@ -1,5 +1,6 @@
 riml_include 'spec_helper'
 riml_include 'wpcli'
+riml_include 'delegate'
 
 class WpCliSpec
   defm before_each
@@ -68,6 +69,16 @@ class WpCliSpec
   defm it_add_shell_pipe_to_built_command
     cmd = self.cli.build(['cli', 'info'])
     expect(cmd).to_match('SHELL_PIPE=0')
+  end
+
+  defm it_does_not_throw_errors_if_subcommands_key_is_absent_f
+    self.cli.dump = create_delegate(self, 'mock_dump')
+    cmds = self.cli.list()
+    expect(cmds).to_equal([])
+  end
+
+  defm mock_dump
+    return {}
   end
 end
 

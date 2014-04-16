@@ -88,7 +88,7 @@
 
   "lib/wpseek/*.py": {
     "type": "wpseek",
-    "mapping": "s"
+    "mapping": "p"
   },
   "lib/wordpress/wpseek/*.riml": {
     "type": "wpseek",

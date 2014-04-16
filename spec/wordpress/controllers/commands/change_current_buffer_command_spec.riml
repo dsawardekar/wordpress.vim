@@ -93,7 +93,7 @@ class ChangeCurrentBufferCommandSpec
 
   defm it_loads_configure_tags_command
     mock_cmd = new MockRegistryCommand()
-    mock_cmd.cmd_name = 'ConfigureTags'
+    mock_cmd.cmd_name = 'Wctags'
     registry = self.container.lookup('registry')
     registry.add(mock_cmd)
 

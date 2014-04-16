@@ -1,4 +1,6 @@
 riml_include 'spec_helper'
+riml_include 'leet_convertor'
+riml_include 'ctags_command_builder'
 riml_include 'ctags_builder'
 riml_include 'with_dir'
 riml_include 'container'
@@ -7,10 +9,12 @@ class CTagsBuilderSpec
   defm before_each
     self.container = new Container({})
     self.container.register('with_dir', 'WithDir', true)
+    self.container.register('ctags_command_builder', 'CTagsCommandBuilder', true)
+    self.container.register('leet_convertor', 'LeetConvertor', true)
     self.container.register('ctags_builder', 'CTagsBuilder', true)
 
     self.with_dir = self.container.lookup('with_dir')
-    self.builder = self.container.lookup('ctags_builder')
+    self.builder  = self.container.lookup('ctags_builder')
   end
 
   defm it_stores_path_to_project
@@ -34,16 +38,6 @@ class CTagsBuilderSpec
     g:wordpress_vim_tags_file_name = 'spec_helper.rb'
     expect(self.builder.get_project_tags()).to_equal('spec/spec_helper.rb')
     :unlet g:wordpress_vim_tags_file_name
-  end
-
-  defm it_can_find_path_to_system_ctags_executable
-    expect(self.builder.get_executable()).to_equal('ctags')
-  end
-
-  defm it_can_find_path_to_custom_ctags
-    g:wordpress_vim_ctags_path = 'phpctags'
-    expect(self.builder.get_executable()).to_equal('phpctags')
-    :unlet g:wordpress_vim_ctags_path
   end
 
   defm it_knows_if_ctags_is_available

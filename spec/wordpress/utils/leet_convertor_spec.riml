@@ -1,0 +1,25 @@
+riml_include 'spec_helper'
+riml_include 'leet_convertor'
+
+class LeetConvertorSpec
+  defm before_each
+    self.convertor = new LeetConvertor()
+  end
+
+  defm it_can_convert_action
+    expect(self.convertor.convert('action')).to_equal('4c710n')
+  end
+
+  defm it_can_convert_alistener
+    expect(self.convertor.convert('alistener')).to_equal('4l1573n3r')
+  end
+
+  defm it_can_convert_filter
+    expect(self.convertor.convert('filter')).to_equal('ph1l73r')
+  end
+
+  defm it_can_convert_filter_listener
+    expect(self.convertor.convert('flistener')).to_equal('phl1573n3r')
+  end
+end
+

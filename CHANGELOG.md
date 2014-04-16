@@ -1,5 +1,16 @@
 # Changelog
 
+### 0.1.7
+
+* Adds WordPress Hooks integration.
+* :Waction[!] => add_action or do_action
+* :Wfilter[!] => add_filter or do_filter
+* And CtrlP variants.
+* Improved error handling for WpCli#list.
+* Adds :Wctags[!] to refresh ctags manually.
+  * needed to upgrade from 0.1.6 to 0.1.7
+  * old generated tags file did not have the custom ctag patterns.
+
 ### 0.1.6
 
 * Adds support for highlighting WordPress constants.

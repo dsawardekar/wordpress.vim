@@ -5,6 +5,7 @@
 ### Features
 
 * Auto-Completion for the WordPress API
+* WordPress Hooks Integration
 * WP-CLI Integration
 * Jump to Definition in WordPress Core
 * UltiSnips Snippets
@@ -25,6 +26,20 @@ API functions.
 ![Auto Completion][23]
 
 See `:h wordpress-auto-completion` for more.
+
+## WordPress Hooks Integration
+
+WordPress.vim has close integration with the WordPress action and filter
+hooks. This feature uses `ctags` and is further enhanced with the
+presence of [CtrlP.vim][17].
+
+The demo below shows navigation to a few hooks with the ex commands
+`:Waction` and `:Wfilter` and their CtrlP variants, `:CtrlPaction` and
+`:CtrlPfilter`.
+
+![WordPress Hooks Integration][26]
+
+See `:h wordpress-hooks-integration` for more.
 
 ## WP-CLI Integration
 
@@ -112,10 +127,10 @@ see `:h wordpress-wpseek-integration` for more.
 ##### 1. With [Vundle][12]
 `Bundle 'dsawardekar/wordpress.vim'`
 
-##### 1. With [NeoBundle][13]
+##### 2. With [NeoBundle][13]
 `NeoBundle 'dsawardekar/wordpress.vim'`
 
-##### 2. With [Pathogen][14]
+##### 3. With [Pathogen][14]
 `git clone https://github.com/dsawardekar/wordpress.vim ~/.vim/bundle/wordpress.vim`
 
 ## System Requirements
@@ -137,6 +152,7 @@ best experience.
 * [php.vim][10] - Better PHP Syntax Highlighting
 * [vim-markdown][6] - Enables Markdown Syntax Highlighting of readme.txt
 * [open-browser.vim][15] - Enables Search in Codex & `:Wtopics` launching.
+* [CtrlP.vim][17] - Enables Fuzzy matcher integration for WordPress hooks.
 
 Additionally the following tools enhance WordPress.vim.
 
@@ -164,7 +180,7 @@ WordPress.vim needs the help of the WordPress community to keep
 improving. Please consider joining this effort by providing new
 snippets, new features or bug reports.
 
-If you find that a feature is missing or find a big, please contact me
+If you find that a feature is missing or find a bug, please contact me
 or and add an issue to the [issues tracker][11].
 
 For further details on setting up a development environment for
@@ -173,13 +189,14 @@ WordPress.vim and the implementation of the plugin see
 
 ## TODO
 
-* WordPress Hook Integration
+* ~~WordPress Hook Integration~~ DONE
 * ~~Find current word in Codex~~ DONE
 * ~~Highlight Constants~~ DONE
 * Improve snippets
 * ~~Integrate with the wpseek.com API~~ DONE
 * Improve Javascript Support
 * ~~Figure out how to run WP-CLI shell commands.~~ DONE
+* WPSE integration.
 
 ## License
 
@@ -201,6 +218,7 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [14]: https://github.com/tpope/vim-pathogen
 [15]: https://github.com/tyru/open-browser.vim
 [16]: http://wpseek.com/
+[17]: https://github.com/kien/ctrlp.vim
 
 [20]: http://i.imgur.com/YClNJML.png
 [21]: http://i.imgur.com/3i7qrHJ.gif
@@ -208,3 +226,4 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [23]: http://i.imgur.com/CGvCMUJ.gif
 [24]: http://i.imgur.com/FWGrAN6.gif
 [25]: http://i.imgur.com/CEBIxpn.gif
+[26]: http://i.imgur.com/eMo6M9T.gif
