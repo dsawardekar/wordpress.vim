@@ -29,6 +29,10 @@ class ConfigureTagsCommandSpec
     self.project = self.command.current_project()
   end
 
+  defm lookup(key)
+    return self.project.lookup(key)
+  end
+
   defm it_builds_ctags_if_not_found
     ctags_builder = self.project.lookup('ctags_builder')
     ctags_builder.clean()
@@ -48,6 +52,22 @@ class ConfigureTagsCommandSpec
   defm it_configures_tags_option
     self.command.run({})
     expect(&tags).to_match(g:WORDPRESS_DIR)
+  end
+
+  defm it_can_regenerate_ctags
+    ctags_builder = self.lookup('ctags_builder')
+    self.command.run({ 'bang': true })
+    expect(ctags_builder.has_tags()).to_be_true()
+  end
+
+  defm it_does_not_reapply_tags_options_on_regeneration
+    tags_option = self.lookup('tags_option')
+    self.command.run({})
+
+    tags = tags_option.get_tags()
+    self.command.run({ 'bang': true })
+
+    expect(tags_option.get_tags()).to_equal(tags)
   end
 end
 

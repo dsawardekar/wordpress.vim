@@ -9,28 +9,46 @@ class ConfigureTagsCommand < WordPressProjectCommand
   end
 
   defm get_name
-    return 'ConfigureTags'
+    return 'Wctags'
+  end
+
+  defm has_ex_mode
+    return true
   end
 
   defm run(opts)
-    buffer = self.current_buffer()
+    buffer  = self.current_buffer()
     project = self.current_project()
 
-    if project.has_wordpress_path()
+    if has_key(opts, 'bang') && opts.bang
+      self.regenerate_ctags()
+    elseif project.has_wordpress_path()
       self.generate_ctags()
     end
 
     self.configure_tag_option()
   end
 
-  defm generate_ctags
+  defm generate_ctags(msg = 'Generating')
     ctags_builder = self.lookup('ctags_builder')
 
     unless ctags_builder.has_tags()
       :redraw
-      echo_msg("WordPress: Generating ctags ...")
+      echo_msg("WordPress: #{msg} ctags ...")
       ctags_builder.generate()
     end
+  end
+
+  defm regenerate_ctags
+    ctags_builder = self.lookup('ctags_builder')
+    tags_path     = ctags_builder.get_project_tags()
+
+    if filereadable(tags_path)
+      delete(tags_path)
+    end
+
+    self.generate_ctags('Regenerating')
+    echo_msg('WordPress: Regenerating ctags DONE')
   end
 
   defm configure_tag_option
@@ -39,7 +57,9 @@ class ConfigureTagsCommand < WordPressProjectCommand
 
     if ctags_builder.has_tags()
       tags_path = fnamemodify(ctags_builder.get_project_tags(), ':p')
-      tags_option.prepend(tags_path)
+      unless tags_option.get_tags() =~ tags_path
+        tags_option.prepend(tags_path)
+      end
     end
   end
 end
