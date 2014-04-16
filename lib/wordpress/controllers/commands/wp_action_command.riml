@@ -1,0 +1,25 @@
+riml_include 'wp_hook_command'
+riml_include 'msg'
+
+class WpActionCommand < WpHookCommand
+  def initialize(container)
+    super(container)
+  end
+
+  defm get_name
+    return 'Waction'
+  end
+
+  defm get_ctrlp_names
+    return ['action']
+  end
+
+  defm get_ctag_kind(bang)
+    if bang
+      return 'action'
+    else
+      return 'alistener'
+    end
+  end
+end
+

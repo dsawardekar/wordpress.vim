@@ -16,6 +16,8 @@ riml_include 'goto_definition_command'
 riml_include 'load_mappings_command'
 riml_include 'similar_functions_command'
 riml_include 'similar_topics_command'
+riml_include 'wp_action_command'
+riml_include 'wp_filter_command'
 
 " utils
 riml_include 'with_dir'
@@ -73,6 +75,8 @@ class Controller
     r.add(new LoadMappingsCommand(c))
     r.add(new SimilarFunctionsCommand(c))
     r.add(new SimilarTopicsCommand(c))
+    r.add(new WpActionCommand(c))
+    r.add(new WpFilterCommand(c))
   end
 
   defm lookup(key)

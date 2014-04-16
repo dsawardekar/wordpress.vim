@@ -1,4 +1,5 @@
 riml_include 'leet_convertor'
+riml_include 'msg'
 
 class CTagsCommandBuilder
   defm needs
@@ -19,10 +20,11 @@ class CTagsCommandBuilder
     re   = self.to_invocation_regex('filter', 'r', 'apply_filters')
     cmd .= " --regex-PHP=#{shellescape(re)}"
 
-    re   = self.to_listener_regex('flistener', 'r', 'add_filter')
+    re   = self.to_listener_regex('flistener', 'e', 'add_filter')
     cmd .= " --regex-PHP=#{shellescape(re)}"
 
     cmd .= " ."
+    "echo_msg(cmd)
 
     return cmd
   end
@@ -66,7 +68,7 @@ class CTagsCommandBuilder
 
   defm to_listener_pattern(method)
     pattern = method
-    pattern .= "\\s*\(\\s*['\"]([a-z_]+)['\"]\\s*.*\)"
+    pattern .= "\\s*\\(\\s*['\"]([a-z_]+)['\"]\\s*.*\)"
     return pattern
   end
 
