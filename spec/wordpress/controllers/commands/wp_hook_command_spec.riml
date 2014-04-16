@@ -1,0 +1,144 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wp_hook_command'
+riml_include 'with_dir'
+riml_include 'ctags_command_builder'
+
+class WpHookCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.container.register('ctags_command_builder', 'CTagsCommandBuilder', true)
+    self.command = new WpHookCommand(self.container)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+
+    self.buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
+    self.buffer_collection.set_current(self.buffer)
+    self.project_collection.add(self.buffer.get_project_path())
+    self.project = self.command.current_project()
+  end
+
+  defm lookup(key)
+    return self.project.lookup(key)
+  end
+
+  defm it_does_not_auto_register
+    expect(self.command.get_auto_register()).to_be_false()
+  end
+
+  defm it_has_ex_mode
+    expect(self.command.has_ex_mode()).to_be_true()
+  end
+
+  defm it_has_a_completer
+    expect(self.command.get_completer()).to_equal('customlist')
+  end
+
+  defm it_has_ctrlp_mode
+    expect(self.command.has_ctrlp_mode()).to_be_true()
+  end
+
+  defm it_allows_only_one_argument
+    expect(self.command.get_count()).to_equal(1)
+  end
+
+  defm it_knows_if_command_has_bang
+    expect(self.command.cmd_line_has_bang(':Waction!')).to_be_true()
+  end
+
+  defm it_knows_if_command_does_not_have_bang
+    expect(self.command.cmd_line_has_bang(':Waction')).to_be_false()
+  end
+
+  defm it_can_remove_uid_prefix
+    expect(self.command.remove_uid_prefix('001_foo', '001')).to_equal('foo')
+  end
+
+  defm it_can_add_uid_prefix
+    expect(self.command.add_uid_prefix('foo', '001')).to_equal('001_foo')
+  end
+
+  defm it_can_filter_hooks_for_start_pattern
+    choices = []
+    add(choices, 'admin_menu')
+    add(choices, 'admin_foo')
+    add(choices, 'lorem')
+    add(choices, 'ipsum')
+    add(choices, 'dolor')
+
+    result = self.command.filter_hooks(choices, 'admin')
+    expect(result).to_equal(['admin_menu', 'admin_foo'])
+  end
+
+  defm it_can_find_hooks_for_uid
+    tags = []
+    add(tags, { 'name': '007_lorem' })
+    add(tags, { 'name': '007_ipsum' })
+    add(tags, { 'name': '007_dolor' })
+
+    self.command.mock_tags_for_uid = tags
+    hooks = self.command.get_hooks_for('007')
+    expect(hooks).to_equal(['lorem', 'ipsum', 'dolor'])
+  end
+
+  defm it_ignores_duplicate_hooks
+    tags = []
+    add(tags, { 'name': '007_lorem' })
+    add(tags, { 'name': '007_lorem' })
+    add(tags, { 'name': '007_lorem' })
+    add(tags, { 'name': '007_ipsum' })
+    add(tags, { 'name': '007_dolor' })
+
+    self.command.mock_tags_for_uid = tags
+    hooks = self.command.get_hooks_for('007')
+    expect(hooks).to_equal(['lorem', 'ipsum', 'dolor'])
+  end
+
+  defm it_can_lookup_uid_for_ctags_kind
+    uid = self.command.get_kind_uid('action')
+    expect(uid).to_equal('4c710n')
+  end
+
+  defm it_can_complete_to_full_list_of_choices
+    tags = []
+    add(tags, { 'name': '4c710n_lorem' })
+    add(tags, { 'name': '4c710n_ipsum' })
+    add(tags, { 'name': '4c710n_dolor' })
+
+    self.command.mock_tags_for_uid = tags
+    hooks = self.command.complete('', 'Waction foo', 10)
+    expect(hooks).to_equal(['lorem', 'ipsum', 'dolor'])
+  end
+
+  defm it_can_jump_to_hook_definition
+    self.command.process = create_delegate(self, 'process_mock')
+    self.command.run('init', {})
+    expect(self.definition).to_equal('4c710n_init')
+  end
+
+  defm it_can_jump_to_hook_definition_of_current_word
+    self.command.get_current_word = create_delegate(self, 'current_word_mock')
+    self.command.process = create_delegate(self, 'process_mock')
+    self.command.run({})
+    expect(self.definition).to_equal('4c710n_lorem')
+  end
+
+  defm process_mock(cmd, definition)
+    self.definition = definition
+  end
+
+  defm current_word_mock(params, opts)
+    return 'lorem'
+  end
+end
+

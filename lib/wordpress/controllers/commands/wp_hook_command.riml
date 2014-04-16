@@ -1,0 +1,114 @@
+riml_include 'wordpress_project_command'
+riml_include 'msg'
+
+class WpHookCommand < WordPressProjectCommand
+  def initialize(container)
+    super(container)
+    self.is_wp_hook_command = true
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_completer
+    return 'customlist'
+  end
+
+  defm has_ctrlp_mode
+    return true
+  end
+
+  defm get_count
+    return 1
+  end
+
+  " Misc Helpers
+  defm cmd_line_has_bang(cmd_line)
+    return cmd_line =~ '!'
+  end
+
+  defm remove_uid_prefix(text, uid)
+    return substitute(text, "#{uid}_", '', '')
+  end
+
+  defm add_uid_prefix(text, uid)
+    return "#{uid}_#{text}"
+  end
+
+  defm filter_hooks(hooks, start)
+    return filter(hooks, "v:val =~ '^#{start}'")
+  end
+
+  " this helper can become the source of caching if performance
+  " is a concern, atm everything zips along just fine. :)
+  defm get_tags_for_uid(uid)
+    if has_key(self, 'mock_tags_for_uid')
+      return self.mock_tags_for_uid
+    end
+
+    return taglist(uid)
+  end
+
+  defm get_hooks_for(uid)
+    tags = self.get_tags_for_uid(uid)
+    hooks = []
+    hooks_added = {}
+
+    for tag in tags
+      if has_key(tag, 'name') && !has_key(hooks_added, tag.name)
+        hook = self.remove_uid_prefix(tag.name, uid)
+        hooks_added[tag.name] = true
+        add(hooks, hook)
+      end
+    end
+
+    return hooks
+  end
+
+  " abstract - implementation must be in the subclass
+  " code is only included here to ease testing
+  defm get_ctag_kind(bang)
+    return 'action'
+  end
+
+  " Note: must not conflict with other kinds or
+  " ctags gets confused
+  defm get_kind_uid(kind)
+    ctags_command_builder = self.lookup('ctags_command_builder')
+    return ctags_command_builder.to_leet(kind)
+  end
+
+  " could be improved by taking cursor into account
+  " but it's just 1 argument and I'm too lazy
+  defm complete(word, cmd_line, cursor)
+    bang     = self.cmd_line_has_bang(cmd_line)
+    kind     = self.get_ctag_kind(bang)
+    uid      = self.get_kind_uid(kind)
+    hooks    = self.get_hooks_for(uid)
+    filtered = self.filter_hooks(hooks, word)
+
+    return filtered
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+
+    if len(params) == 0
+      param = self.get_current_word(params, opts)
+    else
+      param = params[0]
+    end
+
+    bang       = has_key(opts, 'bang') && opts.bang
+    kind       = self.get_ctag_kind(bang)
+    uid        = self.get_kind_uid(kind)
+    definition = self.add_uid_prefix(param, uid)
+
+    self.process('Wdef', definition)
+  end
+end
