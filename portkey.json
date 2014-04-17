@@ -98,5 +98,14 @@
   "spec/wordpress/wpseek/*_spec.riml": {
     "type": "spec",
     "alternate": "lib/wordpress/wpseek/%s.riml"
+  },
+
+  "lib/wordpress/wphooks/*.riml": {
+    "type": "hook",
+    "test": "spec/wordpress/wphooks/%s_spec.riml"
+  },
+  "spec/wordpress/wphooks/*_spec.riml": {
+    "type": "spec",
+    "alternate": "lib/wordpress/wphooks/%s.riml"
   }
 }
