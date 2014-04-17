@@ -1,5 +1,13 @@
 # Changelog
 
+### 0.1.8
+
+* Improves Jump to Core implementation for WordPress hooks.
+* Ctrl-] inside action name in listener jumps to invocation and vice
+  versa.
+* Similar implementation for filter hooks.
+* Fixes :Wcodexsearch issue #5.
+
 ### 0.1.7
 
 * Adds WordPress Hooks integration.
