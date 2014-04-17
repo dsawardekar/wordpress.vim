@@ -1,5 +1,16 @@
+" portkey libs
 riml_include 'container'
 riml_include 'command_registry'
+
+" utils
+riml_include 'with_dir'
+riml_include 'file_opener'
+riml_include 'tags_option'
+riml_include 'tag_list_matcher'
+riml_include 'choice_prompter'
+riml_include 'wpseek_api'
+riml_include 'hook_match'
+riml_include 'hook_matcher'
 
 " collections
 riml_include 'buffer_collection'
@@ -19,13 +30,6 @@ riml_include 'similar_topics_command'
 riml_include 'wp_action_command'
 riml_include 'wp_filter_command'
 
-" utils
-riml_include 'with_dir'
-riml_include 'file_opener'
-riml_include 'tags_option'
-riml_include 'tag_list_matcher'
-riml_include 'choice_prompter'
-riml_include 'wpseek_api'
 
 class Controller
   def initialize
@@ -58,6 +62,8 @@ class Controller
     c.register('tag_list_matcher', 'TagListMatcher', true)
     c.register('choice_prompter', 'ChoicePrompter', true)
     c.register('wpseek_api', 'WpSeekApi', true)
+    c.register('hook_match', 'HookMatch', false)
+    c.register('hook_matcher', 'HookMatcher', true)
   end
 
   " initialization helpers
