@@ -56,5 +56,29 @@ class GotoDefinitionCommandSpec
   defm it_can_build_jump_cmd_without_position
     expect(self.command.get_jump_cmd('foo', 0)).to_equal(":tag foo")
   end
+
+  defm it_can_convert_action_kind_to_command
+    cmd = self.command.to_hook_command('action')
+    expect(cmd.name).to_equal('Waction')
+    expect(cmd.bang).to_be_false()
+  end
+
+  defm it_can_convert_alistener_kind_to_command
+    cmd = self.command.to_hook_command('alistener')
+    expect(cmd.name).to_equal('Waction')
+    expect(cmd.bang).to_be_true()
+  end
+
+  defm it_can_convert_filter_kind_to_command
+    cmd = self.command.to_hook_command('filter')
+    expect(cmd.name).to_equal('Wfilter')
+    expect(cmd.bang).to_be_false()
+  end
+
+  defm it_can_convert_flistener_kind_to_command
+    cmd = self.command.to_hook_command('flistener')
+    expect(cmd.name).to_equal('Wfilter')
+    expect(cmd.bang).to_be_true()
+  end
 end
 
