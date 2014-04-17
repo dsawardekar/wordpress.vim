@@ -1,0 +1,128 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'hook_matcher'
+
+class HookMatcherSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('hook_match', 'HookMatch', true)
+    self.container.register('hook_matcher', 'HookMatcher', true)
+
+    self.match   = self.container.lookup('hook_match')
+    self.matcher = self.container.lookup('hook_matcher')
+  end
+
+  defm it_can_create_hook_matches
+    expect(self.matcher.lookup('hook_match').is_hook_match).to_be_true()
+  end
+
+  defm it_has_hook_kinds
+    expect(self.matcher.get_kinds()).to_have_length(4)
+  end
+
+  defm it_can_match_kind_line_without_return
+    line = "    add_action('template_redirect', 'foo');"
+    pattern = self.matcher.get_kind_pattern('add_action')
+    expect(line).to_match(pattern)
+  end
+
+  defm it_can_match_kind_line_with_return
+    line = "$foo = add_action('template_redirect', 'foo');"
+    pattern = self.matcher.get_kind_pattern('add_action')
+    expect(line).to_match(pattern)
+  end
+
+  defm it_does_not_match_invalid_kind_line
+    line = "$foo = add_action('template_redirect', 'foo');"
+    pattern = self.matcher.get_kind_pattern('do_action')
+    expect(line).to_not_match(pattern)
+  end
+
+  defm it_can_match_word_line_without_return
+    line = "    add_action('template_redirect', 'foo');"
+    pattern = self.matcher.get_word_pattern('add_action', 'template_redirect')
+    expect(line).to_match(pattern)
+  end
+
+  defm it_can_match_kind_line_with_return
+    line = "$foo = add_action('template_redirect', 'foo');"
+    pattern = self.matcher.get_word_pattern('add_action', 'template_redirect')
+    expect(line).to_match(pattern)
+  end
+
+  defm it_does_not_match_invalid_word_line
+    line = "$foo = add_action('bar', 'foo');"
+    pattern = self.matcher.get_word_pattern('add_action', 'template_redirect')
+    expect(line).to_not_match(pattern)
+  end
+
+  defm it_knows_if_line_is_kind_line
+    line = "$foo = add_action('template_redirect', 'foo');"
+    result = self.matcher.is_kind_line(line, 'add_action')
+    expect(result).to_be_true()
+  end
+
+  defm it_knows_if_line_is_not_a_kind_line
+    line = "$foo = add_filter('bar', 'foo');"
+    result = self.matcher.is_kind_line(line, 'add_action')
+    expect(result).to_be_false()
+  end
+
+  defm it_knows_if_line_is_word_line
+    line = "$foo = add_action('template_redirect', 'foo');"
+    result = self.matcher.is_word_line(line, 'add_action', 'template_redirect')
+    expect(result).to_be_true()
+  end
+
+  defm it_knows_if_line_is_not_a_word_line
+    line = "$foo = add_action('bar', 'foo');"
+    result = self.matcher.is_word_line(line, 'add_action', 'template_redirect')
+    expect(result).to_be_false()
+  end
+
+  defm it_can_match_action_line
+    line = "$foo = do_action('template_redirect');"
+    result = self.matcher.match(line, 'template_redirect')
+
+    expect(result.is_match()).to_be_true()
+    expect(result.get_kind()).to_equal('action')
+  end
+
+  defm it_can_match_action_listener_line
+    line = "$foo = add_action('template_redirect', 'foo');"
+    result = self.matcher.match(line, 'template_redirect')
+
+    expect(result.is_match()).to_be_true()
+    expect(result.get_kind()).to_equal('alistener')
+  end
+
+  defm it_can_match_filter_line
+    line = "$excerpt = apply_filters( 'the_excerpt', $post->post_excerpt);"
+    result = self.matcher.match(line, 'the_excerpt')
+
+    expect(result.is_match()).to_be_true()
+    expect(result.get_kind()).to_equal('filter')
+  end
+
+  defm it_can_match_filter_listener_line
+    line = " add_filter( 'the_excerpt',     'convert_chars'    );"
+    result = self.matcher.match(line, 'the_excerpt')
+
+    expect(result.is_match()).to_be_true()
+    expect(result.get_kind()).to_equal('flistener')
+  end
+
+  defm it_does_not_match_for_second_argument
+    line = " add_filter( 'the_excerpt',     'convert_chars'    );"
+    result = self.matcher.match(line, 'convert_chars')
+
+    expect(result.is_match()).to_be_false()
+  end
+
+  defm it_does_not_match_for_invalid_line
+    line = " if ( !defined( 'DOING_CRON' ) )"
+    result = self.matcher.match(line, 'convert_chars')
+
+    expect(result.is_match()).to_be_false()
+  end
+end

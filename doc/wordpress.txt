@@ -268,7 +268,16 @@ To jump to the definition of a function place your cursor on it, and hit
 the key combo Ctrl-]. To move back to the where you were earlier use Ctrl-t
 or Ctrl-o. You can also use the Ex command, :tjump name to jump to a tag.
 
-The ex-command :Wdef can be used to jump to a definition from ex mode.
+Jump to Core has special support for WordPress hooks. When the cursor is
+on the name of the action or filter hook in 'add_action' or
+'add_filter', Ctrl-] will jump to the corresponding 'invocation' for that
+action or filter.
+
+Similarly when the cursor is on the name of the invocation either in
+'do_action' or 'apply_filters', Ctrl-] will jump to the corresponding
+'add_filter' or 'add_action' listeners instead.
+
+The ex-command :Wdef can also be used to jump to a definition from ex mode.
 It takes the name to look for. If not specified it defaults to using the
 current visual selection and finally the current word under the cursor.
 

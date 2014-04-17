@@ -29,7 +29,7 @@ class CodexSearchCommand < WordPressCommand
 
   defm run(*args)
     [params, opts] = self.expand_args(args)
-    current_word = self.get_current_word()
+    current_word = self.get_current_word(params, opts)
 
     if self.has_open_browser()
       search_query = self.get_codex_query(current_word)

@@ -62,6 +62,10 @@ class WordPressCommand < BaseCommand
     return join(lines, "\n")
   end
 
+  defm get_current_line
+    return getline(line('.'))
+  end
+
   " TODO: move into utility
   defm is_false(value)
     return type(value) == type(false) && value == false

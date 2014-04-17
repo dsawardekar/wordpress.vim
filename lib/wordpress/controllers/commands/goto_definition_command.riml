@@ -24,9 +24,16 @@ class GotoDefinitionCommand < WordPressProjectCommand
   end
 
   defm run(*args)
-    [params, opts]   = self.expand_args(args)
-    current_word     = self.get_current_word(params, opts)
-    ctags_builder    = self.lookup('ctags_builder')
+    [params, opts] = self.expand_args(args)
+    current_word   = self.get_current_word(params, opts)
+    current_line   = self.get_current_line()
+    hook_matcher   = self.lookup('hook_matcher')
+    hook_match     = hook_matcher.match(current_line, current_word)
+
+    if hook_match.is_match()
+      return self.jump_to_hook(hook_match)
+    end
+
     tag_list_matcher = self.lookup('tag_list_matcher')
     found            = tag_list_matcher.match(current_word)
 
@@ -52,6 +59,33 @@ class GotoDefinitionCommand < WordPressProjectCommand
     catch
       return false
     end
+  end
+
+  defm jump_to_hook(hook_match)
+    cmd = self.to_hook_command(hook_match.get_kind())
+
+    if has_key(cmd, 'name')
+      opts = { 'bang': cmd.bang, 'is_option': true }
+      self.process(cmd.name, hook_match.get_keyword(), opts)
+    end
+  end
+
+  " by flipping 'bang' we toggle between
+  " the invocation and listener modes
+  defm to_hook_command(kind)
+    if kind == 'action'
+      cmd = { 'name': 'Waction', 'bang': false }
+    elseif kind == 'alistener'
+      cmd = { 'name': 'Waction', 'bang': true }
+    elseif kind == 'filter'
+      cmd = { 'name': 'Wfilter', 'bang': false }
+    elseif kind == 'flistener'
+      cmd = { 'name': 'Wfilter', 'bang': true }
+    else
+      cmd = {}
+    end
+
+    return cmd
   end
 
   defm get_jump_cmd(keyword, position)

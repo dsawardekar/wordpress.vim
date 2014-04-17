@@ -43,6 +43,514 @@ function! s:echo_with(args, style)
 endfunction
 
 " included: 'controller.riml'
+" included: 'with_dir.riml'
+" included: 'delegate.riml'
+function! s:DelegateConstructor(scope, method)
+  let delegateObj = {}
+  let delegateObj.scope = a:scope
+  let delegateObj.method = a:method
+  let delegateObj.id = s:next_delegate_id()
+  let delegateObj.unlinked = 0
+  let delegateObj.invoke = function('<SNR>' . s:SID() . '_s:Delegate_invoke')
+  let delegateObj.unlink = function('<SNR>' . s:SID() . '_s:Delegate_unlink')
+  return delegateObj
+endfunction
+
+function! <SID>s:Delegate_invoke(...) dict
+  if self.unlinked
+    return
+  endif
+  return call(self.scope[self.method], a:000, self.scope)
+endfunction
+
+function! <SID>s:Delegate_unlink() dict
+  let self.unlinked = 1
+endfunction
+
+let s:delegate_id_counter = 0
+let s:delegate_instances = {}
+function! s:next_delegate_id()
+  let s:delegate_id_counter += 1
+  return s:delegate_id_counter
+endfunction
+
+function! s:create_delegate(scope, method)
+  let delegate = s:DelegateConstructor(a:scope, a:method)
+  let id = delegate.id
+  let s:delegate_instances[id] = delegate
+  let delegate_name = "s:DelegateFunction" . id
+  let delegate_func = "function! " . delegate_name . "(...)\n  let id = " . id . "\n  let NewDelegate = s:get_delegate_instance(id)\n  return call(NewDelegate.invoke, a:000, NewDelegate)\nendfunction"
+  execute delegate_func
+  let DelegateFuncRef = function(delegate_name)
+  return DelegateFuncRef
+endfunction
+
+function! s:get_delegate_instance(id)
+  return s:delegate_instances[a:id]
+endfunction
+
+function! s:remove_delegate(Func)
+  let func_name = s:get_delegate_name(a:Func)
+  let id = substitute(func_name, '\v^(.*)(DelegateFunction)(\d+).*', '\3', '')
+  execute ":unlet s:delegate_instances[" . id . "]"
+  execute ":delfunction " . func_name
+endfunction
+
+function! s:unlink_delegate(Func)
+  let func_name = s:get_delegate_name(a:Func)
+  let id = substitute(func_name, '\v^(.*)(DelegateFunction)(\d+).*', '\3', '')
+  let delegate = s:get_delegate_instance(id)
+  call delegate.unlink()
+endfunction
+
+function! s:get_delegate_name(Func)
+  let func_def = string(a:Func)
+  let sid = s:SID()
+  let pattern = "\\v^function.{1}'(.*)'.{1}$"
+  let result = substitute(func_def, pattern, '\1', '')
+  let result = substitute(result, 's:', '<SNR>' . sid . '_', '')
+  return result
+endfunction
+
+function! s:new_delegate(scope, method)
+  return s:get_delegate_name(s:create_delegate(a:scope, a:method))
+endfunction
+
+function! s:WithDirConstructor(...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let dir = remove(__splat_var_cpy, 0)
+  else
+    let dir = ''
+  endif
+  let withDirObj = {}
+  let withDirObj.dir = dir
+  let withDirObj.trap_errors = 1
+  let withDirObj.set_dir = function('<SNR>' . s:SID() . '_s:WithDir_set_dir')
+  let withDirObj.get_dir = function('<SNR>' . s:SID() . '_s:WithDir_get_dir')
+  let withDirObj.get_trap_errors = function('<SNR>' . s:SID() . '_s:WithDir_get_trap_errors')
+  let withDirObj.set_trap_errors = function('<SNR>' . s:SID() . '_s:WithDir_set_trap_errors')
+  let withDirObj.run = function('<SNR>' . s:SID() . '_s:WithDir_run')
+  return withDirObj
+endfunction
+
+function! <SID>s:WithDir_set_dir(dir) dict
+  let self.dir = a:dir
+endfunction
+
+function! <SID>s:WithDir_get_dir() dict
+  return self.dir
+endfunction
+
+function! <SID>s:WithDir_get_trap_errors() dict
+  return self.trap_errors
+endfunction
+
+function! <SID>s:WithDir_set_trap_errors(trap_errors) dict
+  let self.trap_errors = a:trap_errors
+endfunction
+
+function! <SID>s:WithDir_run(scope, method, args) dict
+  let orig_dir = getcwd()
+  if haslocaldir()
+    let chdir_cmd = 'lcd'
+  else
+    let chdir_cmd = 'cd'
+  endif
+  execute ":" . chdir_cmd . " " . self.get_dir()
+  if self.trap_errors
+    try
+      let result = call(a:scope[a:method], a:args, a:scope)
+    catch
+      let result = 0
+    finally
+      execute chdir_cmd . " " . orig_dir
+    endtry
+  else
+    let result = call(a:scope[a:method], a:args, a:scope)
+  endif
+  return result
+endfunction
+
+" included: 'file_opener.riml'
+function! s:FileOpenerConstructor()
+  let fileOpenerObj = {}
+  let fileOpenerObj.is_file_opener = 1
+  let fileOpenerObj.mkdir_mode = 1
+  let fileOpenerObj.exec_mode = 1
+  let fileOpenerObj.exec_cmd = ''
+  let fileOpenerObj.exec_mkdir = ''
+  let fileOpenerObj.set_mkdir_mode = function('<SNR>' . s:SID() . '_s:FileOpener_set_mkdir_mode')
+  let fileOpenerObj.get_mkdir_mode = function('<SNR>' . s:SID() . '_s:FileOpener_get_mkdir_mode')
+  let fileOpenerObj.set_exec_mode = function('<SNR>' . s:SID() . '_s:FileOpener_set_exec_mode')
+  let fileOpenerObj.get_exec_mode = function('<SNR>' . s:SID() . '_s:FileOpener_get_exec_mode')
+  let fileOpenerObj.open = function('<SNR>' . s:SID() . '_s:FileOpener_open')
+  let fileOpenerObj.open_with = function('<SNR>' . s:SID() . '_s:FileOpener_open_with')
+  let fileOpenerObj.mkdir = function('<SNR>' . s:SID() . '_s:FileOpener_mkdir')
+  let fileOpenerObj.build_cmd = function('<SNR>' . s:SID() . '_s:FileOpener_build_cmd')
+  return fileOpenerObj
+endfunction
+
+function! <SID>s:FileOpener_set_mkdir_mode(mkdir_mode) dict
+  let self.mkdir_mode = a:mkdir_mode
+endfunction
+
+function! <SID>s:FileOpener_get_mkdir_mode() dict
+  return self.mkdir_mode
+endfunction
+
+function! <SID>s:FileOpener_set_exec_mode(exec_mode) dict
+  let self.exec_mode = a:exec_mode
+endfunction
+
+function! <SID>s:FileOpener_get_exec_mode() dict
+  return self.exec_mode
+endfunction
+
+function! <SID>s:FileOpener_open(file, mode) dict
+  let cmd = self.build_cmd(a:file, a:mode)
+  call self.mkdir(a:file)
+  call self.open_with(cmd)
+endfunction
+
+function! <SID>s:FileOpener_open_with(cmd) dict
+  if self.exec_mode
+    execute a:cmd
+  else
+    let self.exec_cmd = a:cmd
+  endif
+endfunction
+
+function! <SID>s:FileOpener_mkdir(file) dict
+  let parent_dir = fnamemodify(a:file, ':p:h')
+  if !isdirectory(parent_dir) && self.mkdir_mode
+    if self.exec_mode
+      if exists('*mkdir')
+        call mkdir(parent_dir, 'p')
+      endif
+    else
+      let self.exec_mkdir = parent_dir
+    endif
+  endif
+endfunction
+
+function! <SID>s:FileOpener_build_cmd(file, mode) dict
+  let cmd = ''
+  if a:mode ==# 'e' || a:mode ==# 'edit'
+    let cmd = 'edit'
+  elseif a:mode ==# 's' || a:mode ==# 'h' || a:mode ==# 'split'
+    let cmd = 'split'
+  elseif a:mode ==# 'v' || a:mode ==# 'vsplit'
+    let cmd = 'vsplit'
+  elseif a:mode ==# 't' || a:mode ==# 'tab'
+    let cmd = 'tabedit'
+  elseif a:mode ==# 'd' || a:mode ==# 'read'
+    let cmd = 'read'
+  elseif a:mode ==# 'abo' || a:mode ==# 'aboveleft' || a:mode ==# 'lefta' || a:mode ==# 'leftabove'
+    let cmd = 'leftabove'
+  elseif a:mode ==# 'rightb' || a:mode ==# 'rightbelow' || a:mode ==# 'bel' || a:mode ==# 'belowright'
+    let cmd = 'rightbelow'
+  elseif a:mode ==# 'to' || a:mode ==# 'topleft'
+    let cmd = 'topleft'
+  elseif a:mode ==# 'bo' || a:mode ==# 'botright'
+    let cmd = 'botright'
+  else
+    let cmd = 'edit'
+  endif
+  let cmd = ":" . cmd . " " . a:file
+  return cmd
+endfunction
+
+" included: 'tags_option.riml'
+function! s:TagsOptionConstructor()
+  let tagsOptionObj = {}
+  let tagsOptionObj.is_tags_option = 1
+  let tagsOptionObj.append = function('<SNR>' . s:SID() . '_s:TagsOption_append')
+  let tagsOptionObj.prepend = function('<SNR>' . s:SID() . '_s:TagsOption_prepend')
+  let tagsOptionObj.get_tags = function('<SNR>' . s:SID() . '_s:TagsOption_get_tags')
+  let tagsOptionObj.set_tags = function('<SNR>' . s:SID() . '_s:TagsOption_set_tags')
+  let tagsOptionObj.to_list = function('<SNR>' . s:SID() . '_s:TagsOption_to_list')
+  let tagsOptionObj.to_value = function('<SNR>' . s:SID() . '_s:TagsOption_to_value')
+  return tagsOptionObj
+endfunction
+
+function! <SID>s:TagsOption_append(path) dict
+  let tags = self.to_list(self.get_tags())
+  call add(tags, a:path)
+  let value = self.to_value(tags)
+  call self.set_tags(value)
+endfunction
+
+function! <SID>s:TagsOption_prepend(path) dict
+  let tags = self.to_list(self.get_tags())
+  call insert(tags, a:path, 0)
+  let value = self.to_value(tags)
+  call self.set_tags(value)
+endfunction
+
+function! <SID>s:TagsOption_get_tags() dict
+  return &tags
+endfunction
+
+function! <SID>s:TagsOption_set_tags(tags) dict
+  execute ":setlocal tags=" . a:tags
+endfunction
+
+function! <SID>s:TagsOption_to_list(value) dict
+  return split(a:value, ',')
+endfunction
+
+function! <SID>s:TagsOption_to_value(items) dict
+  return join(a:items, ',')
+endfunction
+
+" included: 'choice_prompter.riml'
+function! s:ChoicePrompterConstructor()
+  let choicePrompterObj = {}
+  let choicePrompterObj.prompt_for = function('<SNR>' . s:SID() . '_s:ChoicePrompter_prompt_for')
+  let choicePrompterObj.get_input = function('<SNR>' . s:SID() . '_s:ChoicePrompter_get_input')
+  let choicePrompterObj.validate = function('<SNR>' . s:SID() . '_s:ChoicePrompter_validate')
+  return choicePrompterObj
+endfunction
+
+function! <SID>s:ChoicePrompter_prompt_for(choices) dict
+  let index = 1
+  let total = len(a:choices)
+  for choice in a:choices
+    call s:echo_msg(index . ". " . choice)
+    let index = index + 1
+  endfor
+  let prompt = "Enter Choice (1-" . total . ") [q to quit]: "
+  return self.get_input(prompt, total)
+endfunction
+
+function! <SID>s:ChoicePrompter_get_input(prompt, total_choices) dict
+  let user_input = input(a:prompt)
+  if user_input ==# 'q' || empty(user_input)
+    return -1
+  endif
+  let parsed_input = self.validate(user_input, a:total_choices)
+  if parsed_input ==# 0
+    call s:echo_msg("Invalid Choice: " . user_input)
+    return self.get_input(a:prompt, a:total_choices)
+  endif
+  return parsed_input
+endfunction
+
+function! <SID>s:ChoicePrompter_validate(text, total_choices) dict
+  for valid_input in range(1, a:total_choices)
+    if a:text ==# valid_input
+      return valid_input
+    endif
+  endfor
+  return 0
+endfunction
+
+" included: 'wpseek_api.riml'
+function! s:WpSeekApiConstructor()
+  let wpSeekApiObj = {}
+  let wpSeekApiObj.api_loaded = 0
+  let wpSeekApiObj.find_similar = function('<SNR>' . s:SID() . '_s:WpSeekApi_find_similar')
+  let wpSeekApiObj.find_topics = function('<SNR>' . s:SID() . '_s:WpSeekApi_find_topics')
+  let wpSeekApiObj.is_false = function('<SNR>' . s:SID() . '_s:WpSeekApi_is_false')
+  let wpSeekApiObj.to_query = function('<SNR>' . s:SID() . '_s:WpSeekApi_to_query')
+  let wpSeekApiObj.to_function_names = function('<SNR>' . s:SID() . '_s:WpSeekApi_to_function_names')
+  let wpSeekApiObj.get_result_items = function('<SNR>' . s:SID() . '_s:WpSeekApi_get_result_items')
+  let wpSeekApiObj.invoke = function('<SNR>' . s:SID() . '_s:WpSeekApi_invoke')
+  let wpSeekApiObj.has_python = function('<SNR>' . s:SID() . '_s:WpSeekApi_has_python')
+  let wpSeekApiObj.load_api = function('<SNR>' . s:SID() . '_s:WpSeekApi_load_api')
+  let wpSeekApiObj.loaded = function('<SNR>' . s:SID() . '_s:WpSeekApi_loaded')
+  let wpSeekApiObj.get_api_path = function('<SNR>' . s:SID() . '_s:WpSeekApi_get_api_path')
+  return wpSeekApiObj
+endfunction
+
+function! <SID>s:WpSeekApi_find_similar(keyword, limit) dict
+  let result = self.invoke('find_similar', a:keyword, a:limit)
+  if self.is_false(result)
+    return 0
+  endif
+  let items = self.get_result_items(result)
+  let function_names = self.to_function_names(a:keyword, items)
+  return function_names
+endfunction
+
+function! <SID>s:WpSeekApi_find_topics(keyword, limit) dict
+  let result = self.invoke('find_topics', a:keyword, a:limit)
+  if self.is_false(result)
+    return 0
+  endif
+  return self.get_result_items(result)
+endfunction
+
+function! <SID>s:WpSeekApi_is_false(result) dict
+  return type(a:result) ==# type(0) && a:result ==# 0
+endfunction
+
+function! <SID>s:WpSeekApi_to_query(keyword) dict
+  return substitute(a:keyword, "'", "\\'", 'g')
+endfunction
+
+function! <SID>s:WpSeekApi_to_function_names(keyword, items) dict
+  let function_names = []
+  for item in a:items
+    if item.name !=# a:keyword
+      call add(function_names, item.name)
+    endif
+  endfor
+  return function_names
+endfunction
+
+function! <SID>s:WpSeekApi_get_result_items(result) dict
+  if has_key(a:result, 'items')
+    let items = a:result.items
+  else
+    let items = []
+  endif
+  return items
+endfunction
+
+function! <SID>s:WpSeekApi_invoke(method, keyword, limit) dict
+  call self.load_api()
+  if !(self.has_python())
+    call s:echo_error("Error: Vim with Python support is required.")
+    return 0
+  endif
+  try
+    execute ":python wpseek_api." . a:method . "('" . self.to_query(a:keyword) . "', " . a:limit . ")"
+  catch
+    call s:echo_error("Call to WpSeek API failed for: " . a:method)
+    let api_result = 0
+  endtry
+  return api_result
+endfunction
+
+function! <SID>s:WpSeekApi_has_python() dict
+  if has_key(self, 'mock_python')
+    return self.mock_python
+  endif
+  return has('python')
+endfunction
+
+function! <SID>s:WpSeekApi_load_api() dict
+  if self.api_loaded
+    return 0
+  endif
+  execute ":python import sys"
+  execute ":python sys.path.append('" . self.get_api_path() . "')"
+  execute ":python from wpseek import WpSeekApi"
+  execute ":python wpseek_api = WpSeekApi()"
+  let self.api_loaded = 1
+  return 1
+endfunction
+
+function! <SID>s:WpSeekApi_loaded() dict
+  return self.api_loaded
+endfunction
+
+function! <SID>s:WpSeekApi_get_api_path() dict
+  return g:wordpress_vim_path . "/lib/wpseek"
+endfunction
+
+" included: 'hook_match.riml'
+function! s:HookMatchConstructor(...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let keyword = remove(__splat_var_cpy, 0)
+  else
+    let keyword = ''
+  endif
+  let hookMatchObj = {}
+  let hookMatchObj.keyword = keyword
+  let hookMatchObj.kind = ''
+  let hookMatchObj.is_hook_match = 1
+  let hookMatchObj.set_keyword = function('<SNR>' . s:SID() . '_s:HookMatch_set_keyword')
+  let hookMatchObj.set_kind = function('<SNR>' . s:SID() . '_s:HookMatch_set_kind')
+  let hookMatchObj.get_kind = function('<SNR>' . s:SID() . '_s:HookMatch_get_kind')
+  let hookMatchObj.get_keyword = function('<SNR>' . s:SID() . '_s:HookMatch_get_keyword')
+  let hookMatchObj.is_match = function('<SNR>' . s:SID() . '_s:HookMatch_is_match')
+  return hookMatchObj
+endfunction
+
+function! <SID>s:HookMatch_set_keyword(keyword) dict
+  let self.keyword = a:keyword
+endfunction
+
+function! <SID>s:HookMatch_set_kind(kind) dict
+  let self.kind = a:kind
+endfunction
+
+function! <SID>s:HookMatch_get_kind() dict
+  return self.kind
+endfunction
+
+function! <SID>s:HookMatch_get_keyword() dict
+  return self.keyword
+endfunction
+
+function! <SID>s:HookMatch_is_match() dict
+  return has_key(self, 'kind') && self.kind !=# ''
+endfunction
+
+" included: 'hook_matcher.riml'
+function! s:HookMatcherConstructor()
+  let hookMatcherObj = {}
+  let hookMatcherObj.lookup = function('<SNR>' . s:SID() . '_s:HookMatcher_lookup')
+  let hookMatcherObj.match = function('<SNR>' . s:SID() . '_s:HookMatcher_match')
+  let hookMatcherObj.is_kind_line = function('<SNR>' . s:SID() . '_s:HookMatcher_is_kind_line')
+  let hookMatcherObj.is_word_line = function('<SNR>' . s:SID() . '_s:HookMatcher_is_word_line')
+  let hookMatcherObj.get_kind_pattern = function('<SNR>' . s:SID() . '_s:HookMatcher_get_kind_pattern')
+  let hookMatcherObj.get_word_pattern = function('<SNR>' . s:SID() . '_s:HookMatcher_get_word_pattern')
+  let hookMatcherObj.get_kinds = function('<SNR>' . s:SID() . '_s:HookMatcher_get_kinds')
+  return hookMatcherObj
+endfunction
+
+function! <SID>s:HookMatcher_lookup(key) dict
+  return self.container.lookup(a:key)
+endfunction
+
+function! <SID>s:HookMatcher_match(line, current_word) dict
+  let kinds = self.get_kinds()
+  let result = self.lookup('hook_match')
+  call result.set_keyword(a:current_word)
+  for kind in kinds
+    let method = kind.method
+    if self.is_kind_line(a:line, method) && self.is_word_line(a:line, method, a:current_word)
+      call result.set_kind(kind.name)
+    endif
+  endfor
+  return result
+endfunction
+
+function! <SID>s:HookMatcher_is_kind_line(line, method) dict
+  let kind_pattern = self.get_kind_pattern(a:method)
+  return match(a:line, kind_pattern) !=# -1
+endfunction
+
+function! <SID>s:HookMatcher_is_word_line(line, method, word) dict
+  let word_pattern = self.get_word_pattern(a:method, a:word)
+  return match(a:line, word_pattern) !=# -1
+endfunction
+
+function! <SID>s:HookMatcher_get_kind_pattern(method) dict
+  return '\v\s*.*' . a:method
+endfunction
+
+function! <SID>s:HookMatcher_get_word_pattern(method, word) dict
+  let pattern = self.get_kind_pattern(a:method)
+  let pattern .= '.*\(\s*[' . "'" . '"]'
+  let pattern .= a:word
+  return pattern
+endfunction
+
+function! <SID>s:HookMatcher_get_kinds() dict
+  let kinds = []
+  call add(kinds, {'name': 'action', 'method': 'do_action'})
+  call add(kinds, {'name': 'alistener', 'method': 'add_action'})
+  call add(kinds, {'name': 'filter', 'method': 'apply_filters'})
+  call add(kinds, {'name': 'flistener', 'method': 'add_filter'})
+  return kinds
+endfunction
+
 " included: 'buffer_collection.riml'
 " included: 'buffer.riml'
 " included: 'buffer_type_detector.riml'
@@ -721,135 +1229,6 @@ endfunction
 
 function! <SID>s:WpCliRunner_wants_help(opts) dict
   return has_key(a:opts, 'bang') && a:opts.bang
-endfunction
-
-" included: 'with_dir.riml'
-" included: 'delegate.riml'
-function! s:DelegateConstructor(scope, method)
-  let delegateObj = {}
-  let delegateObj.scope = a:scope
-  let delegateObj.method = a:method
-  let delegateObj.id = s:next_delegate_id()
-  let delegateObj.unlinked = 0
-  let delegateObj.invoke = function('<SNR>' . s:SID() . '_s:Delegate_invoke')
-  let delegateObj.unlink = function('<SNR>' . s:SID() . '_s:Delegate_unlink')
-  return delegateObj
-endfunction
-
-function! <SID>s:Delegate_invoke(...) dict
-  if self.unlinked
-    return
-  endif
-  return call(self.scope[self.method], a:000, self.scope)
-endfunction
-
-function! <SID>s:Delegate_unlink() dict
-  let self.unlinked = 1
-endfunction
-
-let s:delegate_id_counter = 0
-let s:delegate_instances = {}
-function! s:next_delegate_id()
-  let s:delegate_id_counter += 1
-  return s:delegate_id_counter
-endfunction
-
-function! s:create_delegate(scope, method)
-  let delegate = s:DelegateConstructor(a:scope, a:method)
-  let id = delegate.id
-  let s:delegate_instances[id] = delegate
-  let delegate_name = "s:DelegateFunction" . id
-  let delegate_func = "function! " . delegate_name . "(...)\n  let id = " . id . "\n  let NewDelegate = s:get_delegate_instance(id)\n  return call(NewDelegate.invoke, a:000, NewDelegate)\nendfunction"
-  execute delegate_func
-  let DelegateFuncRef = function(delegate_name)
-  return DelegateFuncRef
-endfunction
-
-function! s:get_delegate_instance(id)
-  return s:delegate_instances[a:id]
-endfunction
-
-function! s:remove_delegate(Func)
-  let func_name = s:get_delegate_name(a:Func)
-  let id = substitute(func_name, '\v^(.*)(DelegateFunction)(\d+).*', '\3', '')
-  execute ":unlet s:delegate_instances[" . id . "]"
-  execute ":delfunction " . func_name
-endfunction
-
-function! s:unlink_delegate(Func)
-  let func_name = s:get_delegate_name(a:Func)
-  let id = substitute(func_name, '\v^(.*)(DelegateFunction)(\d+).*', '\3', '')
-  let delegate = s:get_delegate_instance(id)
-  call delegate.unlink()
-endfunction
-
-function! s:get_delegate_name(Func)
-  let func_def = string(a:Func)
-  let sid = s:SID()
-  let pattern = "\\v^function.{1}'(.*)'.{1}$"
-  let result = substitute(func_def, pattern, '\1', '')
-  let result = substitute(result, 's:', '<SNR>' . sid . '_', '')
-  return result
-endfunction
-
-function! s:new_delegate(scope, method)
-  return s:get_delegate_name(s:create_delegate(a:scope, a:method))
-endfunction
-
-function! s:WithDirConstructor(...)
-  let __splat_var_cpy = copy(a:000)
-  if !empty(__splat_var_cpy)
-    let dir = remove(__splat_var_cpy, 0)
-  else
-    let dir = ''
-  endif
-  let withDirObj = {}
-  let withDirObj.dir = dir
-  let withDirObj.trap_errors = 1
-  let withDirObj.set_dir = function('<SNR>' . s:SID() . '_s:WithDir_set_dir')
-  let withDirObj.get_dir = function('<SNR>' . s:SID() . '_s:WithDir_get_dir')
-  let withDirObj.get_trap_errors = function('<SNR>' . s:SID() . '_s:WithDir_get_trap_errors')
-  let withDirObj.set_trap_errors = function('<SNR>' . s:SID() . '_s:WithDir_set_trap_errors')
-  let withDirObj.run = function('<SNR>' . s:SID() . '_s:WithDir_run')
-  return withDirObj
-endfunction
-
-function! <SID>s:WithDir_set_dir(dir) dict
-  let self.dir = a:dir
-endfunction
-
-function! <SID>s:WithDir_get_dir() dict
-  return self.dir
-endfunction
-
-function! <SID>s:WithDir_get_trap_errors() dict
-  return self.trap_errors
-endfunction
-
-function! <SID>s:WithDir_set_trap_errors(trap_errors) dict
-  let self.trap_errors = a:trap_errors
-endfunction
-
-function! <SID>s:WithDir_run(scope, method, args) dict
-  let orig_dir = getcwd()
-  if haslocaldir()
-    let chdir_cmd = 'lcd'
-  else
-    let chdir_cmd = 'cd'
-  endif
-  execute ":" . chdir_cmd . " " . self.get_dir()
-  if self.trap_errors
-    try
-      let result = call(a:scope[a:method], a:args, a:scope)
-    catch
-      let result = 0
-    finally
-      execute chdir_cmd . " " . orig_dir
-    endtry
-  else
-    let result = call(a:scope[a:method], a:args, a:scope)
-  endif
-  return result
 endfunction
 
 " included: 'post.riml'
@@ -2261,6 +2640,7 @@ function! s:WordPressCommandConstructor(container)
   let wordPressCommandObj.expand_args = function('<SNR>' . s:SID() . '_s:WordPressCommand_expand_args')
   let wordPressCommandObj.get_current_word = function('<SNR>' . s:SID() . '_s:WordPressCommand_get_current_word')
   let wordPressCommandObj.get_selected_text = function('<SNR>' . s:SID() . '_s:WordPressCommand_get_selected_text')
+  let wordPressCommandObj.get_current_line = function('<SNR>' . s:SID() . '_s:WordPressCommand_get_current_line')
   let wordPressCommandObj.is_false = function('<SNR>' . s:SID() . '_s:WordPressCommand_is_false')
   let wordPressCommandObj.is_true = function('<SNR>' . s:SID() . '_s:WordPressCommand_is_true')
   return wordPressCommandObj
@@ -2316,6 +2696,10 @@ function! <SID>s:WordPressCommand_get_selected_text() dict
   let lines[-1] = lines[-1][: col2 - (&selection ==# 'inclusive' ? 1 : 2)]
   let lines[0] = lines[0][col1 - 1 :]
   return join(lines, "\n")
+endfunction
+
+function! <SID>s:WordPressCommand_get_current_line() dict
+  return getline(line('.'))
 endfunction
 
 function! <SID>s:WordPressCommand_is_false(value) dict
@@ -2694,95 +3078,6 @@ function! <SID>s:PostOptions_parse_params(params, opts) dict
 endfunction
 
 " included: 'scaffold_command.riml'
-" included: 'file_opener.riml'
-function! s:FileOpenerConstructor()
-  let fileOpenerObj = {}
-  let fileOpenerObj.is_file_opener = 1
-  let fileOpenerObj.mkdir_mode = 1
-  let fileOpenerObj.exec_mode = 1
-  let fileOpenerObj.exec_cmd = ''
-  let fileOpenerObj.exec_mkdir = ''
-  let fileOpenerObj.set_mkdir_mode = function('<SNR>' . s:SID() . '_s:FileOpener_set_mkdir_mode')
-  let fileOpenerObj.get_mkdir_mode = function('<SNR>' . s:SID() . '_s:FileOpener_get_mkdir_mode')
-  let fileOpenerObj.set_exec_mode = function('<SNR>' . s:SID() . '_s:FileOpener_set_exec_mode')
-  let fileOpenerObj.get_exec_mode = function('<SNR>' . s:SID() . '_s:FileOpener_get_exec_mode')
-  let fileOpenerObj.open = function('<SNR>' . s:SID() . '_s:FileOpener_open')
-  let fileOpenerObj.open_with = function('<SNR>' . s:SID() . '_s:FileOpener_open_with')
-  let fileOpenerObj.mkdir = function('<SNR>' . s:SID() . '_s:FileOpener_mkdir')
-  let fileOpenerObj.build_cmd = function('<SNR>' . s:SID() . '_s:FileOpener_build_cmd')
-  return fileOpenerObj
-endfunction
-
-function! <SID>s:FileOpener_set_mkdir_mode(mkdir_mode) dict
-  let self.mkdir_mode = a:mkdir_mode
-endfunction
-
-function! <SID>s:FileOpener_get_mkdir_mode() dict
-  return self.mkdir_mode
-endfunction
-
-function! <SID>s:FileOpener_set_exec_mode(exec_mode) dict
-  let self.exec_mode = a:exec_mode
-endfunction
-
-function! <SID>s:FileOpener_get_exec_mode() dict
-  return self.exec_mode
-endfunction
-
-function! <SID>s:FileOpener_open(file, mode) dict
-  let cmd = self.build_cmd(a:file, a:mode)
-  call self.mkdir(a:file)
-  call self.open_with(cmd)
-endfunction
-
-function! <SID>s:FileOpener_open_with(cmd) dict
-  if self.exec_mode
-    execute a:cmd
-  else
-    let self.exec_cmd = a:cmd
-  endif
-endfunction
-
-function! <SID>s:FileOpener_mkdir(file) dict
-  let parent_dir = fnamemodify(a:file, ':p:h')
-  if !isdirectory(parent_dir) && self.mkdir_mode
-    if self.exec_mode
-      if exists('*mkdir')
-        call mkdir(parent_dir, 'p')
-      endif
-    else
-      let self.exec_mkdir = parent_dir
-    endif
-  endif
-endfunction
-
-function! <SID>s:FileOpener_build_cmd(file, mode) dict
-  let cmd = ''
-  if a:mode ==# 'e' || a:mode ==# 'edit'
-    let cmd = 'edit'
-  elseif a:mode ==# 's' || a:mode ==# 'h' || a:mode ==# 'split'
-    let cmd = 'split'
-  elseif a:mode ==# 'v' || a:mode ==# 'vsplit'
-    let cmd = 'vsplit'
-  elseif a:mode ==# 't' || a:mode ==# 'tab'
-    let cmd = 'tabedit'
-  elseif a:mode ==# 'd' || a:mode ==# 'read'
-    let cmd = 'read'
-  elseif a:mode ==# 'abo' || a:mode ==# 'aboveleft' || a:mode ==# 'lefta' || a:mode ==# 'leftabove'
-    let cmd = 'leftabove'
-  elseif a:mode ==# 'rightb' || a:mode ==# 'rightbelow' || a:mode ==# 'bel' || a:mode ==# 'belowright'
-    let cmd = 'rightbelow'
-  elseif a:mode ==# 'to' || a:mode ==# 'topleft'
-    let cmd = 'topleft'
-  elseif a:mode ==# 'bo' || a:mode ==# 'botright'
-    let cmd = 'botright'
-  else
-    let cmd = 'edit'
-  endif
-  let cmd = ":" . cmd . " " . a:file
-  return cmd
-endfunction
-
 function! s:ScaffoldCommandConstructor(container)
   let scaffoldCommandObj = {}
   let wpCliCommandObj = s:WpCliCommandConstructor(a:container)
@@ -3109,196 +3404,6 @@ function! <SID>s:ProjectCollection_clear() dict
     call project.destroy()
   endfor
   let self.projects = {}
-endfunction
-
-" included: 'tags_option.riml'
-function! s:TagsOptionConstructor()
-  let tagsOptionObj = {}
-  let tagsOptionObj.is_tags_option = 1
-  let tagsOptionObj.append = function('<SNR>' . s:SID() . '_s:TagsOption_append')
-  let tagsOptionObj.prepend = function('<SNR>' . s:SID() . '_s:TagsOption_prepend')
-  let tagsOptionObj.get_tags = function('<SNR>' . s:SID() . '_s:TagsOption_get_tags')
-  let tagsOptionObj.set_tags = function('<SNR>' . s:SID() . '_s:TagsOption_set_tags')
-  let tagsOptionObj.to_list = function('<SNR>' . s:SID() . '_s:TagsOption_to_list')
-  let tagsOptionObj.to_value = function('<SNR>' . s:SID() . '_s:TagsOption_to_value')
-  return tagsOptionObj
-endfunction
-
-function! <SID>s:TagsOption_append(path) dict
-  let tags = self.to_list(self.get_tags())
-  call add(tags, a:path)
-  let value = self.to_value(tags)
-  call self.set_tags(value)
-endfunction
-
-function! <SID>s:TagsOption_prepend(path) dict
-  let tags = self.to_list(self.get_tags())
-  call insert(tags, a:path, 0)
-  let value = self.to_value(tags)
-  call self.set_tags(value)
-endfunction
-
-function! <SID>s:TagsOption_get_tags() dict
-  return &tags
-endfunction
-
-function! <SID>s:TagsOption_set_tags(tags) dict
-  execute ":setlocal tags=" . a:tags
-endfunction
-
-function! <SID>s:TagsOption_to_list(value) dict
-  return split(a:value, ',')
-endfunction
-
-function! <SID>s:TagsOption_to_value(items) dict
-  return join(a:items, ',')
-endfunction
-
-" included: 'choice_prompter.riml'
-function! s:ChoicePrompterConstructor()
-  let choicePrompterObj = {}
-  let choicePrompterObj.prompt_for = function('<SNR>' . s:SID() . '_s:ChoicePrompter_prompt_for')
-  let choicePrompterObj.get_input = function('<SNR>' . s:SID() . '_s:ChoicePrompter_get_input')
-  let choicePrompterObj.validate = function('<SNR>' . s:SID() . '_s:ChoicePrompter_validate')
-  return choicePrompterObj
-endfunction
-
-function! <SID>s:ChoicePrompter_prompt_for(choices) dict
-  let index = 1
-  let total = len(a:choices)
-  for choice in a:choices
-    call s:echo_msg(index . ". " . choice)
-    let index = index + 1
-  endfor
-  let prompt = "Enter Choice (1-" . total . ") [q to quit]: "
-  return self.get_input(prompt, total)
-endfunction
-
-function! <SID>s:ChoicePrompter_get_input(prompt, total_choices) dict
-  let user_input = input(a:prompt)
-  if user_input ==# 'q' || empty(user_input)
-    return -1
-  endif
-  let parsed_input = self.validate(user_input, a:total_choices)
-  if parsed_input ==# 0
-    call s:echo_msg("Invalid Choice: " . user_input)
-    return self.get_input(a:prompt, a:total_choices)
-  endif
-  return parsed_input
-endfunction
-
-function! <SID>s:ChoicePrompter_validate(text, total_choices) dict
-  for valid_input in range(1, a:total_choices)
-    if a:text ==# valid_input
-      return valid_input
-    endif
-  endfor
-  return 0
-endfunction
-
-" included: 'wpseek_api.riml'
-function! s:WpSeekApiConstructor()
-  let wpSeekApiObj = {}
-  let wpSeekApiObj.api_loaded = 0
-  let wpSeekApiObj.find_similar = function('<SNR>' . s:SID() . '_s:WpSeekApi_find_similar')
-  let wpSeekApiObj.find_topics = function('<SNR>' . s:SID() . '_s:WpSeekApi_find_topics')
-  let wpSeekApiObj.is_false = function('<SNR>' . s:SID() . '_s:WpSeekApi_is_false')
-  let wpSeekApiObj.to_query = function('<SNR>' . s:SID() . '_s:WpSeekApi_to_query')
-  let wpSeekApiObj.to_function_names = function('<SNR>' . s:SID() . '_s:WpSeekApi_to_function_names')
-  let wpSeekApiObj.get_result_items = function('<SNR>' . s:SID() . '_s:WpSeekApi_get_result_items')
-  let wpSeekApiObj.invoke = function('<SNR>' . s:SID() . '_s:WpSeekApi_invoke')
-  let wpSeekApiObj.has_python = function('<SNR>' . s:SID() . '_s:WpSeekApi_has_python')
-  let wpSeekApiObj.load_api = function('<SNR>' . s:SID() . '_s:WpSeekApi_load_api')
-  let wpSeekApiObj.loaded = function('<SNR>' . s:SID() . '_s:WpSeekApi_loaded')
-  let wpSeekApiObj.get_api_path = function('<SNR>' . s:SID() . '_s:WpSeekApi_get_api_path')
-  return wpSeekApiObj
-endfunction
-
-function! <SID>s:WpSeekApi_find_similar(keyword, limit) dict
-  let result = self.invoke('find_similar', a:keyword, a:limit)
-  if self.is_false(result)
-    return 0
-  endif
-  let items = self.get_result_items(result)
-  let function_names = self.to_function_names(a:keyword, items)
-  return function_names
-endfunction
-
-function! <SID>s:WpSeekApi_find_topics(keyword, limit) dict
-  let result = self.invoke('find_topics', a:keyword, a:limit)
-  if self.is_false(result)
-    return 0
-  endif
-  return self.get_result_items(result)
-endfunction
-
-function! <SID>s:WpSeekApi_is_false(result) dict
-  return type(a:result) ==# type(0) && a:result ==# 0
-endfunction
-
-function! <SID>s:WpSeekApi_to_query(keyword) dict
-  return substitute(a:keyword, "'", "\\'", 'g')
-endfunction
-
-function! <SID>s:WpSeekApi_to_function_names(keyword, items) dict
-  let function_names = []
-  for item in a:items
-    if item.name !=# a:keyword
-      call add(function_names, item.name)
-    endif
-  endfor
-  return function_names
-endfunction
-
-function! <SID>s:WpSeekApi_get_result_items(result) dict
-  if has_key(a:result, 'items')
-    let items = a:result.items
-  else
-    let items = []
-  endif
-  return items
-endfunction
-
-function! <SID>s:WpSeekApi_invoke(method, keyword, limit) dict
-  call self.load_api()
-  if !(self.has_python())
-    call s:echo_error("Error: Vim with Python support is required.")
-    return 0
-  endif
-  try
-    execute ":python wpseek_api." . a:method . "('" . self.to_query(a:keyword) . "', " . a:limit . ")"
-  catch
-    call s:echo_error("Call to WpSeek API failed for: " . a:method)
-    let api_result = 0
-  endtry
-  return api_result
-endfunction
-
-function! <SID>s:WpSeekApi_has_python() dict
-  if has_key(self, 'mock_python')
-    return self.mock_python
-  endif
-  return has('python')
-endfunction
-
-function! <SID>s:WpSeekApi_load_api() dict
-  if self.api_loaded
-    return 0
-  endif
-  execute ":python import sys"
-  execute ":python sys.path.append('" . self.get_api_path() . "')"
-  execute ":python from wpseek import WpSeekApi"
-  execute ":python wpseek_api = WpSeekApi()"
-  let self.api_loaded = 1
-  return 1
-endfunction
-
-function! <SID>s:WpSeekApi_loaded() dict
-  return self.api_loaded
-endfunction
-
-function! <SID>s:WpSeekApi_get_api_path() dict
-  return g:wordpress_vim_path . "/lib/wpseek"
 endfunction
 
 " included: 'container.riml'
@@ -3653,7 +3758,7 @@ endfunction
 
 function! <SID>s:CodexSearchCommand_run(...) dict
   let [params, opts] = self.expand_args(a:000)
-  let current_word = self.get_current_word()
+  let current_word = self.get_current_word(params, opts)
   if self.has_open_browser()
     let search_query = self.get_codex_query(current_word)
     execute ":OpenBrowser " . search_query
@@ -3779,6 +3884,8 @@ function! s:GotoDefinitionCommandConstructor(container)
   let gotoDefinitionCommandObj.get_range = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_get_range')
   let gotoDefinitionCommandObj.run = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_run')
   let gotoDefinitionCommandObj.jump_to = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_jump_to')
+  let gotoDefinitionCommandObj.jump_to_hook = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_jump_to_hook')
+  let gotoDefinitionCommandObj.to_hook_command = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_to_hook_command')
   let gotoDefinitionCommandObj.get_jump_cmd = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_get_jump_cmd')
   return gotoDefinitionCommandObj
 endfunction
@@ -3802,7 +3909,12 @@ endfunction
 function! <SID>s:GotoDefinitionCommand_run(...) dict
   let [params, opts] = self.expand_args(a:000)
   let current_word = self.get_current_word(params, opts)
-  let ctags_builder = self.lookup('ctags_builder')
+  let current_line = self.get_current_line()
+  let hook_matcher = self.lookup('hook_matcher')
+  let hook_match = hook_matcher.match(current_line, current_word)
+  if hook_match.is_match()
+    return self.jump_to_hook(hook_match)
+  endif
   let tag_list_matcher = self.lookup('tag_list_matcher')
   let found = tag_list_matcher.match(current_word)
   if found.is_match()
@@ -3824,6 +3936,29 @@ function! <SID>s:GotoDefinitionCommand_jump_to(cmd) dict
   catch
     return 0
   endtry
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_jump_to_hook(hook_match) dict
+  let cmd = self.to_hook_command(a:hook_match.get_kind())
+  if has_key(cmd, 'name')
+    let opts = {'bang': cmd.bang, 'is_option': 1}
+    call self.process(cmd.name, a:hook_match.get_keyword(), opts)
+  endif
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_to_hook_command(kind) dict
+  if a:kind ==# 'action'
+    let cmd = {'name': 'Waction', 'bang': 0}
+  elseif a:kind ==# 'alistener'
+    let cmd = {'name': 'Waction', 'bang': 1}
+  elseif a:kind ==# 'filter'
+    let cmd = {'name': 'Wfilter', 'bang': 0}
+  elseif a:kind ==# 'flistener'
+    let cmd = {'name': 'Wfilter', 'bang': 1}
+  else
+    let cmd = {}
+  endif
+  return cmd
 endfunction
 
 function! <SID>s:GotoDefinitionCommand_get_jump_cmd(keyword, position) dict
@@ -4196,6 +4331,8 @@ function! <SID>s:Controller_configure_container() dict
   call c.register('tag_list_matcher', 'TagListMatcher', 1)
   call c.register('choice_prompter', 'ChoicePrompter', 1)
   call c.register('wpseek_api', 'WpSeekApi', 1)
+  call c.register('hook_match', 'HookMatch', 0)
+  call c.register('hook_matcher', 'HookMatcher', 1)
 endfunction
 
 function! <SID>s:Controller_load_commands() dict
