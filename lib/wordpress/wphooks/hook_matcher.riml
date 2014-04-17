@@ -1,0 +1,54 @@
+riml_include 'hook_match'
+
+class HookMatcher
+  defm lookup(key)
+    return self.container.lookup(key)
+  end
+
+  defm match(line, current_word)
+    kinds  = self.get_kinds()
+    result = self.lookup('hook_match')
+    result.set_keyword(current_word)
+
+    for kind in kinds
+      method = kind.method
+      if self.is_kind_line(line, method) && self.is_word_line(line, method, current_word)
+        result.set_kind(kind.name)
+      end
+    end
+
+    return result
+  end
+
+  defm is_kind_line(line, method)
+    kind_pattern = self.get_kind_pattern(method)
+    return match(line, kind_pattern) != -1
+  end
+
+  defm is_word_line(line, method, word)
+    word_pattern = self.get_word_pattern(method, word)
+    return match(line, word_pattern) != -1
+  end
+
+  defm get_kind_pattern(method)
+    return '\v\s*.*' . method
+  end
+
+  defm get_word_pattern(method, word)
+    pattern  = self.get_kind_pattern(method)
+    pattern .= '.*\(\s*[' . "'" . '"]'
+    pattern .= word
+
+    return pattern
+  end
+
+  defm get_kinds
+    kinds = []
+    add(kinds, { 'name': 'action', 'method': 'do_action'  })
+    add(kinds, { 'name': 'alistener', 'method': 'add_action'  })
+    add(kinds, { 'name': 'filter', 'method': 'apply_filters'  })
+    add(kinds, { 'name': 'flistener', 'method': 'add_filter'  })
+
+    return kinds
+  end
+end

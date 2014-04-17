@@ -1,0 +1,27 @@
+class HookMatch
+  def initialize(keyword = '')
+    self.keyword = keyword
+    self.kind = ''
+    self.is_hook_match = true
+  end
+
+  defm set_keyword(keyword)
+    self.keyword = keyword
+  end
+
+  defm set_kind(kind)
+    self.kind = kind
+  end
+
+  defm get_kind
+    return self.kind
+  end
+
+  defm get_keyword
+    return self.keyword
+  end
+
+  defm is_match
+    return has_key(self, 'kind') && self.kind != ''
+  end
+end

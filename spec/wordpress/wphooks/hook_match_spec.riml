@@ -1,0 +1,26 @@
+riml_include 'spec_helper'
+riml_include 'hook_match'
+
+class HookMatchSpec
+  defm before_each
+    self.match = new HookMatch('foo')
+  end
+
+  defm it_stores_hook_keyword
+    expect(self.match.get_keyword()).to_equal('foo')
+  end
+
+  defm it_is_initially_not_a_match
+    expect(self.match.is_match()).to_be_false()
+  end
+
+  defm it_stores_matched_kind
+    self.match.set_kind('action')
+    expect(self.match.get_kind()).to_equal('action')
+  end
+
+  defm it_knows_if_kind_is_a_match
+    self.match.set_kind('action')
+    expect(self.match.is_match()).to_be_true()
+  end
+end
