@@ -139,7 +139,7 @@ Then download the [minimal vimrc][19] to a temporary directory like
 
 ```bash
 $ mkdir -p /tmp/wordpress_vim
-$ wget -O /tmp/wordpress_vim/vimrc https://raw.githubusercontent.com/dsawardekar/wordpress.vim/develop/examples/minimal_vimrc
+$ wget -O /tmp/wordpress_vim/vimrc https://raw.githubusercontent.com/dsawardekar/wordpress.vim/develop/examples/minimal_vimrc.vim
 ```
 
 Link the tmp vimrc to your `$HOME` vimrc.
