@@ -258,7 +258,7 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [16]: http://wpseek.com/
 [17]: https://github.com/kien/ctrlp.vim
 [18]: https://raw.githubusercontent.com/dsawardekar/wordpress.vim/develop/examples/minimal_vimrc.vim
-[19]: https://github.com/dsawardekar/wordpress.vim/develop/examples/minimal_vimrc.vim
+[19]: https://github.com/dsawardekar/wordpress.vim/blob/develop/examples/minimal_vimrc.vim
 
 [20]: http://i.imgur.com/YClNJML.png
 [21]: http://i.imgur.com/3i7qrHJ.gif
