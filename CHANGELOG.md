@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.9
+
+* Removes duplicate help tags - issue #7.
+
 ### 0.1.8
 
 * Improves Jump to Core implementation for WordPress hooks.

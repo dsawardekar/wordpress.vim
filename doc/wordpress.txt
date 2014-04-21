@@ -31,7 +31,7 @@ Contents
 8. Search in Codex                   |wordpress-search-in-codex|
 9. WpSeek.com API Integration        |wordpress-wpseek-integration|
   9.1 Similar Functions              |wordpress-wpseek-similar-functions|
-  9.2 Find Topics on WordPress.org   |wordpress-wpseek-topics|
+  9.2 Find Topics on WordPress.org   |wordpress-wpseek-wordpress-org-topics|
 10. System Requirements              |wordpress-system-requirements|
 11. Customization                    |wordpress-customization|
 12. License                          |wordpress-license|
@@ -107,7 +107,7 @@ used instead.
 
 Some actions can have multiple matches. When this happens Vim's taglist is
 filled with these matches. You can cycle through the matches with the
-excommands, *:tn* and *:tp*. And to list all matches, use *:tjump*
+excommands, :tn and :tp. And to list all matches, use :tjump
 
 3.2 :Wfilter                                        *wordpress-hook-filter*
 -------------------------------------------------------------------------
@@ -424,7 +424,7 @@ For Eg:- to search for functions similar to 'wp_redirect' use,
 This will show you prompt with the matches. Choosing an option will take
 you directly to the definition of that function in WordPress Core.
 
-9.2 Find Topics on WordPress.org                      *wordpress-wpseek-similar-functions*
+9.2 Find Topics on WordPress.org *wordpress-wpseek-wordpress-org-topics*
 -----------------------------------------------------------------------
 
 The :Wtopics ex command adds support for searching for topics on

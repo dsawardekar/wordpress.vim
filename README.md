@@ -122,10 +122,48 @@ The demo below shows the `:Wsimilar` Ex command in action.
 
 see `:h wordpress-wpseek-integration` for more.
 
+## Getting Started
+
+The repository includes a [minimal Vimrc][19] for trying out WordPress.vim without
+affecting your existing Vim configuration. Plugin management is done with
+[Vundle][12].
+
+First backup your existing vimrc.
+
+```bash
+$ mv ~/.vimrc ~/.vimrc_backup
+```
+
+Then download the [minimal vimrc][19] to a temporary directory like
+`/tmp/wordpress_vim`.
+
+```bash
+$ mkdir -p /tmp/wordpress_vim
+$ wget -O /tmp/wordpress_vim/vimrc https://raw.githubusercontent.com/dsawardekar/wordpress.vim/develop/examples/minimal_vimrc.vim
+```
+
+Link the tmp vimrc to your `$HOME` vimrc.
+
+```bash
+$ ln -s /tmp/wordpress_vim/vimrc ~/.vimrc
+```
+
+Now start Vim.
+
+The first time the `vimrc` will download Vundle to the `/tmp/wordpress_vim` directory and then
+proceed to install the required plugins using Vundle. Plugins will be
+installed in the subdirectory `/tmp/wordpress_vim/bundle`.
+
+Installation may take a few minutes. Once completed you will have a custom vim
+configuration separate from your existing one.
+
+To move to your old configuration simply link your backup vimrc back to the
+`$HOME` vimrc.
+
 ## Installation
 
 ##### 1. With [Vundle][12]
-`Bundle 'dsawardekar/wordpress.vim'`
+`Plugin 'dsawardekar/wordpress.vim'`
 
 ##### 2. With [NeoBundle][13]
 `NeoBundle 'dsawardekar/wordpress.vim'`
@@ -219,6 +257,8 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [15]: https://github.com/tyru/open-browser.vim
 [16]: http://wpseek.com/
 [17]: https://github.com/kien/ctrlp.vim
+[18]: https://raw.githubusercontent.com/dsawardekar/wordpress.vim/develop/examples/minimal_vimrc.vim
+[19]: https://github.com/dsawardekar/wordpress.vim/blob/develop/examples/minimal_vimrc.vim
 
 [20]: http://i.imgur.com/YClNJML.png
 [21]: http://i.imgur.com/3i7qrHJ.gif
