@@ -3887,6 +3887,8 @@ function! s:GotoDefinitionCommandConstructor(container)
   let gotoDefinitionCommandObj.jump_to_hook = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_jump_to_hook')
   let gotoDefinitionCommandObj.to_hook_command = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_to_hook_command')
   let gotoDefinitionCommandObj.get_jump_cmd = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_get_jump_cmd')
+  let gotoDefinitionCommandObj.to_display_word = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_to_display_word')
+  let gotoDefinitionCommandObj.strip_prefix = function('<SNR>' . s:SID() . '_s:GotoDefinitionCommand_strip_prefix')
   return gotoDefinitionCommandObj
 endfunction
 
@@ -3925,7 +3927,8 @@ function! <SID>s:GotoDefinitionCommand_run(...) dict
     let success = 0
   endif
   if !(success)
-    call s:echo_error("No match for: " . current_word)
+    let display_word = self.to_display_word(current_word)
+    call s:echo_error("No match for: " . display_word)
   endif
 endfunction
 
@@ -3968,6 +3971,20 @@ function! <SID>s:GotoDefinitionCommand_get_jump_cmd(keyword, position) dict
   else
     return ":tag " . a:keyword
   endif
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_to_display_word(word) dict
+  let builder = self.lookup('ctags_command_builder')
+  let display_word = a:word
+  let display_word = self.strip_prefix(display_word, builder.get_action_uid())
+  let display_word = self.strip_prefix(display_word, builder.get_action_listener_uid())
+  let display_word = self.strip_prefix(display_word, builder.get_filter_uid())
+  let display_word = self.strip_prefix(display_word, builder.get_filter_listener_uid())
+  return display_word
+endfunction
+
+function! <SID>s:GotoDefinitionCommand_strip_prefix(word, prefix) dict
+  return substitute(a:word, "^" . a:prefix . "_", '', '')
 endfunction
 
 " included: 'load_mappings_command.riml'
