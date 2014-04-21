@@ -46,7 +46,8 @@ class GotoDefinitionCommand < WordPressProjectCommand
     end
 
     unless success
-      echo_error("No match for: #{current_word}")
+      display_word = self.to_display_word(current_word)
+      echo_error("No match for: #{display_word}")
     end
   end
 
@@ -96,5 +97,20 @@ class GotoDefinitionCommand < WordPressProjectCommand
     else
       return ":tag #{keyword}"
     end
+  end
+
+  defm to_display_word(word)
+    builder = self.lookup('ctags_command_builder')
+    display_word = word
+    display_word = self.strip_prefix(display_word, builder.get_action_uid())
+    display_word = self.strip_prefix(display_word, builder.get_action_listener_uid())
+    display_word = self.strip_prefix(display_word, builder.get_filter_uid())
+    display_word = self.strip_prefix(display_word, builder.get_filter_listener_uid())
+
+    return display_word
+  end
+
+  defm strip_prefix(word, prefix)
+    return substitute(word, "^#{prefix}_", '', '')
   end
 end

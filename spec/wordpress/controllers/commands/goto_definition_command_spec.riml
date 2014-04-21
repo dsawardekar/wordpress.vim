@@ -30,9 +30,12 @@ class GotoDefinitionCommandSpec
     self.container.register('ctags_command_builder', 'CTagsCommandBuilder', true)
     self.container.register('leet_convertor', 'LeetConvertor', true)
     self.command = new GotoDefinitionCommand(self.container)
+    self.buffer = new Buffer("#{g:WORDPRESS_DIR}/wp-load.php")
 
     self.project_collection = self.container.lookup('project_collection')
     self.buffer_collection = self.container.lookup('buffer_collection')
+    self.buffer_collection.set_current(self.buffer)
+    self.project_collection.add(self.buffer.get_project_path())
     self.ctags_builder = self.container.lookup('ctags_builder')
     self.ctags_builder.set_project_path(g:WORDPRESS_DIR)
   end
@@ -79,6 +82,22 @@ class GotoDefinitionCommandSpec
     cmd = self.command.to_hook_command('flistener')
     expect(cmd.name).to_equal('Wfilter')
     expect(cmd.bang).to_be_true()
+  end
+
+  defm it_can_convert_action_with_uid_to_action
+    expect(self.command.to_display_word('4c710n_foo')).to_equal('foo')
+  end
+
+  defm it_can_convert_action_listener_with_uid_to_action_listener
+    expect(self.command.to_display_word('4c710n_foo')).to_equal('foo')
+  end
+
+  defm it_can_convert_filter_with_uid_to_filter
+    expect(self.command.to_display_word('ph1l73r_foo')).to_equal('foo')
+  end
+
+  defm it_can_convert_filter_listener_with_uid_to_filter
+    expect(self.command.to_display_word('phl1573n3r_foo')).to_equal('foo')
   end
 end
 
