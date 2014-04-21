@@ -5,7 +5,7 @@ VERBOSE = ENV['VERBOSE'] || false
 DEBUG   = ENV['DEBUG'] || false
 
 # wordpress paths
-WORDPRESS_VERSION = '3.8.2'
+WORDPRESS_VERSION = '3.9'
 WORDPRESS_DIR     = ENV['WORDPRESS_DIR'] || "tmp/wordpress/#{WORDPRESS_VERSION}"
 WORDPRESS_TARBALL = "tmp/wordpress-#{WORDPRESS_VERSION}.tar.gz"
 WORDPRESS_URL     = "http://wordpress.org/wordpress-#{WORDPRESS_VERSION}.tar.gz"
