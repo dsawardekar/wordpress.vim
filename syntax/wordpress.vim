@@ -208,6 +208,8 @@ syn keyword wpFunction image_constrain_size_for_editor contained
 syn keyword wpFunction image_hwstring contained
 syn keyword wpFunction image_downsize contained
 syn keyword wpFunction add_image_size contained
+syn keyword wpFunction has_image_size contained
+syn keyword wpFunction remove_image_size contained
 syn keyword wpFunction set_post_thumbnail_size contained
 syn keyword wpFunction get_image_tag contained
 syn keyword wpFunction wp_constrain_dimensions contained
@@ -219,8 +221,12 @@ syn keyword wpFunction wp_get_attachment_image_src contained
 syn keyword wpFunction wp_get_attachment_image contained
 syn keyword wpFunction img_caption_shortcode contained
 syn keyword wpFunction gallery_shortcode contained
+syn keyword wpFunction wp_underscore_playlist_templates contained
+syn keyword wpFunction wp_playlist_scripts contained
+syn keyword wpFunction wp_playlist_shortcode contained
 syn keyword wpFunction wp_mediaelement_fallback contained
 syn keyword wpFunction wp_get_audio_extensions contained
+syn keyword wpFunction wp_get_attachment_id3_keys contained
 syn keyword wpFunction wp_audio_shortcode contained
 syn keyword wpFunction wp_get_video_extensions contained
 syn keyword wpFunction wp_video_shortcode contained
@@ -254,6 +260,7 @@ syn keyword wpFunction get_post_galleries contained
 syn keyword wpFunction get_post_gallery contained
 syn keyword wpFunction get_post_galleries_images contained
 syn keyword wpFunction get_post_gallery_images contained
+syn keyword wpFunction wp_maybe_generate_attachment_metadata contained
 
 " formatting.php 
 syn keyword wpFunction wptexturize contained
@@ -275,7 +282,6 @@ syn keyword wpFunction sanitize_html_class contained
 syn keyword wpFunction convert_chars contained
 syn keyword wpFunction balanceTags contained
 syn keyword wpFunction format_to_edit contained
-syn keyword wpFunction format_to_post contained
 syn keyword wpFunction zeroise contained
 syn keyword wpFunction backslashit contained
 syn keyword wpFunction trailingslashit contained
@@ -389,7 +395,6 @@ syn keyword wpFunction get_page_template_slug contained
 syn keyword wpFunction wp_post_revision_title contained
 syn keyword wpFunction wp_post_revision_title_expanded contained
 syn keyword wpFunction wp_list_post_revisions contained
-syn keyword wpFunction wp_382_css_hotfix contained
 
 " comment-template.php 
 syn keyword wpFunction get_comment_author contained
@@ -496,7 +501,6 @@ syn keyword wpFunction rsd_link contained
 syn keyword wpFunction wlwmanifest_link contained
 syn keyword wpFunction noindex contained
 syn keyword wpFunction wp_no_robots contained
-syn keyword wpFunction rich_edit_exists contained
 syn keyword wpFunction user_can_richedit contained
 syn keyword wpFunction wp_default_editor contained
 syn keyword wpFunction wp_editor contained
@@ -591,6 +595,8 @@ syn keyword wpFunction clean_comment_cache contained
 syn keyword wpFunction update_comment_cache contained
 
 " media-template.php 
+syn keyword wpFunction wp_underscore_audio_template contained
+syn keyword wpFunction wp_underscore_video_template contained
 syn keyword wpFunction wp_print_media_templates contained
 
 " post.php 
@@ -758,6 +764,7 @@ syn keyword wpFunction wp_get_pomo_file_data contained
 syn keyword wpFunction the_permalink contained
 syn keyword wpFunction user_trailingslashit contained
 syn keyword wpFunction permalink_anchor contained
+syn keyword wpFunction get_the_permalink contained
 syn keyword wpFunction get_permalink contained
 syn keyword wpFunction get_post_permalink contained
 syn keyword wpFunction post_permalink contained
@@ -934,8 +941,9 @@ syn keyword wpFunction walk_nav_menu_tree contained
 syn keyword wpFunction is_subdomain_install contained
 syn keyword wpFunction wp_get_active_network_plugins contained
 syn keyword wpFunction ms_site_check contained
-syn keyword wpFunction get_current_site_name contained
-syn keyword wpFunction wpmu_current_site contained
+syn keyword wpFunction get_network_by_path contained
+syn keyword wpFunction wp_get_network contained
+syn keyword wpFunction get_site_by_path contained
 syn keyword wpFunction ms_not_installed contained
 
 " class-pop3.php 
@@ -953,7 +961,6 @@ syn keyword wpFunction category_description contained
 syn keyword wpFunction wp_dropdown_categories contained
 syn keyword wpFunction wp_list_categories contained
 syn keyword wpFunction wp_tag_cloud contained
-syn keyword wpFunction default_topic_count_text contained
 syn keyword wpFunction default_topic_count_scale contained
 syn keyword wpFunction wp_generate_tag_cloud contained
 syn keyword wpFunction walk_category_tree contained
@@ -1019,15 +1026,12 @@ syn keyword wpFunction wp_widget_rss_form contained
 syn keyword wpFunction wp_widget_rss_process contained
 syn keyword wpFunction wp_widgets_init contained
 
-" js/tinymce/langs/wp-langs.php 
-syn keyword wpFunction mce_escape contained
-syn keyword wpFunction wp_mce_translation contained
-
 " user.php 
 syn keyword wpFunction wp_signon contained
 syn keyword wpFunction wp_authenticate_username_password contained
 syn keyword wpFunction wp_authenticate_cookie contained
 syn keyword wpFunction wp_authenticate_spam_check contained
+syn keyword wpFunction wp_validate_logged_in_cookie contained
 syn keyword wpFunction count_user_posts contained
 syn keyword wpFunction count_many_users_posts contained
 syn keyword wpFunction get_current_user_id contained
@@ -1112,6 +1116,9 @@ syn keyword wpFunction apply_filters_ref_array contained
 syn keyword wpFunction remove_filter contained
 syn keyword wpFunction remove_all_filters contained
 syn keyword wpFunction current_filter contained
+syn keyword wpFunction current_action contained
+syn keyword wpFunction doing_filter contained
+syn keyword wpFunction doing_action contained
 syn keyword wpFunction add_action contained
 syn keyword wpFunction do_action contained
 syn keyword wpFunction did_action contained
@@ -1120,6 +1127,7 @@ syn keyword wpFunction has_action contained
 syn keyword wpFunction remove_action contained
 syn keyword wpFunction remove_all_actions contained
 syn keyword wpFunction plugin_basename contained
+syn keyword wpFunction wp_register_plugin_realpath contained
 syn keyword wpFunction plugin_dir_path contained
 syn keyword wpFunction plugin_dir_url contained
 syn keyword wpFunction register_activation_hook contained
@@ -1255,6 +1263,7 @@ syn keyword wpFunction wp_get_original_referer contained
 syn keyword wpFunction wp_mkdir_p contained
 syn keyword wpFunction path_is_absolute contained
 syn keyword wpFunction path_join contained
+syn keyword wpFunction wp_normalize_path contained
 syn keyword wpFunction get_temp_dir contained
 syn keyword wpFunction wp_is_writable contained
 syn keyword wpFunction win_is_writable contained
@@ -1468,18 +1477,6 @@ syn keyword wpFunction wp_get_nav_menu_items contained
 syn keyword wpFunction wp_setup_nav_menu_item contained
 syn keyword wpFunction wp_get_associated_nav_menu_items contained
 
-" js/tinymce/plugins/spellchecker/includes/general.php 
-syn keyword wpFunction getRequestParam contained
-syn keyword wpFunction getLogger contained
-syn keyword wpFunction debug contained
-syn keyword wpFunction info contained
-syn keyword wpFunction error contained
-syn keyword wpFunction warn contained
-syn keyword wpFunction fatal contained
-
-" js/tinymce/plugins/spellchecker/classes/GoogleSpell.php 
-syn keyword wpFunction mb_substr contained
-
 " widgets.php 
 syn keyword wpFunction register_widget contained
 syn keyword wpFunction unregister_widget contained
@@ -1599,15 +1596,15 @@ syn keyword wpClass SimplePie_Cache contained
 " class-snoopy.php 
 syn keyword wpClass Snoopy contained
 
+" class-wp-customize-widgets.php 
+syn keyword wpClass WP_Customize_Widgets contained
+
 " rewrite.php 
 syn keyword wpClass WP_Rewrite contained
 
 " class-phpmailer.php 
 syn keyword wpClass PHPMailer contained
 syn keyword wpClass phpmailerException contained
-
-" js/tinymce/plugins/spellchecker/classes/PSpellShell.php 
-syn keyword wpClass PSpellShell contained
 
 " SimplePie/Source.php 
 syn keyword wpClass SimplePie_Source contained
@@ -1787,6 +1784,8 @@ syn keyword wpClass WP_Customize_Upload_Control contained
 syn keyword wpClass WP_Customize_Image_Control contained
 syn keyword wpClass WP_Customize_Background_Image_Control contained
 syn keyword wpClass WP_Customize_Header_Image_Control contained
+syn keyword wpClass WP_Widget_Area_Customize_Control contained
+syn keyword wpClass WP_Widget_Form_Customize_Control contained
 
 " class-wp-image-editor-imagick.php 
 syn keyword wpClass WP_Image_Editor_Imagick contained
@@ -1826,14 +1825,8 @@ syn keyword wpClass SimplePie_Net_IPv6 contained
 " ID3/module.tag.id3v1.php 
 syn keyword wpClass getid3_id3v1 contained
 
-" js/tinymce/plugins/spellchecker/classes/SpellChecker.php 
-syn keyword wpClass SpellChecker contained
-
 " ID3/module.audio-video.quicktime.php 
 syn keyword wpClass getid3_quicktime contained
-
-" js/tinymce/plugins/spellchecker/classes/EnchantSpell.php 
-syn keyword wpClass EnchantSpell contained
 
 " Text/Diff/Engine/shell.php 
 syn keyword wpClass Text_Diff_Engine_shell contained
@@ -1901,14 +1894,8 @@ syn keyword wpClass SimplePie_IRI contained
 syn keyword wpClass Services_JSON contained
 syn keyword wpClass Services_JSON_Error contained
 
-" js/tinymce/plugins/spellchecker/classes/utils/Logger.php 
-syn keyword wpClass Moxiecode_Logger contained
-
 " class-wp-walker.php 
 syn keyword wpClass Walker contained
-
-" js/tinymce/plugins/spellchecker/classes/PSpell.php 
-syn keyword wpClass PSpell contained
 
 " SimplePie/XML/Declaration/Parser.php 
 syn keyword wpClass SimplePie_XML_Declaration_Parser contained
@@ -1959,15 +1946,8 @@ syn keyword wpClass getid3_id3v2 contained
 " SimplePie/Parse/Date.php 
 syn keyword wpClass SimplePie_Parse_Date contained
 
-" js/tinymce/plugins/spellchecker/classes/utils/JSON.php 
-syn keyword wpClass Moxiecode_JSONReader contained
-syn keyword wpClass Moxiecode_JSON contained
-
 " SimplePie/Category.php 
 syn keyword wpClass SimplePie_Category contained
-
-" js/tinymce/plugins/spellchecker/classes/GoogleSpell.php 
-syn keyword wpClass GoogleSpell contained
 
 " widgets.php 
 syn keyword wpClass WP_Widget contained
@@ -2011,6 +1991,10 @@ syn keyword wpDeprecated wp_setcookie contained
 syn keyword wpDeprecated wp_clearcookie contained
 syn keyword wpDeprecated wp_get_cookie_login contained
 syn keyword wpDeprecated wp_login contained
+
+" ms-load.php 
+syn keyword wpDeprecated get_current_site_name contained
+syn keyword wpDeprecated wpmu_current_site contained
 
 " deprecated.php 
 syn keyword wpDeprecated get_postdata contained
@@ -2151,6 +2135,9 @@ syn keyword wpDeprecated wp_get_single_post contained
 syn keyword wpDeprecated user_pass_ok contained
 syn keyword wpDeprecated gd_edit_image_support contained
 syn keyword wpDeprecated wp_convert_bytes_to_hr contained
+syn keyword wpDeprecated rich_edit_exists contained
+syn keyword wpDeprecated default_topic_count_text contained
+syn keyword wpDeprecated format_to_post contained
 
 " load.php 
 syn keyword wpDeprecated wp_clone contained
