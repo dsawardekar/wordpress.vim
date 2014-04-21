@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.1.10
+
+* Upgrades to WordPress 3.9
+* Syntax & Autocompletion is now generated from 3.9
+* Improves error message for :Wdef and others for unmatched tags.
+
 ### 0.1.9
 
 * Removes duplicate help tags - issue #7.
