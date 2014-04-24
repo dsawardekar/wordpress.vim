@@ -141,7 +141,7 @@ choices are too many and Vim will start using it's pager. This mode of
 completion is quite cumbersome, especially if you don't know the name of
 the specific action you need.
 
-WordPress.vim includes integration with *CtrlP* to navigate such large
+WordPress.vim includes integration with CtrlP to navigate such large
 lists.
 
 Instead of using the ex command, :CtrlPaction[!] to launch a CtrlP fuzzy matcher
