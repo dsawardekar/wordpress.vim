@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.11
+
+* Removes duplicate CtrlP tag.
+
 ### 0.1.10
 
 * Upgrades to WordPress 3.9
