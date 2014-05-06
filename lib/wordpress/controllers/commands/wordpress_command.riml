@@ -32,8 +32,8 @@ class WordPressCommand < BaseCommand
   end
 
   defm expand_args(args)
-    n    = len(args)
-    opts = args[n - 1]
+    n      = len(args)
+    opts   = args[n - 1]
     params = args[0:-2]
 
     return [params, opts]

@@ -1,0 +1,45 @@
+riml_include 'wordpress_project_command'
+riml_include 'autocmd_loader'
+riml_include 'msg'
+
+class ReadmeAutoValidatorCommand < WordPressProjectCommand
+
+  def initialize(container)
+    super(container)
+    self.is_readme_auto_validator_command = true
+  end
+
+  defm get_name
+    return 'ReadmeAutoValidator'
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return false
+  end
+
+  defm run(opts)
+    path = self.current_buffer_full_path()
+
+    loader = new AutocmdLoader()
+    loader.set_group_name('wordpress_vim_readme_auto_validator')
+    loader.cmd("BufWritePre #{path} call #{new_delegate(self, 'before_file_save')}()")
+    loader.cmd("BufWritePost #{path} call #{new_delegate(self, 'after_file_save')}()")
+    loader.load()
+  end
+
+  defm before_file_save
+    self.modified = &mod
+  end
+
+  defm after_file_save
+    unless self.modified
+      return
+    end
+
+    self.process('Wreadme')
+  end
+end
