@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.12
+
+* Makes the tags file generated relative to itself.
+
 ### 0.1.11
 
 * Removes duplicate CtrlP tag.
