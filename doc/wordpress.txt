@@ -28,6 +28,7 @@ Contents
 7. Syntax Higlighting                |wordpress-syntax-highlighting|
   7.1 PHP Syntax Highlighting        |wordpress-php-syntax-highlighting|
   7.2 Readme.txt Syntax Highlighting |wordpress-readme-syntax-highlighting|
+  7.3 Readme.txt Validation          |wordpress-readme-validation|
 8. Search in Codex                   |wordpress-search-in-codex|
 9. WpSeek.com API Integration        |wordpress-wpseek-integration|
   9.1 Similar Functions              |wordpress-wpseek-similar-functions|
@@ -385,6 +386,23 @@ The readme.txt file used by WordPress plugins & themes is treated as a
 Markdown file and is highlighted as such. Further support is added for
 highlighting fenced blocks as embedded PHP code.
 
+7.3 Readme.txt Validation  *wordpress-readme-validation*
+-----------------------------------------------------------------------
+
+WordPress.vim integrates with the Readme.txt validator on wordpress.org.
+Anytime you save a readme.txt file, it will run your your file through
+the Validator. Any errors or notes will be displayed in Vim's status
+bar.
+
+The defaults will auto validate the readme when the file was modified
+and saved. You can turn off auto validation of the readme using,
+
+    let g:wordpress_vim_readme_auto_validator = 0
+
+You can also run this validator manually using the :Wreadme ex command.
+It takes one argument equal to the path of the file to validate. It
+defaults to the current project's readme.txt if not specified.
+
 ===============================================================================
 8. Search in Codex                                  *wordpress-search-in-codex*
 
@@ -508,6 +526,13 @@ valid values: path to a WordPress install
 - g:wordpress_vim_jump_to_core_mappings
 
 Determines whether to add the custom mappings for <c-]> and <c-w>].
+
+default: 1
+valid values: 1 or 0
+
+- g:wordpress_vim_readme_auto_validator
+
+Specifies whether to auto validate readme.txt when modified and saved.
 
 default: 1
 valid values: 1 or 0
