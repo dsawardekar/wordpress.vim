@@ -1477,6 +1477,7 @@ function! <SID>s:CTagsCommandBuilder_build() dict
   let cmd = self.get_executable()
   let cmd .= " -R"
   let cmd .= " -f " . shellescape(self.get_tags_name())
+  let cmd .= " --tag-relative"
   let re = self.to_invocation_regex('action', 'a', 'do_action')
   let cmd .= " --regex-PHP=" . shellescape(re)
   let re = self.to_listener_regex('alistener', 'l', 'add_action')
