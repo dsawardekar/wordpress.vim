@@ -1,14 +1,6 @@
 import urllib
 import urllib2
 from HTMLParser import HTMLParser
-import logging
-
-logger    = logging.getLogger('readme_validator')
-handler   = logging.FileHandler('/home/dms/projects/oss/wordpress.vim/repo/tmp/readme.log')
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
 
 class RequestBuilder:
     def build(self, data):
@@ -156,7 +148,6 @@ class ReadmeValidator:
         return data
 
     def validate(self, path):
-        logger.info('validate %s ' % path)
         data     = self.request_data_for(path)
         response = self.remote_validate(data)
         parser   = ReadmeResponseParser()
