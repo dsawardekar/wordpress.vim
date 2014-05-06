@@ -11,6 +11,7 @@ riml_include 'choice_prompter'
 riml_include 'wpseek_api'
 riml_include 'hook_match'
 riml_include 'hook_matcher'
+riml_include 'readme_validator'
 
 " collections
 riml_include 'buffer_collection'
@@ -29,7 +30,8 @@ riml_include 'similar_functions_command'
 riml_include 'similar_topics_command'
 riml_include 'wp_action_command'
 riml_include 'wp_filter_command'
-
+riml_include 'validate_readme_command'
+riml_include 'readme_auto_validator_command'
 
 class Controller
   def initialize
@@ -64,6 +66,7 @@ class Controller
     c.register('wpseek_api', 'WpSeekApi', true)
     c.register('hook_match', 'HookMatch', false)
     c.register('hook_matcher', 'HookMatcher', true)
+    c.register('readme_validator', 'ReadmeValidator', true)
   end
 
   " initialization helpers
@@ -83,6 +86,8 @@ class Controller
     r.add(new SimilarTopicsCommand(c))
     r.add(new WpActionCommand(c))
     r.add(new WpFilterCommand(c))
+    r.add(new ValidateReadmeCommand(c))
+    r.add(new ReadmeAutoValidatorCommand(c))
   end
 
   defm lookup(key)

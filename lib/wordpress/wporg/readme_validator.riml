@@ -1,0 +1,63 @@
+class ReadmeValidator
+  def initialize
+    self.api_loaded = false
+  end
+
+  defm validate(path)
+    self.load_api()
+
+    unless self.has_python()
+      echo_error("Error: Vim with Python support is required.")
+      return false
+    end
+
+    try
+      execute(":python readme_validator.validate('#{path}')")
+      result = new ReadmeValidationResult(readme_validation_status, readme_validation_result)
+    catch
+      echo_error("Failed to Validate Readme")
+      result = { 'is_readme_validation_result': false }
+    end
+
+    return result
+  end
+
+  defm has_python
+    if has_key(self, 'mock_python')
+      return self.mock_python
+    end
+
+    return has('python')
+  end
+
+  defm load_api
+    if self.api_loaded
+      return false
+    end
+
+    execute(":python import sys")
+    execute(":python sys.path.append('#{self.get_api_path()}')")
+    execute(":python from readme_validator import ReadmeValidator")
+    execute(":python readme_validator = ReadmeValidator()")
+
+    self.api_loaded = true
+
+    return true
+  end
+
+  defm loaded
+    return self.api_loaded
+  end
+
+  defm get_api_path
+    return "#{g:wordpress_vim_path}/lib/wporg"
+  end
+end
+
+class ReadmeValidationResult
+  def initialize(status, value)
+    self.is_readme_validation_result = true
+    self.status = status
+    self.value = value
+  end
+end

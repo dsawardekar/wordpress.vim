@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.13
+
+* Adds readme.txt validator.
+
 ### 0.1.12
 
 * Makes the tags file generated relative to itself.
