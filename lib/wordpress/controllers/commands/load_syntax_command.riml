@@ -31,5 +31,20 @@ class LoadSyntaxCommand < WordPressCommand
 
   defm load_readme_syntax
     :set filetype=markdown.readme
+    self.load_readme_auto_validator()
+  end
+
+  defm load_readme_auto_validator
+    if self.needs_readme_auto_validator()
+      self.process('ReadmeAutoValidator')
+    end
+  end
+
+  defm needs_readme_auto_validator
+    if exists('g:wordpress_vim_readme_auto_validator')
+      return g:wordpress_vim_readme_auto_validator
+    else
+      return true
+    end
   end
 end

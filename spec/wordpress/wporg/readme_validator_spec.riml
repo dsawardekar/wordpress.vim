@@ -1,0 +1,36 @@
+riml_include 'spec_helper'
+riml_include 'readme_validator'
+
+class ReadmeValidatorSpec
+  defm before
+    g:wordpress_vim_path = getcwd()
+  end
+
+  defm before_each
+    self.validator = new ReadmeValidator()
+  end
+
+  defm it_knows_if_api_is_not_loaded
+    expect(self.validator.loaded()).to_be_false()
+  end
+
+  defm it_has_path_to_readme_validator_api
+    expect(self.validator.get_api_path()).to_match('lib/wporg')
+  end
+
+  defm it_can_load_readme_validator_api
+    self.validator.load_api()
+    expect(self.validator.loaded()).to_be_true()
+  end
+
+  defm it_can_validate_readme_with_errors
+    result = self.validator.validate('spec/wordpress/readme_with_errors.txt')
+    expect(result.status).to_equal('errors')
+    expect(len(result.value)).to_be_gte(1)
+  end
+
+  defm it_can_validate_readme_without_errors
+    result = self.validator.validate('spec/wordpress/readme_valid.txt')
+    expect(result.status).to_equal('success')
+  end
+end

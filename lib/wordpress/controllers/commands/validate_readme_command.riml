@@ -1,0 +1,78 @@
+riml_include 'wordpress_project_command'
+riml_include 'msg'
+riml_include 'readme_validator'
+
+class ValidateReadmeCommand < WordPressProjectCommand
+
+  def initialize(container)
+    super(container)
+    self.is_validate_readme_command = true
+  end
+
+  defm get_name
+    return 'Wreadme'
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_nargs
+    return '?'
+  end
+
+  defm run(*args)
+    [params, opts] = self.expand_args(args)
+
+    if len(params) == 1
+      readme = params[0]
+    elseif &filetype == 'text'
+      readme = self.current_buffer_full_path()
+    else
+      readme = self.get_project_readme()
+    end
+
+    short_readme = fnamemodify(readme, ':.')
+
+    unless filereadable(readme)
+      echo_msg("Readme not found: #{short_readme}")
+      return
+    end
+
+    echo_msg("Validating #{short_readme} ...")
+
+    readme_full_path = fnamemodify(readme, ':p')
+    validator        = self.lookup('readme_validator')
+    result           = validator.validate(readme_full_path)
+
+    unless result.is_readme_validation_result
+      return
+    end
+
+    if result.status == 'success'
+      echo_msg(result.value)
+    elseif result.status == 'errors'
+      self.display_list('Error', result.value)
+    elseif result.status == 'notes'
+      self.display_list('Note', result.value)
+    end
+  end
+
+  defm get_project_readme
+    return "#{self.current_buffer_project_path()}/readme.txt"
+  end
+
+  defm display_list(label, list)
+    i = 1
+    for item in list
+      msg = "#{label} " . '#' . "#{i}: #{item}"
+      echo_msg(msg)
+
+      i += 1
+    end
+  end
+end
