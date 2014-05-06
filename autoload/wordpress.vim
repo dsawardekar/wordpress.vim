@@ -551,6 +551,69 @@ function! <SID>s:HookMatcher_get_kinds() dict
   return kinds
 endfunction
 
+" included: 'readme_validator.riml'
+function! s:ReadmeValidatorConstructor()
+  let readmeValidatorObj = {}
+  let readmeValidatorObj.api_loaded = 0
+  let readmeValidatorObj.validate = function('<SNR>' . s:SID() . '_s:ReadmeValidator_validate')
+  let readmeValidatorObj.has_python = function('<SNR>' . s:SID() . '_s:ReadmeValidator_has_python')
+  let readmeValidatorObj.load_api = function('<SNR>' . s:SID() . '_s:ReadmeValidator_load_api')
+  let readmeValidatorObj.loaded = function('<SNR>' . s:SID() . '_s:ReadmeValidator_loaded')
+  let readmeValidatorObj.get_api_path = function('<SNR>' . s:SID() . '_s:ReadmeValidator_get_api_path')
+  return readmeValidatorObj
+endfunction
+
+function! <SID>s:ReadmeValidator_validate(path) dict
+  call self.load_api()
+  if !(self.has_python())
+    call s:echo_error("Error: Vim with Python support is required.")
+    return 0
+  endif
+  try
+    execute ":python readme_validator.validate('" . a:path . "')"
+    let result = s:ReadmeValidationResultConstructor(readme_validation_status, readme_validation_result)
+  catch
+    call s:echo_error("Failed to Validate Readme")
+    let result = {'is_readme_validation_result': 0}
+  endtry
+  return result
+endfunction
+
+function! <SID>s:ReadmeValidator_has_python() dict
+  if has_key(self, 'mock_python')
+    return self.mock_python
+  endif
+  return has('python')
+endfunction
+
+function! <SID>s:ReadmeValidator_load_api() dict
+  if self.api_loaded
+    return 0
+  endif
+  execute ":python import sys"
+  execute ":python sys.path.append('" . self.get_api_path() . "')"
+  execute ":python from readme_validator import ReadmeValidator"
+  execute ":python readme_validator = ReadmeValidator()"
+  let self.api_loaded = 1
+  return 1
+endfunction
+
+function! <SID>s:ReadmeValidator_loaded() dict
+  return self.api_loaded
+endfunction
+
+function! <SID>s:ReadmeValidator_get_api_path() dict
+  return g:wordpress_vim_path . "/lib/wporg"
+endfunction
+
+function! s:ReadmeValidationResultConstructor(status, value)
+  let readmeValidationResultObj = {}
+  let readmeValidationResultObj.is_readme_validation_result = 1
+  let readmeValidationResultObj.status = a:status
+  let readmeValidationResultObj.value = a:value
+  return readmeValidationResultObj
+endfunction
+
 " included: 'buffer_collection.riml'
 " included: 'buffer.riml'
 " included: 'buffer_type_detector.riml'
@@ -3596,6 +3659,8 @@ function! s:LoadSyntaxCommandConstructor(container)
   let loadSyntaxCommandObj.is_readme_buffer = function('<SNR>' . s:SID() . '_s:LoadSyntaxCommand_is_readme_buffer')
   let loadSyntaxCommandObj.load_php_syntax = function('<SNR>' . s:SID() . '_s:LoadSyntaxCommand_load_php_syntax')
   let loadSyntaxCommandObj.load_readme_syntax = function('<SNR>' . s:SID() . '_s:LoadSyntaxCommand_load_readme_syntax')
+  let loadSyntaxCommandObj.load_readme_auto_validator = function('<SNR>' . s:SID() . '_s:LoadSyntaxCommand_load_readme_auto_validator')
+  let loadSyntaxCommandObj.needs_readme_auto_validator = function('<SNR>' . s:SID() . '_s:LoadSyntaxCommand_needs_readme_auto_validator')
   return loadSyntaxCommandObj
 endfunction
 
@@ -3625,6 +3690,21 @@ endfunction
 
 function! <SID>s:LoadSyntaxCommand_load_readme_syntax() dict
   set filetype=markdown.readme
+  call self.load_readme_auto_validator()
+endfunction
+
+function! <SID>s:LoadSyntaxCommand_load_readme_auto_validator() dict
+  if self.needs_readme_auto_validator()
+    call self.process('ReadmeAutoValidator')
+  endif
+endfunction
+
+function! <SID>s:LoadSyntaxCommand_needs_readme_auto_validator() dict
+  if exists('g:wordpress_vim_readme_auto_validator')
+    return g:wordpress_vim_readme_auto_validator
+  else
+    return 1
+  endif
 endfunction
 
 " included: 'load_project_registry_command.riml'
@@ -4316,6 +4396,128 @@ function! <SID>s:WpFilterCommand_get_ctag_kind(bang) dict
   endif
 endfunction
 
+" included: 'validate_readme_command.riml'
+function! s:ValidateReadmeCommandConstructor(container)
+  let validateReadmeCommandObj = {}
+  let wordPressProjectCommandObj = s:WordPressProjectCommandConstructor(a:container)
+  call extend(validateReadmeCommandObj, wordPressProjectCommandObj)
+  let validateReadmeCommandObj.is_validate_readme_command = 1
+  let validateReadmeCommandObj.get_name = function('<SNR>' . s:SID() . '_s:ValidateReadmeCommand_get_name')
+  let validateReadmeCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:ValidateReadmeCommand_get_auto_register')
+  let validateReadmeCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:ValidateReadmeCommand_has_ex_mode')
+  let validateReadmeCommandObj.get_nargs = function('<SNR>' . s:SID() . '_s:ValidateReadmeCommand_get_nargs')
+  let validateReadmeCommandObj.run = function('<SNR>' . s:SID() . '_s:ValidateReadmeCommand_run')
+  let validateReadmeCommandObj.get_project_readme = function('<SNR>' . s:SID() . '_s:ValidateReadmeCommand_get_project_readme')
+  let validateReadmeCommandObj.display_list = function('<SNR>' . s:SID() . '_s:ValidateReadmeCommand_display_list')
+  return validateReadmeCommandObj
+endfunction
+
+function! <SID>s:ValidateReadmeCommand_get_name() dict
+  return 'Wreadme'
+endfunction
+
+function! <SID>s:ValidateReadmeCommand_get_auto_register() dict
+  return 0
+endfunction
+
+function! <SID>s:ValidateReadmeCommand_has_ex_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:ValidateReadmeCommand_get_nargs() dict
+  return '?'
+endfunction
+
+function! <SID>s:ValidateReadmeCommand_run(...) dict
+  let [params, opts] = self.expand_args(a:000)
+  if len(params) ==# 1
+    let readme = params[0]
+  elseif &filetype ==# 'text'
+    let readme = self.current_buffer_full_path()
+  else
+    let readme = self.get_project_readme()
+  endif
+  let short_readme = fnamemodify(readme, ':.')
+  if !(filereadable(readme))
+    call s:echo_msg("Readme not found: " . short_readme)
+    return
+  endif
+  call s:echo_msg("Validating " . short_readme . " ...")
+  let readme_full_path = fnamemodify(readme, ':p')
+  let validator = self.lookup('readme_validator')
+  let result = validator.validate(readme_full_path)
+  if !(result.is_readme_validation_result)
+    return
+  endif
+  if result.status ==# 'success'
+    call s:echo_msg(result.value)
+  elseif result.status ==# 'errors'
+    call self.display_list('Error', result.value)
+  elseif result.status ==# 'notes'
+    call self.display_list('Note', result.value)
+  endif
+endfunction
+
+function! <SID>s:ValidateReadmeCommand_get_project_readme() dict
+  return self.current_buffer_project_path() . "/readme.txt"
+endfunction
+
+function! <SID>s:ValidateReadmeCommand_display_list(label, list) dict
+  let i = 1
+  for item in a:list
+    let msg = a:label . " " . '#' . i . ": " . item
+    call s:echo_msg(msg)
+    let i += 1
+  endfor
+endfunction
+
+" included: 'readme_auto_validator_command.riml'
+function! s:ReadmeAutoValidatorCommandConstructor(container)
+  let readmeAutoValidatorCommandObj = {}
+  let wordPressProjectCommandObj = s:WordPressProjectCommandConstructor(a:container)
+  call extend(readmeAutoValidatorCommandObj, wordPressProjectCommandObj)
+  let readmeAutoValidatorCommandObj.is_readme_auto_validator_command = 1
+  let readmeAutoValidatorCommandObj.get_name = function('<SNR>' . s:SID() . '_s:ReadmeAutoValidatorCommand_get_name')
+  let readmeAutoValidatorCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:ReadmeAutoValidatorCommand_get_auto_register')
+  let readmeAutoValidatorCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:ReadmeAutoValidatorCommand_has_ex_mode')
+  let readmeAutoValidatorCommandObj.run = function('<SNR>' . s:SID() . '_s:ReadmeAutoValidatorCommand_run')
+  let readmeAutoValidatorCommandObj.before_file_save = function('<SNR>' . s:SID() . '_s:ReadmeAutoValidatorCommand_before_file_save')
+  let readmeAutoValidatorCommandObj.after_file_save = function('<SNR>' . s:SID() . '_s:ReadmeAutoValidatorCommand_after_file_save')
+  return readmeAutoValidatorCommandObj
+endfunction
+
+function! <SID>s:ReadmeAutoValidatorCommand_get_name() dict
+  return 'ReadmeAutoValidator'
+endfunction
+
+function! <SID>s:ReadmeAutoValidatorCommand_get_auto_register() dict
+  return 0
+endfunction
+
+function! <SID>s:ReadmeAutoValidatorCommand_has_ex_mode() dict
+  return 0
+endfunction
+
+function! <SID>s:ReadmeAutoValidatorCommand_run(opts) dict
+  let path = self.current_buffer_full_path()
+  let loader = s:AutocmdLoaderConstructor()
+  call loader.set_group_name('wordpress_vim_readme_auto_validator')
+  call loader.cmd("BufWritePre " . path . " call " . s:new_delegate(self, 'before_file_save') . "()")
+  call loader.cmd("BufWritePost " . path . " call " . s:new_delegate(self, 'after_file_save') . "()")
+  call loader.load()
+endfunction
+
+function! <SID>s:ReadmeAutoValidatorCommand_before_file_save() dict
+  let self.modified = &mod
+endfunction
+
+function! <SID>s:ReadmeAutoValidatorCommand_after_file_save() dict
+  if !(self.modified)
+    return
+  endif
+  call self.process('Wreadme')
+endfunction
+
 function! s:ControllerConstructor()
   let controllerObj = {}
   let controllerObj.container = s:ContainerConstructor({})
@@ -4351,6 +4553,7 @@ function! <SID>s:Controller_configure_container() dict
   call c.register('wpseek_api', 'WpSeekApi', 1)
   call c.register('hook_match', 'HookMatch', 0)
   call c.register('hook_matcher', 'HookMatcher', 1)
+  call c.register('readme_validator', 'ReadmeValidator', 1)
 endfunction
 
 function! <SID>s:Controller_load_commands() dict
@@ -4368,6 +4571,8 @@ function! <SID>s:Controller_load_commands() dict
   call r.add(s:SimilarTopicsCommandConstructor(c))
   call r.add(s:WpActionCommandConstructor(c))
   call r.add(s:WpFilterCommandConstructor(c))
+  call r.add(s:ValidateReadmeCommandConstructor(c))
+  call r.add(s:ReadmeAutoValidatorCommandConstructor(c))
 endfunction
 
 function! <SID>s:Controller_lookup(key) dict
