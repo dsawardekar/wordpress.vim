@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.14
+
+* Removes debug statements from 0.1.13
+
 ### 0.1.13
 
 * Adds readme.txt validator.
