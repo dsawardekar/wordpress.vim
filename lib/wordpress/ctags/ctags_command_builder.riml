@@ -10,6 +10,7 @@ class CTagsCommandBuilder
     cmd   = self.get_executable()
     cmd .= " -R"
     cmd .= " -f #{shellescape(self.get_tags_name())}"
+    cmd .= " --tag-relative"
 
     re   = self.to_invocation_regex('action', 'a', 'do_action')
     cmd .= " --regex-PHP=#{shellescape(re)}"
