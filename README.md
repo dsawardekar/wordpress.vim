@@ -13,6 +13,7 @@
 * Markdown Syntax Highlighting for readme.txt
 * Search in Codex
 * Integration with WpSeek API.
+* Readme.txt Auto Validation.
 
 ## Auto-Completion
 
