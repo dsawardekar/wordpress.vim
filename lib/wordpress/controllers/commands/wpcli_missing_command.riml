@@ -1,0 +1,35 @@
+riml_include 'wordpress_command'
+riml_include 'msg'
+
+class WpCliMissingCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+    self.is_wpcli_missing_command = true
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_completer
+    return 'customlist'
+  end
+
+  defm get_aliases
+    return ['Wcli']
+  end
+
+  defm complete(word, cmd_line, cursor)
+    return []
+  end
+
+  defm run(*args)
+    echo_msg('WP-CLI not found, or not a WordPress Directory');
+    return true
+  end
+
+end
