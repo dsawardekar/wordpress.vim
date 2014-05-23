@@ -3263,6 +3263,103 @@ function! <SID>s:ShellCommand_run_shell(cmd) dict
   execute "!" . a:cmd
 endfunction
 
+" included: 'wpcli_missing_command.riml'
+function! s:WpCliMissingCommandConstructor(container)
+  let wpCliMissingCommandObj = {}
+  let wordPressCommandObj = s:WordPressCommandConstructor(a:container)
+  call extend(wpCliMissingCommandObj, wordPressCommandObj)
+  let wpCliMissingCommandObj.is_wpcli_command = 1
+  let wpCliMissingCommandObj.is_wpcli_missing_command = 1
+  let wpCliMissingCommandObj.get_auto_register = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_get_auto_register')
+  let wpCliMissingCommandObj.has_ex_mode = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_has_ex_mode')
+  let wpCliMissingCommandObj.get_nargs = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_get_nargs')
+  let wpCliMissingCommandObj.get_bang = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_get_bang')
+  let wpCliMissingCommandObj.get_completer = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_get_completer')
+  let wpCliMissingCommandObj.get_name = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_get_name')
+  let wpCliMissingCommandObj.get_aliases = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_get_aliases')
+  let wpCliMissingCommandObj.complete = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_complete')
+  let wpCliMissingCommandObj.run = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_run')
+  let wpCliMissingCommandObj.set_cmd_name = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_set_cmd_name')
+  let wpCliMissingCommandObj.get_cmd_name = function('<SNR>' . s:SID() . '_s:WpCliMissingCommand_get_cmd_name')
+  return wpCliMissingCommandObj
+endfunction
+
+function! <SID>s:WpCliMissingCommand_get_auto_register() dict
+  return 0
+endfunction
+
+function! <SID>s:WpCliMissingCommand_has_ex_mode() dict
+  return 1
+endfunction
+
+function! <SID>s:WpCliMissingCommand_get_nargs() dict
+  return '*'
+endfunction
+
+function! <SID>s:WpCliMissingCommand_get_bang() dict
+  return 1
+endfunction
+
+function! <SID>s:WpCliMissingCommand_get_completer() dict
+  return 'customlist'
+endfunction
+
+function! <SID>s:WpCliMissingCommand_get_name() dict
+  return 'Wmissing'
+endfunction
+
+function! <SID>s:WpCliMissingCommand_get_aliases() dict
+  let aliases = []
+  call add(aliases, 'Wcache')
+  call add(aliases, 'Wcap')
+  call add(aliases, 'Wcli')
+  call add(aliases, 'Wcomment')
+  call add(aliases, 'Wcore')
+  call add(aliases, 'Wdb')
+  call add(aliases, 'Weval')
+  call add(aliases, 'Wevalfile')
+  call add(aliases, 'Wexport')
+  call add(aliases, 'Whelp')
+  call add(aliases, 'Wimport')
+  call add(aliases, 'Wjetpack')
+  call add(aliases, 'Wmedia')
+  call add(aliases, 'Wmenu')
+  call add(aliases, 'Wnetwork')
+  call add(aliases, 'Woption')
+  call add(aliases, 'Wplugin')
+  call add(aliases, 'Wpost')
+  call add(aliases, 'Wrewrite')
+  call add(aliases, 'Wrole')
+  call add(aliases, 'Wscaffold')
+  call add(aliases, 'Wsearchreplace')
+  call add(aliases, 'Wshell')
+  call add(aliases, 'Wsidebar')
+  call add(aliases, 'Wsite')
+  call add(aliases, 'Wsuperadmin')
+  call add(aliases, 'Wterm')
+  call add(aliases, 'Wtheme')
+  call add(aliases, 'Wtransient')
+  call add(aliases, 'Wuser')
+  call add(aliases, 'Wwidget')
+  return aliases
+endfunction
+
+function! <SID>s:WpCliMissingCommand_complete(word, cmd_line, cursor) dict
+  return []
+endfunction
+
+function! <SID>s:WpCliMissingCommand_run(...) dict
+  call s:echo_error("WP-CLI not found, or not a WordPress Directory: " . getcwd())
+  return 1
+endfunction
+
+function! <SID>s:WpCliMissingCommand_set_cmd_name(name) dict
+endfunction
+
+function! <SID>s:WpCliMissingCommand_get_cmd_name() dict
+  return 'missing'
+endfunction
+
 function! s:WpCliCommandFactoryConstructor()
   let wpCliCommandFactoryObj = {}
   let wpCliCommandFactoryObj.build = function('<SNR>' . s:SID() . '_s:WpCliCommandFactory_build')
@@ -3289,6 +3386,8 @@ function! <SID>s:WpCliCommandFactory_command_for(cmd_name) dict
     let cmd = s:ScaffoldCommandConstructor(self.container)
   elseif a:cmd_name ==# 'shell'
     let cmd = s:ShellCommandConstructor(self.container)
+  elseif a:cmd_name ==# 'missing'
+    let cmd = s:WpCliMissingCommandConstructor(self.container)
   else
     let cmd = s:WpCliCommandConstructor(self.container)
   endif
@@ -3305,6 +3404,7 @@ function! s:ProjectConstructor()
   let projectObj.lookup = function('<SNR>' . s:SID() . '_s:Project_lookup')
   let projectObj.load = function('<SNR>' . s:SID() . '_s:Project_load')
   let projectObj.get_root = function('<SNR>' . s:SID() . '_s:Project_get_root')
+  let projectObj.get_wpcli_commands = function('<SNR>' . s:SID() . '_s:Project_get_wpcli_commands')
   let projectObj.get_commands = function('<SNR>' . s:SID() . '_s:Project_get_commands')
   let projectObj.load_commands = function('<SNR>' . s:SID() . '_s:Project_load_commands')
   let projectObj.has_cli = function('<SNR>' . s:SID() . '_s:Project_has_cli')
@@ -3346,16 +3446,26 @@ function! <SID>s:Project_load(root) dict
   call self.load_wordpress_path(a:root)
   call self.load_ctags_builder(a:root)
   if self.has_cli()
-    let self.commands = self.get_wpcli().list()
-    call self.load_commands()
-    return 1
+    let self.commands = self.get_wpcli_commands()
+    let result = 1
   else
-    return 0
+    call add(self.commands, 'missing')
+    let result = 0
   endif
+  call self.load_commands()
+  return result
 endfunction
 
 function! <SID>s:Project_get_root() dict
   return self.root
+endfunction
+
+function! <SID>s:Project_get_wpcli_commands() dict
+  let cmds = self.get_wpcli().list()
+  if len(cmds) ==# 0
+    call add(cmds, 'missing')
+  endif
+  return cmds
 endfunction
 
 function! <SID>s:Project_get_commands() dict
@@ -3369,6 +3479,7 @@ function! <SID>s:Project_load_commands() dict
     let cmd = factory.build(command_name)
     if cmd.is_wpcli_command
       call registry.add(cmd)
+      let didAdd = 1
     endif
   endfor
 endfunction
