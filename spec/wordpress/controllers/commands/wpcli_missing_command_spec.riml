@@ -1,0 +1,61 @@
+riml_include 'spec_helper'
+riml_include 'container'
+riml_include 'command_registry'
+riml_include 'buffer'
+riml_include 'project'
+riml_include 'buffer_collection'
+riml_include 'project_collection'
+riml_include 'wordpress_command'
+riml_include 'wpcli_missing_command'
+riml_include 'with_dir'
+
+class WpCliMissingCommandSpec
+  defm before_each
+    self.container = new Container({})
+    self.container.register('project', 'Project', false)
+    self.container.register('buffer_collection', 'BufferCollection', true)
+    self.container.register('project_collection', 'ProjectCollection', true)
+    self.container.register('with_dir', 'WithDir', false)
+    self.command = new WpCliMissingCommand(self.container)
+
+    self.project_collection = self.container.lookup('project_collection')
+    self.buffer_collection = self.container.lookup('buffer_collection')
+  end
+
+  defm it_has_a_container
+    expect(self.command.container.is_container).to_be_true()
+  end
+
+  defm it_will_not_auto_register
+    expect(self.command.get_auto_register()).to_be_false()
+  end
+
+  defm it_has_ex_mode
+    expect(self.command.has_ex_mode()).to_be_true()
+  end
+
+  defm it_pretends_to_be_a_wpcli_command
+    expect(self.command.is_wpcli_command).to_be_true();
+  end
+
+  defm it_has_missing_command_alias
+    expect(self.command.get_names()[0]).to_equal('Wmissing')
+  end
+
+  defm it_has_aliases_to_real_wpcli_commands
+    expect(len(self.command.get_aliases())).to_be_gt(10)
+  end
+
+  defm it_has_a_completer
+    expect(self.command.get_completer()).to_equal('customlist')
+  end
+
+  defm it_can_complete_words
+    expect(self.command.complete('foo', ':foo', 1)).to_equal([])
+  end
+
+  defm it_can_show_wpcli_missing_warning
+    expect(self.command.run('foo')).to_be_ok()
+  end
+
+end
