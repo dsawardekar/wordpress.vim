@@ -34,6 +34,18 @@ class WpCliMissingCommandSpec
     expect(self.command.has_ex_mode()).to_be_true()
   end
 
+  defm it_pretends_to_be_a_wpcli_command
+    expect(self.command.is_wpcli_command).to_be_true();
+  end
+
+  defm it_has_missing_command_alias
+    expect(self.command.get_names()[0]).to_equal('Wmissing')
+  end
+
+  defm it_has_aliases_to_real_wpcli_commands
+    expect(len(self.command.get_aliases())).to_be_gt(10)
+  end
+
   defm it_has_a_completer
     expect(self.command.get_completer()).to_equal('customlist')
   end
