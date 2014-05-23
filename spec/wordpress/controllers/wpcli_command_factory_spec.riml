@@ -40,4 +40,9 @@ class WpCliCommandFactorySpec
     cmd = self.factory.build('shell')
     expect(cmd.is_wpcli_command).to_be_true()
   end
+
+  defm it_can_build_missing_command
+    cmd = self.factory.build('missing')
+    expect(cmd.is_wpcli_missing_command).to_be_true()
+  end
 end

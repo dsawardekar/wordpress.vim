@@ -68,7 +68,14 @@ class ProjectSpec
     self.cli_path.mock_is_executable = false
     self.project.load(self.project_path)
     commands = self.project.get_commands()
-    expect(len(commands)).to_equal(0)
+    expect(len(commands)).to_equal(1)
+  end
+
+  defm it_loads_missing_command_if_wp_cli_is_absent
+    self.cli_path.mock_is_executable = false
+    self.project.load(self.project_path)
+    commands = self.project.get_commands()
+    expect(commands[0]).to_equal('missing')
   end
 
   defm it_has_correct_wordpress_path_in_core_project

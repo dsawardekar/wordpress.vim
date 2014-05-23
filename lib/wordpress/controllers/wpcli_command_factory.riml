@@ -5,6 +5,7 @@ riml_include 'eval_command'
 riml_include 'post_command'
 riml_include 'scaffold_command'
 riml_include 'shell_command'
+riml_include 'wpcli_missing_command'
 
 class WpCliCommandFactory
   defm build(cmd_name)
@@ -27,6 +28,8 @@ class WpCliCommandFactory
       cmd = new ScaffoldCommand(self.container)
     elseif cmd_name == 'shell'
       cmd = new ShellCommand(self.container)
+    elseif cmd_name == 'missing'
+      cmd = new WpCliMissingCommand(self.container)
     else
       cmd = new WpCliCommand(self.container)
     end

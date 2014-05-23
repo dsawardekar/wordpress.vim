@@ -54,16 +54,29 @@ class Project
     self.load_ctags_builder(root)
 
     if self.has_cli()
-      self.commands = self.get_wpcli().list()
-      self.load_commands()
-      return true
+      self.commands = self.get_wpcli_commands()
+      result = true
     else
-      return false
+      add(self.commands, 'missing')
+      result = false
     end
+
+    self.load_commands()
+
+    return result
   end
 
   defm get_root
     return self.root
+  end
+
+  defm get_wpcli_commands
+    cmds = self.get_wpcli().list()
+    if len(cmds) == 0
+      add(cmds, 'missing')
+    end
+
+    return cmds
   end
 
   defm get_commands
@@ -78,6 +91,7 @@ class Project
       cmd = factory.build(command_name)
       if cmd.is_wpcli_command
         registry.add(cmd)
+        didAdd = true
       end
     end
   end

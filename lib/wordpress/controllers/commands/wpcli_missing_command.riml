@@ -1,0 +1,88 @@
+riml_include 'wordpress_command'
+riml_include 'msg'
+
+class WpCliMissingCommand < WordPressCommand
+  def initialize(container)
+    super(container)
+    self.is_wpcli_command = true
+    self.is_wpcli_missing_command = true
+  end
+
+  defm get_auto_register
+    return false
+  end
+
+  defm has_ex_mode
+    return true
+  end
+
+  defm get_nargs
+    return '*'
+  end
+
+  defm get_bang
+    return true
+  end
+
+  defm get_completer
+    return 'customlist'
+  end
+
+  defm get_name
+    return 'Wmissing'
+  end
+
+  defm get_aliases
+    aliases = []
+    add(aliases, 'Wcache')
+    add(aliases, 'Wcap')
+    add(aliases, 'Wcli')
+    add(aliases, 'Wcomment')
+    add(aliases, 'Wcore')
+    add(aliases, 'Wdb')
+    add(aliases, 'Weval')
+    add(aliases, 'Wevalfile')
+    add(aliases, 'Wexport')
+    add(aliases, 'Whelp')
+    add(aliases, 'Wimport')
+    add(aliases, 'Wjetpack')
+    add(aliases, 'Wmedia')
+    add(aliases, 'Wmenu')
+    add(aliases, 'Wnetwork')
+    add(aliases, 'Woption')
+    add(aliases, 'Wplugin')
+    add(aliases, 'Wpost')
+    add(aliases, 'Wrewrite')
+    add(aliases, 'Wrole')
+    add(aliases, 'Wscaffold')
+    add(aliases, 'Wsearchreplace')
+    add(aliases, 'Wshell')
+    add(aliases, 'Wsidebar')
+    add(aliases, 'Wsite')
+    add(aliases, 'Wsuperadmin')
+    add(aliases, 'Wterm')
+    add(aliases, 'Wtheme')
+    add(aliases, 'Wtransient')
+    add(aliases, 'Wuser')
+    add(aliases, 'Wwidget')
+
+    return aliases
+  end
+
+  defm complete(word, cmd_line, cursor)
+    return []
+  end
+
+  defm run(*args)
+    echo_error("WP-CLI not found, or not a WordPress Directory: #{getcwd()}");
+    return true
+  end
+
+  defm set_cmd_name(name)
+  end
+
+  defm get_cmd_name
+    return 'missing'
+  end
+
+end

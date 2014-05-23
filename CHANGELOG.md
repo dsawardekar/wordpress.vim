@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.15
+
+* Improves error messaging when wp-cli is not detected.
+
 ### 0.1.14
 
 * Removes debug statements from 0.1.13
