@@ -1554,6 +1554,7 @@ function! <SID>s:CTagsCommandBuilder_build() dict
   for dir in dirs
     let cmd .= " --exclude " . dir
   endfor
+  let cmd .= " ."
   return cmd
 endfunction
 
@@ -3883,7 +3884,10 @@ function! <SID>s:ConfigureTagsCommand_run(opts) dict
   if has_key(a:opts, 'bang') && a:opts.bang
     call self.regenerate_ctags()
   elseif project.has_wordpress_path()
-    call self.generate_ctags()
+    let didGenerate = self.generate_ctags()
+    if didGenerate
+      call s:echo_msg('WordPress: Generating ctags ... DONE')
+    endif
   endif
   call self.configure_tag_option()
 endfunction
@@ -3897,10 +3901,11 @@ function! <SID>s:ConfigureTagsCommand_generate_ctags(...) dict
   endif
   let ctags_builder = self.lookup('ctags_builder')
   if !(ctags_builder.has_tags())
-    redraw
     call s:echo_msg("WordPress: " . msg . " ctags ...")
     call ctags_builder.generate()
+    return 1
   endif
+  return 0
 endfunction
 
 function! <SID>s:ConfigureTagsCommand_regenerate_ctags() dict
