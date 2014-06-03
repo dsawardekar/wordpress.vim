@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.17
+
+* Cleans the Generating ctags message.
+
 ### 0.1.16
 
 * Removes loading message.
