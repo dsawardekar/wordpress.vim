@@ -22,8 +22,8 @@ class WordPressPlugin
 
   defm get_app
     unless self.loaded()
-      :redraw
-      echomsg "WordPress: Loading ..."
+      ":redraw
+      "echomsg "WordPress: Loading ..."
       self.app = wordpress#app()
     end
 

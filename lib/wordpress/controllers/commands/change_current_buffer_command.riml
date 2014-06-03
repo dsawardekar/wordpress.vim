@@ -32,9 +32,9 @@ class ChangeCurrentBufferCommand < WordPressCommand
     end
 
     " ready!
-    if project_added
-      :redraw
-      echo_msg("WordPress: Loading ... DONE")
-    end
+    "if project_added
+      ":redraw
+      "echo_msg("WordPress: Loading ... DONE")
+    "end
   end
 end
