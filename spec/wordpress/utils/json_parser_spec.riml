@@ -13,6 +13,13 @@ class JSONParserSpec
     expect(result).to_not_equal(false)
   end
 
+  defm it_can_should_not_throw_error_if_invalid_json
+    lines = readfile('spec/wordpress/cli_15.json')
+    text = join(lines, ' ')
+    result = self.parser.parse(text)
+    expect(result).to_be_false()
+  end
+
   " $ wp cli cmd-dump - 20ms
   " with json parsing - 80ms
   " Note: reasonable atm, could use pyeval
