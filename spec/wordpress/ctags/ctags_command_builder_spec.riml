@@ -113,5 +113,14 @@ class CTagsCommandBuilderSpec
     expect(cmd).to_match('apply_filters')
     expect(cmd).to_match('add_filter')
   end
+
+  defm it_excludes_specified_dirs
+    cmd = self.builder.build()
+    dirs = self.builder.get_exclude_dirs()
+
+    for dir in dirs
+      expect(cmd).to_match("--exclude #{dir}")
+    end
+  end
 end
 

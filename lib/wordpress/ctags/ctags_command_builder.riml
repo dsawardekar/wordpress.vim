@@ -24,10 +24,28 @@ class CTagsCommandBuilder
     re   = self.to_listener_regex('flistener', 'e', 'add_filter')
     cmd .= " --regex-PHP=#{shellescape(re)}"
 
-    cmd .= " ."
+    " exclude files to fix #16
+    dirs = self.get_exclude_dirs();
+    for dir in dirs
+      cmd .= " --exclude #{dir}"
+    end
+
     "echo_msg(cmd)
 
     return cmd
+  end
+
+  defm get_exclude_dirs
+    dirs = []
+    add(dirs, '.git')
+    add(dirs, '.hg')
+    add(dirs, 'node_modules')
+    add(dirs, 'bower_components')
+    add(dirs, 'build')
+    add(dirs, 'dist')
+    add(dirs, 'vendor')
+
+    return dirs
   end
 
   defm to_invocation_regex(type_name, type_letter, method)

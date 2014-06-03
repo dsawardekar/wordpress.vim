@@ -78,9 +78,11 @@ class WpCli
     meta = self.dump()
     cmds = []
 
-    if has_key(meta, 'subcommands')
-      for cmd in meta.subcommands
-        add(cmds, cmd.name)
+    if type(meta) == type({})
+      if has_key(meta, 'subcommands')
+        for cmd in meta.subcommands
+          add(cmds, cmd.name)
+        end
       end
     end
 
