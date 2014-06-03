@@ -30,6 +30,8 @@ class CTagsCommandBuilder
       cmd .= " --exclude #{dir}"
     end
 
+    cmd .= " ."
+
     "echo_msg(cmd)
 
     return cmd

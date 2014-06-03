@@ -23,7 +23,10 @@ class ConfigureTagsCommand < WordPressProjectCommand
     if has_key(opts, 'bang') && opts.bang
       self.regenerate_ctags()
     elseif project.has_wordpress_path()
-      self.generate_ctags()
+      didGenerate = self.generate_ctags()
+      if didGenerate
+        echo_msg('WordPress: Generating ctags ... DONE')
+      end
     end
 
     self.configure_tag_option()
@@ -33,10 +36,12 @@ class ConfigureTagsCommand < WordPressProjectCommand
     ctags_builder = self.lookup('ctags_builder')
 
     unless ctags_builder.has_tags()
-      :redraw
       echo_msg("WordPress: #{msg} ctags ...")
       ctags_builder.generate()
+      return true
     end
+
+    return false
   end
 
   defm regenerate_ctags
