@@ -1513,6 +1513,7 @@ function! s:CTagsCommandBuilderConstructor()
   let cTagsCommandBuilderObj = {}
   let cTagsCommandBuilderObj.needs = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_needs')
   let cTagsCommandBuilderObj.build = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_build')
+  let cTagsCommandBuilderObj.get_exclude_dirs = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_exclude_dirs')
   let cTagsCommandBuilderObj.to_invocation_regex = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_invocation_regex')
   let cTagsCommandBuilderObj.to_listener_regex = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_listener_regex')
   let cTagsCommandBuilderObj.to_tag_regex = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_tag_regex')
@@ -1549,8 +1550,23 @@ function! <SID>s:CTagsCommandBuilder_build() dict
   let cmd .= " --regex-PHP=" . shellescape(re)
   let re = self.to_listener_regex('flistener', 'e', 'add_filter')
   let cmd .= " --regex-PHP=" . shellescape(re)
-  let cmd .= " ."
+  let dirs = self.get_exclude_dirs()
+  for dir in dirs
+    let cmd .= " --exclude " . dir
+  endfor
   return cmd
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_exclude_dirs() dict
+  let dirs = []
+  call add(dirs, '.git')
+  call add(dirs, '.hg')
+  call add(dirs, 'node_modules')
+  call add(dirs, 'bower_components')
+  call add(dirs, 'build')
+  call add(dirs, 'dist')
+  call add(dirs, 'vendor')
+  return dirs
 endfunction
 
 function! <SID>s:CTagsCommandBuilder_to_invocation_regex(type_name, type_letter, method) dict
@@ -2481,10 +2497,12 @@ endfunction
 function! <SID>s:WpCli_list() dict
   let meta = self.dump()
   let cmds = []
-  if has_key(meta, 'subcommands')
-    for cmd in meta.subcommands
-      call add(cmds, cmd.name)
-    endfor
+  if type(meta) ==# type({})
+    if has_key(meta, 'subcommands')
+      for cmd in meta.subcommands
+        call add(cmds, cmd.name)
+      endfor
+    endif
   endif
   return cmds
 endfunction
@@ -3752,10 +3770,6 @@ function! <SID>s:ChangeCurrentBufferCommand_run(buffer, opts) dict
     call self.process('LoadProjectRegistry')
     call self.process('LoadSyntax')
     call self.process('Wctags')
-  endif
-  if project_added
-    redraw
-    call s:echo_msg("WordPress: Loading ... DONE")
   endif
 endfunction
 
