@@ -1,5 +1,13 @@
 # Changelog
 
+### 0.1.16
+
+* Removes loading message.
+  * In hindsight this also speeds up startup since we skip
+    the extra `:redraw`.
+* Adds Exclude files to Ctags builder to speed up tags generation.
+* Improves WpCli error handling of invalid json.
+
 ### 0.1.15
 
 * Improves error messaging when wp-cli is not detected.

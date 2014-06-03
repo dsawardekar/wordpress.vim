@@ -382,7 +382,7 @@ function! s:echo_with(args, style)
 endfunction
 
 " included: 'version.riml'
-let g:wordpress_vim_version = '0.1.15'
+let g:wordpress_vim_version = '0.1.16'
 function! s:WordPressPluginConstructor()
   let wordPressPluginObj = {}
   let wordPressPluginObj.start = function('<SNR>' . s:SID() . '_s:WordPressPlugin_start')
@@ -415,8 +415,6 @@ endfunction
 
 function! <SID>s:WordPressPlugin_get_app() dict
   if !(self.loaded())
-    redraw
-    echomsg "WordPress: Loading ..."
     let self.app = wordpress#app()
   endif
   return self.app
