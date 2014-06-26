@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.19
+
+* Improves messaging when generating Ctags.
+
 ### 0.1.18
 
 * Improves Exuberant Ctags Executable Detection.
