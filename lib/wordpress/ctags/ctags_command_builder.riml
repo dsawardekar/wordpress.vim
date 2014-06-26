@@ -101,10 +101,6 @@ class CTagsCommandBuilder
     end
   end
 
-  defm has_executable
-    return executable(self.get_executable())
-  end
-
   defm get_executable
     if exists('g:wordpress_vim_ctags_path')
       ctags = g:wordpress_vim_ctags_path
@@ -116,7 +112,23 @@ class CTagsCommandBuilder
   end
 
   defm has_executable
-    return executable(self.get_executable())
+    return executable(self.get_executable()) && self.has_exuberant_executable()
+  end
+
+  defm has_exuberant_executable
+    if has_key(self, 'exuberant_found')
+      return self.exuberant_found
+    end
+
+    ctags_version = system(self.get_executable() . ' --version')
+
+    if ctags_version =~ 'Exuberant Ctags'
+      self.exuberant_found = true
+    else
+      self.exuberant_found = false
+    end
+
+    return self.exuberant_found
   end
 
   defm to_leet(key)

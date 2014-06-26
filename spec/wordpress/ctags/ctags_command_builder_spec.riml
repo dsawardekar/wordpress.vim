@@ -52,6 +52,15 @@ class CTagsCommandBuilderSpec
     expect(self.builder.has_executable()).to_be_true()
   end
 
+  defm it_knows_if_exuberant_ctags_is_available
+    expect(self.builder.has_exuberant_executable()).to_be_true()
+  end
+
+  defm it_caches_exuberant_found_for_later
+    expect(self.builder.has_exuberant_executable()).to_be_true()
+    expect(self.builder.has_exuberant_executable()).to_be_true()
+  end
+
   defm it_knows_if_ctags_is_not_available
     g:wordpress_vim_ctags_path = 'no_such_ctags_binary'
     expect(self.builder.has_executable()).to_be_false()
