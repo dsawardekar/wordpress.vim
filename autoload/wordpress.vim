@@ -3875,6 +3875,7 @@ function! s:ConfigureTagsCommandConstructor(container)
   let configureTagsCommandObj.run = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_run')
   let configureTagsCommandObj.generate_ctags = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_generate_ctags')
   let configureTagsCommandObj.regenerate_ctags = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_regenerate_ctags')
+  let configureTagsCommandObj.needs_tags_generation = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_needs_tags_generation')
   let configureTagsCommandObj.configure_tag_option = function('<SNR>' . s:SID() . '_s:ConfigureTagsCommand_configure_tag_option')
   return configureTagsCommandObj
 endfunction
@@ -3909,7 +3910,7 @@ function! <SID>s:ConfigureTagsCommand_generate_ctags(...) dict
     let msg = 'Generating'
   endif
   let ctags_builder = self.lookup('ctags_builder')
-  if !(ctags_builder.has_tags())
+  if self.needs_tags_generation()
     call s:echo_msg("WordPress: " . msg . " ctags ...")
     call ctags_builder.generate()
     return 1
@@ -3919,12 +3920,21 @@ endfunction
 
 function! <SID>s:ConfigureTagsCommand_regenerate_ctags() dict
   let ctags_builder = self.lookup('ctags_builder')
+  if !(ctags_builder.has_executable())
+    call s:echo_error("Exuberant Ctags was not found.")
+    return
+  endif
   let tags_path = ctags_builder.get_project_tags()
   if filereadable(tags_path)
     call delete(tags_path)
   endif
   call self.generate_ctags('Regenerating')
   call s:echo_msg('WordPress: Regenerating ctags DONE')
+endfunction
+
+function! <SID>s:ConfigureTagsCommand_needs_tags_generation() dict
+  let ctags_builder = self.lookup('ctags_builder')
+  return !ctags_builder.has_tags() && ctags_builder.has_executable()
 endfunction
 
 function! <SID>s:ConfigureTagsCommand_configure_tag_option() dict

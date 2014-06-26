@@ -35,7 +35,7 @@ class ConfigureTagsCommand < WordPressProjectCommand
   defm generate_ctags(msg = 'Generating')
     ctags_builder = self.lookup('ctags_builder')
 
-    unless ctags_builder.has_tags()
+    if self.needs_tags_generation()
       echo_msg("WordPress: #{msg} ctags ...")
       ctags_builder.generate()
       return true
@@ -46,6 +46,11 @@ class ConfigureTagsCommand < WordPressProjectCommand
 
   defm regenerate_ctags
     ctags_builder = self.lookup('ctags_builder')
+    unless ctags_builder.has_executable()
+      echo_error("Exuberant Ctags was not found.")
+      return
+    end
+
     tags_path     = ctags_builder.get_project_tags()
 
     if filereadable(tags_path)
@@ -54,6 +59,11 @@ class ConfigureTagsCommand < WordPressProjectCommand
 
     self.generate_ctags('Regenerating')
     echo_msg('WordPress: Regenerating ctags DONE')
+  end
+
+  defm needs_tags_generation
+    ctags_builder = self.lookup('ctags_builder')
+    return !ctags_builder.has_tags() && ctags_builder.has_executable()
   end
 
   defm configure_tag_option
