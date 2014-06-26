@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.18
+
+* Improves Exuberant Ctags Executable Detection.
+
 ### 0.1.17
 
 * Cleans the Generating ctags message.
