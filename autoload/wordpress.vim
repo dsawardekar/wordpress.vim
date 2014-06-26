@@ -1522,9 +1522,9 @@ function! s:CTagsCommandBuilderConstructor()
   let cTagsCommandBuilderObj.to_invocation_pattern = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_invocation_pattern')
   let cTagsCommandBuilderObj.to_listener_pattern = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_listener_pattern')
   let cTagsCommandBuilderObj.get_tags_name = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_tags_name')
-  let cTagsCommandBuilderObj.has_executable = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_has_executable')
   let cTagsCommandBuilderObj.get_executable = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_executable')
   let cTagsCommandBuilderObj.has_executable = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_has_executable')
+  let cTagsCommandBuilderObj.has_exuberant_executable = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_has_exuberant_executable')
   let cTagsCommandBuilderObj.to_leet = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_to_leet')
   let cTagsCommandBuilderObj.get_action_uid = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_action_uid')
   let cTagsCommandBuilderObj.get_action_listener_uid = function('<SNR>' . s:SID() . '_s:CTagsCommandBuilder_get_action_listener_uid')
@@ -1626,34 +1626,6 @@ function! <SID>s:CTagsCommandBuilder_get_tags_name() dict
   endif
 endfunction
 
-function! <SID>s:CTagsCommandBuilder_has_executable() dict
-  return executable(self.get_executable())
-endfunction
-
-function! <SID>s:CTagsCommandBuilder_get_filter_listener_uid() dict
-  return self.to_leet('flistener')
-endfunction
-
-function! <SID>s:CTagsCommandBuilder_get_filter_uid() dict
-  return self.to_leet('filter')
-endfunction
-
-function! <SID>s:CTagsCommandBuilder_get_action_listener_uid() dict
-  return self.to_leet('alistener')
-endfunction
-
-function! <SID>s:CTagsCommandBuilder_get_action_uid() dict
-  return self.to_leet('action')
-endfunction
-
-function! <SID>s:CTagsCommandBuilder_to_leet(key) dict
-  let variable = a:key . "_uid"
-  if !(has_key(self, variable))
-    let self[variable] = self.leet_convertor.convert(a:key)
-  endif
-  return self[variable]
-endfunction
-
 function! <SID>s:CTagsCommandBuilder_get_executable() dict
   if exists('g:wordpress_vim_ctags_path')
     let ctags = g:wordpress_vim_ctags_path
@@ -1664,7 +1636,44 @@ function! <SID>s:CTagsCommandBuilder_get_executable() dict
 endfunction
 
 function! <SID>s:CTagsCommandBuilder_has_executable() dict
-  return executable(self.get_executable())
+  return executable(self.get_executable()) && self.has_exuberant_executable()
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_has_exuberant_executable() dict
+  if has_key(self, 'exuberant_found')
+    return self.exuberant_found
+  endif
+  let ctags_version = system(self.get_executable() . ' --version')
+  if ctags_version =~# 'Exuberant Ctags'
+    let self.exuberant_found = 1
+  else
+    let self.exuberant_found = 0
+  endif
+  return self.exuberant_found
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_to_leet(key) dict
+  let variable = a:key . "_uid"
+  if !(has_key(self, variable))
+    let self[variable] = self.leet_convertor.convert(a:key)
+  endif
+  return self[variable]
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_action_uid() dict
+  return self.to_leet('action')
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_action_listener_uid() dict
+  return self.to_leet('alistener')
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_filter_uid() dict
+  return self.to_leet('filter')
+endfunction
+
+function! <SID>s:CTagsCommandBuilder_get_filter_listener_uid() dict
+  return self.to_leet('flistener')
 endfunction
 
 " included: 'command_registry.riml'
