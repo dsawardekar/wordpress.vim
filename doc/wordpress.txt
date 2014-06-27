@@ -265,6 +265,13 @@ This feature is implemented with CTags. You will only need to install
 CTags. The plugin takes care of creating the tags file and configuring
 Vim to use it.
 
+To regenerate the 'tags' file use the ex-command, `:Wctags!`. Note: If
+exuberant ctags is not found, the command will show an error message.
+Verify that you have `ctags` installed.
+
+If you are using the `g:wordpress_vim_ctags_path` variable, make sure
+that it points to a valid exuberant ctags executable.
+
 To jump to the definition of a function place your cursor on it, and hit
 the key combo Ctrl-]. To move back to the where you were earlier use Ctrl-t
 or Ctrl-o. You can also use the Ex command, :tjump name to jump to a tag.
