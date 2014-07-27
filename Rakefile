@@ -113,12 +113,12 @@ end
 namespace :riml do
   desc 'Compile plugin'
   task :compile_plugin => :build do
-    sh "bundle exec riml -c #{PLUGIN_SOURCE} -I #{LIB_DIRS} -o #{BUILD_DIR}"
+    sh "#{RIML_EXEC} -c #{PLUGIN_SOURCE} -I #{LIB_DIRS} -o #{BUILD_DIR}"
   end
 
   desc 'Compile app'
   task :compile_app => :build do
-    sh "bundle exec riml -c #{APP_SOURCE} -I #{LIB_DIRS} -o #{BUILD_DIR}"
+    sh "#{RIML_EXEC} -c #{APP_SOURCE} -I #{LIB_DIRS} -o #{BUILD_DIR}"
   end
 
   desc 'Compile all'

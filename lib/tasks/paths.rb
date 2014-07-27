@@ -49,3 +49,11 @@ BUILD_SYNTAX_FILE      = "#{BUILD_DIR}/wordpress_syntax.vim"
 BUILD_DICT_FILE        = "#{BUILD_DIR}/phpcomplete.vim"
 BUILD_PLUGIN_OUTPUT    = "#{BUILD_DIR}/plugin.vim"
 BUILD_APP_OUTPUT       = "#{BUILD_DIR}/wordpress.vim"
+
+# tek riml
+if ENV.has_key?('RIML_DIR')
+  RIML_EXEC = "#{ENV['RIML_DIR']}/bin/riml"
+else
+  RIML_EXEC = "bundle exec riml"
+end
+
