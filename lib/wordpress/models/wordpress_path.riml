@@ -26,9 +26,13 @@ class WordPressPath
     " path comes from ~/.wp-cli/config.yml
     path = self.find_wp_cli_project_path(root)
 
-    if path == '' && exists('g:wordpress_vim_wordpress_path')
-      " wp cli missing but has global wordpress vim config
-      path = g:wordpress_vim_wordpress_path
+    if path == ''
+      if exists('g:wordpress_vim_wordpress_path')
+        " wp cli missing but has global wordpress vim config
+        path = g:wordpress_vim_wordpress_path
+      else
+        echo_error('WordPress not detected, Please set g:wordpress_vim_wordpress_path in your vimrc')
+      end
     end
 
     return path
