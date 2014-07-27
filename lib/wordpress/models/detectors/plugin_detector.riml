@@ -26,6 +26,11 @@ class PluginDetector < BufferTypeDetector
 
     if dirname == 'plugins' || dirname == 'mu-plugins'
       return true
+    elseif dirname =~ 'repo'
+      parent_dir     = fnamemodify(path, ':h')
+      parent_dirname = fnamemodify(parent_dir, ':t')
+      plugin_file    = "#{parent_dir}/#{dirname}/#{parent_dirname}.php"
+      return self.has_plugin_file(plugin_file) && self.has_plugin_header(plugin_file)
     else
       plugin_file = "#{path}/#{dirname}.php"
       return self.has_plugin_file(plugin_file) && self.has_plugin_header(plugin_file)

@@ -34,6 +34,10 @@ class ConfigureTagsCommand < WordPressProjectCommand
 
   defm generate_ctags(msg = 'Generating')
     ctags_builder = self.lookup('ctags_builder')
+    if ctags_builder.get_project_path() == ''
+      echo_error('Could not generate tags, WordPress not detected, Please set g:wordpress_vim_wordpress_path in your vimrc')
+      return false
+    end
 
     if self.needs_tags_generation()
       echo_msg("WordPress: #{msg} ctags ...")
@@ -57,8 +61,10 @@ class ConfigureTagsCommand < WordPressProjectCommand
       delete(tags_path)
     end
 
-    self.generate_ctags('Regenerating')
-    echo_msg('WordPress: Regenerating ctags DONE')
+    didGenerate = self.generate_ctags('Regenerating')
+    if didGenerate
+      echo_msg('WordPress: Regenerating ctags DONE')
+    end
   end
 
   defm needs_tags_generation

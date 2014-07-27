@@ -27,7 +27,7 @@ class CTagsCommandBuilder
     " exclude files to fix #16
     dirs = self.get_exclude_dirs();
     for dir in dirs
-      cmd .= " --exclude #{dir}"
+      cmd .= " --exclude=#{dir}"
     end
 
     cmd .= " ."

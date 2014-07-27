@@ -42,6 +42,12 @@ class PluginDetectorSpec
     expect(result).to_be_false()
   end
 
+  defm it_knows_plugin_inside_repo_is_a_wordpress_plugin
+    repo_plugin = "spec/wordpress/projects/plugin-inside-repo/repo"
+    result = self.detector.is_plugin(repo_plugin)
+    expect(result).to_be_true()
+  end
+
   defm it_can_detect_if_path_is_inside_plugin
     result = self.detector.detect('spec/wordpress/projects/sample-wordpress-plugin')
     expect(result.status).to_be_true()
@@ -76,5 +82,11 @@ class PluginDetectorSpec
     result = self.detector.detect('spec/wordpress/projects/sample-wordpress-plugin')
     expect(result.status).to_be_true()
     expect(result.path).to_match('spec/wordpress/projects/sample-wordpress-plugin$')
+  end
+
+  defm it_can_detect_correct_path_for_plugin_inside_repo
+    result = self.detector.detect('spec/wordpress/projects/plugin-inside-repo/repo')
+    expect(result.status).to_be_true()
+    expect(result.path).to_match('spec/wordpress/projects/plugin-inside-repo/repo$')
   end
 end

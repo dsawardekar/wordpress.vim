@@ -196,6 +196,11 @@ function! s:PluginDetector_is_plugin(path) dict
   let dirname = fnamemodify(a:path, ':t')
   if dirname ==# 'plugins' || dirname ==# 'mu-plugins'
     return 1
+  elseif dirname =~# 'repo'
+    let parent_dir = fnamemodify(a:path, ':h')
+    let parent_dirname = fnamemodify(parent_dir, ':t')
+    let plugin_file = parent_dir . "/" . dirname . "/" . parent_dirname . ".php"
+    return self.has_plugin_file(plugin_file) && self.has_plugin_header(plugin_file)
   else
     let plugin_file = a:path . "/" . dirname . ".php"
     return self.has_plugin_file(plugin_file) && self.has_plugin_header(plugin_file)
@@ -382,7 +387,7 @@ function! s:echo_with(args, style)
 endfunction
 
 " included: 'version.riml'
-let g:wordpress_vim_version = '0.2.0'
+let g:wordpress_vim_version = '0.2.1'
 function! s:WordPressPluginConstructor()
   let wordPressPluginObj = {}
   let wordPressPluginObj.start = function('<SNR>' . s:SID() . '_WordPressPlugin_start')

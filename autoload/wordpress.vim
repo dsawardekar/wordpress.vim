@@ -752,6 +752,11 @@ function! s:PluginDetector_is_plugin(path) dict
   let dirname = fnamemodify(a:path, ':t')
   if dirname ==# 'plugins' || dirname ==# 'mu-plugins'
     return 1
+  elseif dirname =~# 'repo'
+    let parent_dir = fnamemodify(a:path, ':h')
+    let parent_dirname = fnamemodify(parent_dir, ':t')
+    let plugin_file = parent_dir . "/" . dirname . "/" . parent_dirname . ".php"
+    return self.has_plugin_file(plugin_file) && self.has_plugin_header(plugin_file)
   else
     let plugin_file = a:path . "/" . dirname . ".php"
     return self.has_plugin_file(plugin_file) && self.has_plugin_header(plugin_file)
@@ -1552,7 +1557,7 @@ function! s:CTagsCommandBuilder_build() dict
   let cmd .= " --regex-PHP=" . shellescape(re)
   let dirs = self.get_exclude_dirs()
   for dir in dirs
-    let cmd .= " --exclude " . dir
+    let cmd .= " --exclude=" . dir
   endfor
   let cmd .= " ."
   return cmd
@@ -2544,8 +2549,12 @@ function! s:WordPressPath_get_path(root) dict
     endif
   endfor
   let path = self.find_wp_cli_project_path(a:root)
-  if path ==# '' && exists('g:wordpress_vim_wordpress_path')
-    let path = g:wordpress_vim_wordpress_path
+  if path ==# ''
+    if exists('g:wordpress_vim_wordpress_path')
+      let path = g:wordpress_vim_wordpress_path
+    else
+      call s:echo_error('WordPress not detected, Please set g:wordpress_vim_wordpress_path in your vimrc')
+    endif
   endif
   return path
 endfunction
@@ -3910,6 +3919,10 @@ function! s:ConfigureTagsCommand_generate_ctags(...) dict
     let msg = 'Generating'
   endif
   let ctags_builder = self.lookup('ctags_builder')
+  if ctags_builder.get_project_path() ==# ''
+    call s:echo_error('Could not generate tags, WordPress not detected, Please set g:wordpress_vim_wordpress_path in your vimrc')
+    return 0
+  endif
   if self.needs_tags_generation()
     call s:echo_msg("WordPress: " . msg . " ctags ...")
     call ctags_builder.generate()
@@ -3928,8 +3941,10 @@ function! s:ConfigureTagsCommand_regenerate_ctags() dict
   if filereadable(tags_path)
     call delete(tags_path)
   endif
-  call self.generate_ctags('Regenerating')
-  call s:echo_msg('WordPress: Regenerating ctags DONE')
+  let didGenerate = self.generate_ctags('Regenerating')
+  if didGenerate
+    call s:echo_msg('WordPress: Regenerating ctags DONE')
+  endif
 endfunction
 
 function! s:ConfigureTagsCommand_needs_tags_generation() dict

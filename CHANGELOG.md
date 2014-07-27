@@ -1,5 +1,13 @@
 # Changelog
 
+### 0.2.1
+
+* Adds support for nested plugin directories like,
+  `foo-plugin/repo/foo-plugin.`. This detection assumes that the
+  in-between directory contains the keyword `repo`.
+* Improves error messaging if WordPress path is not detected.
+* Improves excludes list passed to `ctags`, better fix for #16.
+
 ### 0.2.0
 
 * Built using @tek's Riml fork.
