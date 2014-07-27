@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.2.0
+
+* Built using @tek's Riml fork.
+  * Fixes issues with Vim > 7.4 p260.
+
 ### 0.1.19
 
 * Improves messaging when generating Ctags.
