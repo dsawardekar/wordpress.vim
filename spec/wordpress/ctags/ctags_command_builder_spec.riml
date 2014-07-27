@@ -128,7 +128,7 @@ class CTagsCommandBuilderSpec
     dirs = self.builder.get_exclude_dirs()
 
     for dir in dirs
-      expect(cmd).to_match("--exclude #{dir}")
+      expect(cmd).to_match("--exclude=#{dir}")
     end
   end
 end
