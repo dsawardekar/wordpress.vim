@@ -11,6 +11,7 @@
 * UltiSnips Snippets
 * Syntax Highlighting for WordPress PHP files.
 * Markdown Syntax Highlighting for readme.txt
+* [PHPCS][31] Syntax Checker integrated with [WordPress Coding Standards][32]
 * Search in Codex
 * Integration with WpSeek API.
 * Readme.txt Auto Validation.
@@ -192,6 +193,7 @@ best experience.
 * [vim-markdown][6] - Enables Markdown Syntax Highlighting of readme.txt
 * [open-browser.vim][15] - Enables Search in Codex & `:Wtopics` launching.
 * [CtrlP.vim][17] - Enables Fuzzy matcher integration for WordPress hooks.
+* [Syntastic][33] - For the PHPCS Syntax Highlighter Integration.
 
 Additionally the following tools enhance WordPress.vim.
 
@@ -212,6 +214,7 @@ Many Thanks in particular to,
 * Cristi Burcă - for [WP-CLI][3]
 * Luke Gruber  - for [Riml][4]
 * Oliver Schlöbe - for the [WpSeek][16] API
+* Sudar Muthu - for the Syntastic Integration.
 
 ## Contributing
 
@@ -268,3 +271,7 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [24]: http://i.imgur.com/FWGrAN6.gif
 [25]: http://i.imgur.com/CEBIxpn.gif
 [26]: http://i.imgur.com/eMo6M9T.gif
+
+[31]: https://github.com/squizlabs/PHP_CodeSniffer
+[32]: https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards
+[33]: https://github.com/scrooloose/syntastic
