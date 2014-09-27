@@ -4,6 +4,7 @@
 
 * Adds [phpcs](https://github.com/squizlabs/PHP_CodeSniffer) and [WordPress Coding Standards](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards) based Syntax Checker.
   * Thanks to @sudar!
+* Upgrades to WordPress 4.0.
 
 ### 0.2.1
 
