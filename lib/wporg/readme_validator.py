@@ -159,6 +159,9 @@ class ReadmeValidator:
             self.return_to_vim('notes', parser.get_notes())
         elif parser.did_succeed():
             self.return_to_vim('success', "'%s'" % parser.get_success_message())
+        else:
+            # TODO: Investigate HTMLParser
+            self.return_to_vim('errors', 'Unknown response from wordpress.org')
 
     def return_to_vim(self, status, result):
         try:
@@ -170,9 +173,9 @@ class ReadmeValidator:
             print result
 
 
-#def test():
-    #validator = ReadmeValidator()
-    #validator.validate('tmp/readme_with_errors.txt')
+def test():
+    validator = ReadmeValidator()
+    validator.validate('tmp/readme_with_errors.txt')
 
-#test()
+test()
 
