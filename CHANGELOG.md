@@ -1,6 +1,6 @@
 # Changelog
 
-### 0.2.2
+### Current
 
 * Adds [phpcs](https://github.com/squizlabs/PHP_CodeSniffer) and [WordPress Coding Standards](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards) based Syntax Checker.
   * Thanks to @sudar!
