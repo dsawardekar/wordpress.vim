@@ -387,7 +387,7 @@ function! s:echo_with(args, style)
 endfunction
 
 " included: 'version.riml'
-let g:wordpress_vim_version = '0.2.1'
+let g:wordpress_vim_version = '0.2.2'
 function! s:WordPressPluginConstructor()
   let wordPressPluginObj = {}
   let wordPressPluginObj.start = function('<SNR>' . s:SID() . '_WordPressPlugin_start')

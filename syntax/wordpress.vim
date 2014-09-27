@@ -245,6 +245,7 @@ syn keyword wpFunction wp_oembed_add_provider contained
 syn keyword wpFunction wp_oembed_remove_provider contained
 syn keyword wpFunction wp_maybe_load_embeds contained
 syn keyword wpFunction wp_embed_handler_googlevideo contained
+syn keyword wpFunction wp_embed_handler_youtube contained
 syn keyword wpFunction wp_embed_handler_audio contained
 syn keyword wpFunction wp_embed_handler_video contained
 syn keyword wpFunction wp_convert_hr_to_bytes contained
@@ -261,6 +262,8 @@ syn keyword wpFunction get_post_gallery contained
 syn keyword wpFunction get_post_galleries_images contained
 syn keyword wpFunction get_post_gallery_images contained
 syn keyword wpFunction wp_maybe_generate_attachment_metadata contained
+syn keyword wpFunction attachment_url_to_postid contained
+syn keyword wpFunction wpview_media_sandbox_styles contained
 
 " formatting.php 
 syn keyword wpFunction wptexturize contained
@@ -319,7 +322,6 @@ syn keyword wpFunction esc_html contained
 syn keyword wpFunction esc_attr contained
 syn keyword wpFunction esc_textarea contained
 syn keyword wpFunction tag_escape contained
-syn keyword wpFunction like_escape contained
 syn keyword wpFunction wp_make_link_relative contained
 syn keyword wpFunction sanitize_option contained
 syn keyword wpFunction wp_parse_str contained
@@ -340,6 +342,7 @@ syn keyword wpFunction sanitize_trackback_urls contained
 syn keyword wpFunction wp_slash contained
 syn keyword wpFunction wp_unslash contained
 syn keyword wpFunction get_url_in_content contained
+syn keyword wpFunction wp_spaces_regexp contained
 
 " admin-bar.php 
 syn keyword wpFunction wp_admin_bar_render contained
@@ -424,6 +427,7 @@ syn keyword wpFunction get_comments_link contained
 syn keyword wpFunction comments_link contained
 syn keyword wpFunction get_comments_number contained
 syn keyword wpFunction comments_number contained
+syn keyword wpFunction get_comments_number_text contained
 syn keyword wpFunction get_comment_text contained
 syn keyword wpFunction comment_text contained
 syn keyword wpFunction get_comment_time contained
@@ -720,7 +724,6 @@ syn keyword wpFunction wp_list_authors contained
 syn keyword wpFunction is_multi_author contained
 
 " category.php 
-syn keyword wpFunction get_all_category_ids contained
 syn keyword wpFunction get_categories contained
 syn keyword wpFunction get_category contained
 syn keyword wpFunction get_category_by_path contained
@@ -759,6 +762,7 @@ syn keyword wpFunction translate_user_role contained
 syn keyword wpFunction get_available_languages contained
 syn keyword wpFunction wp_get_installed_translations contained
 syn keyword wpFunction wp_get_pomo_file_data contained
+syn keyword wpFunction wp_dropdown_languages contained
 
 " link-template.php 
 syn keyword wpFunction the_permalink contained
@@ -1061,6 +1065,11 @@ syn keyword wpFunction wp_get_user_contact_methods contained
 syn keyword wpFunction check_password_reset_key contained
 syn keyword wpFunction reset_password contained
 syn keyword wpFunction register_new_user contained
+syn keyword wpFunction wp_get_session_token contained
+syn keyword wpFunction wp_get_all_sessions contained
+syn keyword wpFunction wp_destroy_current_session contained
+syn keyword wpFunction wp_destroy_other_sessions contained
+syn keyword wpFunction wp_destroy_all_sessions contained
 
 " canonical.php 
 syn keyword wpFunction lowercase_octets contained
@@ -1292,7 +1301,6 @@ syn keyword wpFunction wp_widgets_add_menu contained
 syn keyword wpFunction wp_ob_end_flush_all contained
 syn keyword wpFunction dead_db contained
 syn keyword wpFunction absint contained
-syn keyword wpFunction url_is_accessable_via_ssl contained
 syn keyword wpFunction is_lighttpd_before_150 contained
 syn keyword wpFunction apache_mod_loaded contained
 syn keyword wpFunction iis7_supports_permalinks contained
@@ -1324,6 +1332,7 @@ syn keyword wpFunction wp_auth_check contained
 syn keyword wpFunction get_tag_regex contained
 syn keyword wpFunction mbstring_binary_safe_encoding contained
 syn keyword wpFunction reset_mbstring_encoding contained
+syn keyword wpFunction wp_validate_boolean contained
 
 " theme.php 
 syn keyword wpFunction wp_get_themes contained
@@ -1372,6 +1381,7 @@ syn keyword wpFunction get_background_color contained
 syn keyword wpFunction background_color contained
 syn keyword wpFunction add_editor_style contained
 syn keyword wpFunction remove_editor_styles contained
+syn keyword wpFunction get_editor_stylesheets contained
 syn keyword wpFunction add_theme_support contained
 syn keyword wpFunction get_theme_support contained
 syn keyword wpFunction remove_theme_support contained
@@ -1380,6 +1390,7 @@ syn keyword wpFunction require_if_theme_supports contained
 syn keyword wpFunction check_theme_switched contained
 syn keyword wpFunction wp_customize_url contained
 syn keyword wpFunction wp_customize_support_script contained
+syn keyword wpFunction is_customize_preview contained
 
 " vars.php 
 syn keyword wpFunction wp_is_mobile contained
@@ -1389,6 +1400,7 @@ syn keyword wpFunction mb_substr contained
 syn keyword wpFunction hash_hmac contained
 syn keyword wpFunction json_encode contained
 syn keyword wpFunction json_decode contained
+syn keyword wpFunction hash_equals contained
 
 " bookmark.php 
 syn keyword wpFunction get_bookmark contained
@@ -1598,6 +1610,9 @@ syn keyword wpClass Snoopy contained
 
 " class-wp-customize-widgets.php 
 syn keyword wpClass WP_Customize_Widgets contained
+
+" class-wp-customize-panel.php 
+syn keyword wpClass WP_Customize_Panel contained
 
 " rewrite.php 
 syn keyword wpClass WP_Rewrite contained
@@ -1897,6 +1912,10 @@ syn keyword wpClass Services_JSON_Error contained
 " class-wp-walker.php 
 syn keyword wpClass Walker contained
 
+" session.php 
+syn keyword wpClass WP_Session_Tokens contained
+syn keyword wpClass WP_User_Meta_Session_Tokens contained
+
 " SimplePie/XML/Declaration/Parser.php 
 syn keyword wpClass SimplePie_XML_Declaration_Parser contained
 
@@ -2046,6 +2065,7 @@ syn keyword wpDeprecated gzip_compression contained
 syn keyword wpDeprecated get_commentdata contained
 syn keyword wpDeprecated get_catname contained
 syn keyword wpDeprecated get_category_children contained
+syn keyword wpDeprecated get_all_category_ids contained
 syn keyword wpDeprecated get_the_author_description contained
 syn keyword wpDeprecated the_author_description contained
 syn keyword wpDeprecated get_the_author_login contained
@@ -2138,6 +2158,8 @@ syn keyword wpDeprecated wp_convert_bytes_to_hr contained
 syn keyword wpDeprecated rich_edit_exists contained
 syn keyword wpDeprecated default_topic_count_text contained
 syn keyword wpDeprecated format_to_post contained
+syn keyword wpDeprecated like_escape contained
+syn keyword wpDeprecated url_is_accessable_via_ssl contained
 
 " load.php 
 syn keyword wpDeprecated wp_clone contained

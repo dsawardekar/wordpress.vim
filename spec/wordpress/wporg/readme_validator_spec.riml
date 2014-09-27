@@ -23,13 +23,13 @@ class ReadmeValidatorSpec
     expect(self.validator.loaded()).to_be_true()
   end
 
-  defm it_can_validate_readme_with_errors
+  defm _it_can_validate_readme_with_errors
     result = self.validator.validate('spec/wordpress/readme_with_errors.txt')
     expect(result.status).to_equal('errors')
     expect(len(result.value)).to_be_gte(1)
   end
 
-  defm it_can_validate_readme_without_errors
+  defm _it_can_validate_readme_without_errors_n
     result = self.validator.validate('spec/wordpress/readme_valid.txt')
     expect(result.status).to_equal('success')
   end

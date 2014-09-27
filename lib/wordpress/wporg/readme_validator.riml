@@ -1,3 +1,5 @@
+riml_include 'msg'
+
 class ReadmeValidator
   def initialize
     self.api_loaded = false
