@@ -41,5 +41,10 @@ Add the following lines to your `~/.vimrc` file or better add them to `~/.vim/ft
 
 ```
 let g:syntastic_wordpress_checkers = ['phpcs']
-let g:syntastic_wordpress_phpcs_args = "--report=csv --standard=WordPress"
+let g:syntastic_wordpress_phpcs_standard = "WordPress-Core" "Default standard
+"Standard file name. This should be at the root of the project.
+"If not found then the default standard is used
+let g:syntastic_wordpress_phpcs_standard_file = "phpcs.xml"
 ```
+
+The above configuration will use `WordPress-Core` as the default standard. If it finds a `phpcs.xml` file in any of the parent directories of the file that is currently being edited, then the standards from the `phpcs.xml` will be used.
