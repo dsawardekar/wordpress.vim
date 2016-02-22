@@ -14,9 +14,10 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! SyntaxCheckers_wordpress_phpcs_GetLocList() dict
+	let args_before = ''
 	if exists("g:syntastic_wordpress_phpcs_args")
 		" if args is defined, then just use it
-		let args_before = ''
+		let args_before = '' . g:syntastic_wordpress_phpcs_args
 	endif
 
 	if exists("g:syntastic_wordpress_phpcs_standard")
