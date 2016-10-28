@@ -260,7 +260,7 @@ MIT License. Copyright © 2014 Darshan Sawardekar.
 [14]: https://github.com/tpope/vim-pathogen
 [15]: https://github.com/tyru/open-browser.vim
 [16]: http://wpseek.com/
-[17]: https://github.com/kien/ctrlp.vim
+[17]: https://github.com/ctrlpvim/ctrlp.vim
 [18]: https://raw.githubusercontent.com/dsawardekar/wordpress.vim/develop/examples/minimal_vimrc.vim
 [19]: https://github.com/dsawardekar/wordpress.vim/blob/develop/examples/minimal_vimrc.vim
 
